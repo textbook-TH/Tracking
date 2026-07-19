@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบติดตามสถานะการประเมินผล - Tectbook</title>
+    <!-- Tailwind CSS for high-fidelity styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Sarabun & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        kmitl: {
+                            orange: '#FF6600',
+                            navy: '#0C1E36',
+                            accent: '#F25F22',
+                            sky: '#0284C7',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Modern scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 99px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-700 antialiased min-h-screen p-3 sm:p-6 md:p-8">
+
+    <!-- Custom Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto bg-white rounded-3xl shadow-sm border border-slate-150 overflow-hidden">
+        
+        <!-- Blue Top Header Status Panel -->
+        <div class="bg-gradient-to-r from-[#0C3254] to-[#0A2540] text-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/20 flex items-center justify-center text-sky-400 text-xl shadow-inner">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-wide">ระบบติดตามสถานะการประเมินผล</h1>
+                        <span class="bg-sky-500/20 text-sky-300 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full border border-sky-500/30 font-medium">Real-time</span>
+                    </div>
+                    <p id="syncTimeMsg" class="text-slate-300 text-xs sm:text-sm flex items-center gap-1.5 mt-1 font-light">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse inline-block"></span>
+                        กำลังเชื่อมต่อ...
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Sync Control Options -->
+            <div class="flex items-center gap-4 self-end md:self-auto">
+                <label class="flex items-center gap-2 cursor-pointer text-xs sm:text-sm text-slate-300 select-none">
+                    <input type="checkbox" id="autoSyncToggle" class="sr-only peer">
+                    <div class="relative w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                    <span>ดึงข้อมูลอัตโนมัติ</span>
+                </label>
+                <button onclick="refreshData()" class="bg-sky-600 hover:bg-sky-700 active:scale-95 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-md">
+                    <i id="refreshIcon" class="fa-solid fa-arrows-rotate"></i> รีเฟรชตอนนี้
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Summary Rows -->
+        <div class="p-4 sm:p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50/50 border-b border-slate-100">
+            <!-- Discovered Programs -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                <div>
+                    <span class="text-xs sm:text-sm text-slate-400 font-medium block">โปรแกรมที่พบ</span>
+                    <span id="statDiscovered" class="text-2xl sm:text-3xl font-extrabold text-slate-800 block my-1">-</span>
+                    <span class="text-[11px] text-slate-400 flex items-center gap-1"><i class="fa-solid fa-database"></i> จากรายการค้นหาปัจจุบัน</span>
+                </div>
+                <div class="w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+            </div>
+            
+            <!-- Passed evaluation -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                <div>
+                    <span class="text-xs sm:text-sm text-slate-400 font-medium block">ผ่านการประเมิน</span>
+                    <span id="statPassed" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 block my-1">-</span>
+                    <span class="text-[11px] text-slate-400 flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-500"></i> ตรงตามเงื่อนไขประเมิน</span>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+
+            <!-- In Progress -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                <div>
+                    <span class="text-xs sm:text-sm text-slate-400 font-medium block">กำลังดำเนินการประเมิน</span>
+                    <span id="statInProgress" class="text-2xl sm:text-3xl font-extrabold text-amber-500 block my-1">-</span>
+                    <span class="text-[11px] text-slate-400 flex items-center gap-1"><i class="fa-solid fa-hourglass-half text-amber-500 animate-spin"></i> อยู่ระหว่างการตรวจสอบ</span>
+                </div>
+                <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-hourglass"></i>
+                </div>
+            </div>
+
+            <!-- Failed Evaluation -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                <div>
+                    <span class="text-xs sm:text-sm text-slate-400 font-medium block">ไม่ผ่านการประเมิน</span>
+                    <span id="statFailed" class="text-2xl sm:text-3xl font-extrabold text-rose-500 block my-1">-</span>
+                    <span class="text-[11px] text-slate-400 flex items-center gap-1"><i class="fa-solid fa-circle-xmark text-rose-500"></i> ไม่ตรงตามข้อกำหนดหลัก</span>
+                </div>
+                <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual & Interactive Filter Row -->
+        <div class="p-4 sm:p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 border-b border-slate-100">
+            
+            <!-- Circular Donut Chart Panel -->
+            <div class="lg:col-span-4 bg-white p-5 rounded-2xl border border-slate-150 flex flex-col items-center">
+                <h3 class="text-sm font-bold text-slate-800 self-start mb-4 flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-pie text-slate-400"></i> สัดส่วนสถานะการประเมิน
+                </h3>
+                
+                <!-- SVG Premium Donut Chart -->
+                <div class="relative w-44 h-44 flex items-center justify-center my-2">
+                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                        <!-- Background Circle -->
+                        <circle cx="50" cy="50" r="38" fill="transparent" stroke="#f1f5f9" stroke-width="12"></circle>
+                        <!-- Dynamic Slices (Updated dynamically by JS with specific start-point offsets) -->
+                        <circle id="slicePass" cx="50" cy="50" r="38" fill="transparent" stroke="#10B981" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76" transform="rotate(-90 50 50)" style="transition: stroke-dashoffset 0.5s ease;"></circle>
+                        <circle id="sliceProgress" cx="50" cy="50" r="38" fill="transparent" stroke="#F59E0B" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76" style="transition: stroke-dashoffset 0.5s ease, transform 0.5s ease;"></circle>
+                        <circle id="sliceFail" cx="50" cy="50" r="38" fill="transparent" stroke="#EF4444" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76" style="transition: stroke-dashoffset 0.5s ease, transform 0.5s ease;"></circle>
+                    </svg>
+                    <!-- Center Details Text -->
+                    <div class="absolute text-center">
+                        <span id="chartTotalCount" class="text-2xl sm:text-3xl font-extrabold text-slate-800">-</span>
+                        <span class="text-[10px] text-slate-400 block font-medium">รายการรวม</span>
+                    </div>
+                </div>
+
+                <!-- Custom Legend indicators -->
+                <div class="grid grid-cols-3 gap-2 w-full mt-5 text-center text-xs">
+                    <div class="flex flex-col items-center">
+                        <div class="flex items-center gap-1.5 font-sans">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                            <span class="font-semibold text-slate-700" id="legendPassVal">ผ่าน (-)</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="flex items-center gap-1.5 font-sans">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                            <span class="font-semibold text-slate-700" id="legendProgVal">กำลังทำ (-)</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="flex items-center gap-1.5 font-sans">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+                            <span class="font-semibold text-slate-700" id="legendFailVal">ไม่ผ่าน (-)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Filter Panel -->
+            <div class="lg:col-span-8 flex flex-col justify-between">
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                        <i class="fa-solid fa-magnifying-glass text-slate-400"></i> ค้นหาและคัดกรองข้อมูลสถานะการประเมินแบบระบุรายละเอียด
+                    </h3>
+
+                    <!-- Controls Grid Layout -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Search Box -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">พิมพ์ค้นหา</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-sm">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </span>
+                                <input type="text" id="searchInput" oninput="filterData()" 
+                                    class="w-full pl-10 pr-4 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-xs sm:text-sm disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                                    placeholder="กำลังดึงข้อมูล..." disabled>
+                            </div>
+                        </div>
+
+                        <!-- Year Filter -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">ปีการศึกษา</label>
+                            <select id="yearSelect" onchange="filterData()" disabled
+                                class="w-full px-3.5 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-xs sm:text-sm text-slate-600 disabled:opacity-60 disabled:cursor-not-allowed transition cursor-pointer">
+                                <option value="all">กำลังดึงข้อมูลปีการศึกษา...</option>
+                            </select>
+                        </div>
+
+                        <!-- Department filter -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">ภาควิชาวิศวกรรม</label>
+                            <select id="deptSelect" onchange="filterData()" disabled
+                                class="w-full px-3.5 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-xs sm:text-sm text-slate-600 disabled:opacity-60 disabled:cursor-not-allowed transition cursor-pointer">
+                                <option value="all">กำลังดึงข้อมูลภาควิชาวิศวกรรม...</option>
+                            </select>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">สถานะการประเมิน</label>
+                            <select id="statusSelect" onchange="filterData()" disabled
+                                class="w-full px-3.5 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-xs sm:text-sm text-slate-600 disabled:opacity-60 disabled:cursor-not-allowed transition cursor-pointer">
+                                <option value="all">สถานะทั้งหมด</option>
+                                <option value="ผ่านการประเมิน">ผ่านการประเมิน</option>
+                                <option value="กำลังดำเนินการประเมิน">กำลังดำเนินการประเมิน</option>
+                                <option value="ไม่ผ่านการประเมิน">ไม่ผ่านการประเมิน</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clean filters button -->
+                <div class="mt-4 flex justify-end">
+                    <button onclick="resetFilters()" class="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1.5 py-2 px-3 hover:bg-slate-50 rounded-lg border border-slate-100 transition shadow-inner">
+                        <i class="fa-solid fa-trash-can"></i> ล้างการค้นหาทั้งหมด
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluation List Grid Table -->
+        <div class="p-4 sm:p-6 md:p-8 bg-white">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base">ตารางสถานะการประเมิน</h3>
+                    <!-- Subheadline with improved contrast and visibility -->
+                    <p class="text-[11px] text-slate-600 font-semibold mt-0.5">แสดงรายการประเมินผลทั้งหมดเรียงตามลำดับข้อมูล</p>
+                </div>
+                <div class="text-xs text-slate-500 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 shadow-inner">
+                    พบข้อมูล <span id="visibleCount" class="font-extrabold text-sky-600">-</span> จาก <span id="totalCount" class="font-bold">-</span> รายการ
+                </div>
+            </div>
+
+            <!-- Table Header Bar -->
+            <div class="hidden sm:grid grid-cols-12 gap-3 bg-[#f8fafc] px-4 py-3 rounded-xl border border-slate-100 text-sm font-extrabold text-slate-800 mb-3">
+                <div class="col-span-1 text-center">ปี</div>
+                <div class="col-span-3 text-center">สถานะการประเมิน</div>
+                <div class="col-span-8 pl-4">รายละเอียดการประเมิน</div>
+            </div>
+
+            <!-- Rows Container -->
+            <div id="statusListRows" class="space-y-3 min-h-[300px]">
+                <!-- Skeletons loading state -->
+                <div class="animate-pulse space-y-3">
+                    <div class="h-24 bg-slate-100 rounded-2xl"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl"></div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="tableEmptyState" class="hidden py-16 text-center">
+                <i class="fa-solid fa-folder-open text-slate-300 text-5xl mb-3"></i>
+                <h4 id="emptyStateTitle" class="font-bold text-slate-700 text-sm">ไม่พบข้อมูลที่ระบุ</h4>
+                <p id="emptyStateSub" class="text-xs text-slate-400 mt-1">กรุณาลองปรับเปลี่ยนคำค้นหา หรือ ตัวเลือกฟิลเตอร์ใหม่อีกครั้ง</p>
+            </div>
+
+            <!-- Pagination Bar -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-5 border-t border-slate-100">
+                <span id="paginationInfo" class="text-xs text-slate-400 font-medium">แสดงผล - จากทั้งหมด - หน้า</span>
+                <div id="paginationButtons" class="flex items-center gap-1.5 flex-wrap justify-center">
+                    <!-- Dynamic Buttons -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Info Bar with Soft Light slate typography -->
+        <div class="bg-slate-900 p-6 text-center text-xs sm:text-sm border-t border-slate-800 tracking-wide">
+            <p class="text-slate-400 font-semibold">© 2026 Dashboard แสดงสถานะการประเมินแบบ Real-time</p>
+            <p class="text-slate-500 mt-1.5 font-medium">งานเทคโนโลยีการศึกษา คณะวิศวกรรมศาสตร์ สจล.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Global variables and Sheets Config matching your exact Sheet ID
+        const SPREADSHEET_ID = '15LHSo60tqoURo6PfJcHJrv_6e-bQvtd6AZJzjmxFWec';
+        const SHEET_GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
+        
+        let loadedDatabase = [];
+        let activeFilteredData = [];
+        const itemsPerPage = 8; // Showing 8 items per page
+        let currentPage = 1;
+        let autoSyncTimer = null;
+
+        // Offline / Failed Fetch Backup Database (with safe pre-structured fallback items)
+        const backupDatabase = [
+            { year: "2569", status: "รับเอกสารการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "ดอน อิศรากร", title: "การเก็บเกี่ยวพลังงานเชิงกล", dept: "การวัดและควบคุม", isbn: "-", previewId: "" },
+            { year: "2569", status: "ส่งเอกสารผู้ทรง รอบ 1", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "เปี่ยมภูมิ สฤกพฤกษ์", title: "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", dept: "ไฟฟ้า", isbn: "-", previewId: "" },
+            { year: "2569", status: "ส่งเอกสารผู้ทรง รอบ 1", position: "รองศาสตราจารย์ ดร.", author: "วิบูลย์ ปิยวัฒนเมธา", title: "กระบวนการผลิตและการประยุกต์ใช้ระบบเครื่องกลไฟฟ้าจุลภาค", dept: "ชีวการแพทย์", isbn: "-", previewId: "" },
+            { year: "2569", status: "ส่งเอกสารผู้ทรง รอบ 1", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "อรรถพล ป้อมสถิตย์", title: "กรอบแนวคิดการสนเทศข้อมูลสำหรับศูนย์ปฏิบัติความมั่นคงไซเบอร์", dept: "ไอโอทีและสารสนเทศ", isbn: "-", previewId: "" },
+            { year: "2569", status: "ไม่ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "สมชาย รักดี", title: "การพัฒนาต้นแบบระบบโครงข่ายเซนเซอร์ไร้สายเพื่อการเกษตรกรรมแม่นยำสูง", dept: "คอมพิวเตอร์", isbn: "-", previewId: "" },
+            { year: "2569", status: "ผ่านการประเมิน", position: "Assistant Professor", author: "Weon Keun Song", title: "DEEP LEARNING and APPLICATIONS in INTELLIGENT CONTROL", dept: "หุ่นยนต์และปัญญาประดิษฐ์", isbn: "978-616-338-228-3", previewId: "1Jxs6t89vt5TBrsNoo1g9aNMAXjsOtvf6" },
+            { year: "2569", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "กิตติวัฒน์ สิริเกษมสุข", title: "การศึกษาการทำงานอุตสาหกรรม", dept: "อุตสาหการ", isbn: "978-616-338-143-9", previewId: "1f9eevSCC0_PgpwBLeAUeeWyxT8-reWIx" },
+            { year: "2569", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "ปัญญา ขันธ์สุวรรณ", title: "การวิเคราะห์ความแข็งแรงและอายุความล้าด้วยระเบียบวิธีไฟไนต์เอลิเมนต์", dept: "เครื่องกล", isbn: "978-616-338-180-4", previewId: "1yoOq1OYeU3Jfs7ZuSuiJ3yg4kapzxhjX" },
+            { year: "2568", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "นิรุธ จิรสุวรรณกุล", title: "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", dept: "ไฟฟ้า", isbn: "978-616-338-219-1", previewId: "12cPWswyXNrTF71nfu7hwvQ1ONOdZS2mX" },
+            { year: "2567", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์", author: "ศิริพันธ์ มุรธาธัญลักษณ์", title: "หลักการและการคำนวณพื้นฐานทางวิศวกรรมเคมี", dept: "เคมี", isbn: "978-616-338-199-6", previewId: "1aUwN1KdvS5_o1Oq3l2dzgZIuYyOvieB_" },
+            { year: "2567", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "กฤษณ์ วงรุจิระ", title: "เน็ตเวิร์กโปรแกรมมิ่ง", dept: "โทรคมนาคม", isbn: "978-616-338-193-4", previewId: "1kwGLsP-lykLe5XSuwOb1kobHIbw0FVQW" },
+            { year: "2567", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "สมชาติ จิริวิภากร", title: "จักรกลพยากรณ์ในระบบไฟฟ้ากำลัง", dept: "ไฟฟ้า", isbn: "978-616-593-369-8", previewId: "1QHGPbCLKSWn1cI-axoSqgfZBXwXpOKzz" },
+            { year: "2567", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "พิพัฒน์ พรหมมี", title: "วงจรรวมแบบแอนะล็อกสำหรับการสื่อสาร", dept: "โทรคมนาคม", isbn: "978-616-604-351-8", previewId: "12Sh4nM1zw7uclsaHxQMRbHWkpwxTTUpj" },
+            { year: "2567", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "จักรพงษ์ พงษ์เพ็ง", title: "การจัดการโครงการ: หลักการและแนวทางปฏิบัติ", dept: "โยธา", isbn: "978-616-338-187-3", previewId: "1CT1zfbjGLys0M_3sS0hGNoIXppD4judH" },
+            { year: "2567", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "นรเศรษฐ พัฒนเดช", title: "วัสดุวิศวกรรมไฟฟ้า เล่ม 1 ฉนวนและวัสดุฉนวนไฟฟ้า", dept: "ไฟฟ้า", isbn: "978-616-338-028-9", previewId: "1mlVcah1uG3AJfO7eolwJCkwyp_8ouJOd" },
+            { year: "2567", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "นรเศรษฐ พัฒนเดช", title: "วัสดุวิศวกรรมไฟฟ้า เล่ม 2: ตัวนำ แม่เหล็ก สารกึ่งตัวนำ ตัวนำยิ่งยวด วัสดุนาโน", dept: "ไฟฟ้า", isbn: "978-616-338-029-6", previewId: "1kzMnhfdbAZ9oj7EnPY0mP-T8pgN3_Ncu" },
+            { year: "2567", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "รัฐชัย ชาวอุทัย", title: "การวิเคราะห์ข้อมูล", dept: "คอมพิวเตอร์", isbn: "978-616-338-169-9", previewId: "1Dp0Xe2dqMvBpp8Htl_Vtq8kBNHdc5QhS" },
+            { year: "2566", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "มนัสชนก จงประสิทธิ์พร", title: "วิศวกรรมความปลอดภัยทางอุตสาหกรรม", dept: "อุตสาหการ", isbn: "978-616-338-165-1", previewId: "19GfrXFxSXKJnPw67TUDukAhRv7t2Q__J" },
+            { year: "2566", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "วลัยรัตน์ จันทรอัมพร", title: "พลศาสตร์ของกระบวนการและการควบคุมแบบป้อนกลับ", dept: "อุตสาหการ", isbn: "978-616-338-177-4", previewId: "1Pt4zpFh3eh4w7Jlub_Jm5eQllgvVJ3Hh" },
+            { year: "2566", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "อมตะ อนันต์พินิจวัฒนา", title: "วิธีเชิงตัวเลขประยุกต์สำหรับวิศวกรรมเคมีด้วยโปรแกรมภาษา Julia", dept: "เคมี", isbn: "978-616-338-170-5", previewId: "1RXerq86FBtCwQ5GzBy9BeVmZpEkLW9om" },
+            { year: "2566", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "ศลิษา ไชยพุทธ", title: "เทคนิคการปรับปรุงคุณภาพชั้นดิน (ฉบับปรับปรุง)", dept: "โยธา", isbn: "978-616-338-172-9", previewId: "16o1Oz8oi6EJYZYH6YQRf2BECBhWks0KS" },
+            { year: "2566", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "พรสวรรค์ อัศวแสงรัตน์", title: "เทคโนโลยีเมมเบรน", dept: "เคมี", isbn: "978-616-338-179-8", previewId: "1SDqJyyRJg7dcOyzfqWDRQQvih-n2E9k1" },
+            { year: "2566", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "กฤดากร กล่อมการ", title: "วิทยาการรหัสลับและเงินตราเข้ารหัสลับ", dept: "คอมพิวเตอร์", isbn: "978-616-338-178-1", previewId: "1UEf7U0cb8xCEt0vKwtX7GM90Ve_BrHk6" },
+            { year: "2566", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "ธีรยศ เวียงทอง", title: "ระบบฝังตัวและการออกแบบร่วม", dept: "ไฟฟ้า", isbn: "978-616-338-171-2", previewId: "1IM2w77jTwcagetfzSzeEeKDJcsi5e_4W" },
+            { year: "2566", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "จำรัส พิทักษ์ศฤงคาร", title: "การสร้างแบบจำลองคนเดินเท้า", dept: "โยธา", isbn: "978-616-338-174-3", previewId: "1CtXx5iRdHeCgjr8ODcnJAc5DIgTmXnuw" },
+            { year: "2565", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "ณัฐวุฒิ เดไปวา", title: "ระบบควบคุมอัตโนมัติ", dept: "เครื่องกล", isbn: "978-616-338-163-7", previewId: "1LWDzfjde4DcnWRCJsMA4d8v64_Jo_CwT" },
+            { year: "2565", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "สุวัฒน์ ถิรเศรษฐ์", title: "การวิเคราะห์โครงสร้าง", dept: "โยธา", isbn: "978-616-7367-07-1", previewId: "12eiK16MemNafkoHu1F28lkif0MfeqU2N" },
+            { year: "2565", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "สุวัฒน์ ถิรเศรษฐ์", title: "ทฤษฎีโครงสร้าง", dept: "โยธา", isbn: "978-616-7367-08-8", previewId: "1Wn9XLNgKbkH_bu-QSNA62XowbS9VvnxB" },
+            { year: "2565", status: "ผ่านการประเมิน", position: "ผู้ช่วยศาสตราจารย์ ดร.", author: "วรรณา ดาบวิจิตร", title: "ปัญญาประดิษฐ์เชิงปฏิบัติการ", dept: "คอมพิวเตอร์", isbn: "978-616-338-000-0", previewId: "" },
+            { year: "2565", status: "ผ่านการประเมิน", position: "รองศาสตราจารย์ ดร.", author: "มานะ มีธรรม", title: "ระบบสื่อสารข้อมูลเครือข่ายความเร็วสูง", dept: "โทรคมนาคม", isbn: "978-616-338-111-1", previewId: "" }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+
+        // App Initializer
+        async function initApp() {
+            showToast("กำลังดึงข้อมูลเรียลไทม์...", "info");
+            await loadSheetsData();
+            setupAutoSync();
+        }
+
+        // Helper to convert academic positions to standard official abbreviations
+        function abbreviatePosition(pos) {
+            if (!pos) return "";
+            let clean = pos.trim();
+            
+            // Thai academic positions mapping
+            clean = clean.replace(/รองศาสตราจารย์\s*ดร\./g, "รศ.ดร.");
+            clean = clean.replace(/รองศาสตราจารย์/g, "รศ.");
+            clean = clean.replace(/ผู้ช่วยศาสตราจารย์\s*ดร\./g, "ผศ.ดร.");
+            clean = clean.replace(/ผู้ช่วยศาสตราจารย์/g, "ผศ.");
+            clean = clean.replace(/ศาสตราจารย์\s*ดร\./g, "ศ.ดร.");
+            clean = clean.replace(/ศาสตราจารย์/g, "ศ.");
+            clean = clean.replace(/อาจารย์\s*ดร\./g, "อ.ดร.");
+            clean = clean.replace(/อาจารย์/g, "อ.");
+
+            // English academic positions mapping (abbreviated in English strictly)
+            clean = clean.replace(/Assistant\s+Professor\s+Dr\./gi, "Asst. Prof. Dr.");
+            clean = clean.replace(/Assistant\s+Professor/gi, "Asst. Prof.");
+            clean = clean.replace(/Associate\s+Professor\s+Dr\./gi, "Assoc. Prof. Dr.");
+            clean = clean.replace(/Associate\s+Professor/gi, "Assoc. Prof.");
+            clean = clean.replace(/Professor\s+Dr\./gi, "Prof. Dr.");
+            clean = clean.replace(/Professor/gi, "Prof.");
+
+            return clean;
+        }
+
+        async function loadSheetsData() {
+            setLoadingState(true);
+            try {
+                const response = await fetch(SHEET_GVIZ_URL);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const rawText = await response.text();
+                const startIdx = rawText.indexOf('{');
+                const endIdx = rawText.lastIndexOf('}') + 1;
+                const jsonStr = rawText.substring(startIdx, endIdx);
+                const payload = JSON.parse(jsonStr);
+
+                if (payload.table && payload.table.rows) {
+                    const parsed = [];
+                    const rows = payload.table.rows;
+                    const cols = payload.table.cols || [];
+
+                    // Dynamic Column Index Mapping
+                    let colMap = { year: 0, status: 1, position: 2, author: 3, title: 4, dept: 5, isbn: 6, driveLink: 7 };
+                    
+                    const getCellStr = (rowObj, idx) => {
+                        if (!rowObj.c || !rowObj.c[idx]) return "";
+                        const cellObj = rowObj.c[idx];
+                        if (cellObj.f !== undefined) return String(cellObj.f);
+                        if (cellObj.v !== null && cellObj.v !== undefined) return String(cellObj.v);
+                        return "";
+                    };
+
+                    let headersMapped = false;
+                    cols.forEach((col, idx) => {
+                        const label = col.label ? col.label.trim() : "";
+                        if (label) {
+                            headersMapped = true;
+                            if (label.includes("ปี")) colMap.year = idx;
+                            else if (label.includes("สถานะ")) colMap.status = idx;
+                            else if (label.includes("ตำแหน่ง") || label.includes("Rank")) colMap.position = idx;
+                            else if (label.includes("ผู้เขียน") || label.includes("ผู้รับการประเมิน") || label.includes("ชื่อ-สกุล") || (label.includes("ชื่อ") && !label.includes("หนังสือ") && !label.includes("ตำรา") && !label.includes("ผลงาน"))) colMap.author = idx;
+                            else if (label.includes("หนังสือ") || label.includes("ตำรา") || label.includes("ผลงาน")) colMap.title = idx;
+                            else if (label.includes("ภาควิชา")) colMap.dept = idx;
+                            else if (label.includes("ISBN")) colMap.isbn = idx;
+                            else if (label.includes("ลิงก์") || label.includes("Link") || label.includes("Drive")) colMap.driveLink = idx;
+                        }
+                    });
+
+                    let startIndex = 0;
+                    if (rows.length > 0 && !headersMapped) {
+                        const firstRowValues = [];
+                        for (let i = 0; i < 10; i++) {
+                            firstRowValues.push(getCellStr(rows[0], i).trim());
+                        }
+                        const isHeader = firstRowValues.some(v => v.includes("ปี") || v.includes("สถานะ") || v.includes("ชื่อ") || v.includes("ผลงาน") || v.includes("ตำแหน่ง"));
+                        if (isHeader) {
+                            startIndex = 1;
+                            firstRowValues.forEach((val, idx) => {
+                                if (val.includes("ปี")) colMap.year = idx;
+                                else if (val.includes("สถานะ")) colMap.status = idx;
+                                else if (val.includes("ตำแหน่ง")) colMap.position = idx;
+                                else if (val.includes("ผู้เขียน") || val.includes("ผู้รับการประเมิน") || val.includes("ชื่อ-สกุล") || (val.includes("ชื่อ") && !val.includes("หนังสือ") && !val.includes("ตำรา") && !val.includes("ผลงาน"))) colMap.author = idx;
+                                else if (val.includes("หนังสือ") || val.includes("ตำรา") || val.includes("ผลงาน")) colMap.title = idx;
+                                else if (val.includes("ภาควิชา")) colMap.dept = idx;
+                                else if (val.includes("ISBN")) colMap.isbn = idx;
+                                else if (val.includes("ลิงก์") || val.includes("Link") || val.includes("Drive")) colMap.driveLink = idx;
+                            });
+                        }
+                    }
+
+                    // Parse the rows
+                    for (let i = startIndex; i < rows.length; i++) {
+                        const row = rows[i];
+                        const year = getCellStr(row, colMap.year).trim();
+                        const status = getCellStr(row, colMap.status).trim();
+                        const position = getCellStr(row, colMap.position).trim();
+                        const author = getCellStr(row, colMap.author).trim();
+                        const title = getCellStr(row, colMap.title).trim();
+                        const dept = getCellStr(row, colMap.dept).trim();
+                        const isbn = getCellStr(row, colMap.isbn).trim() || "-";
+                        const rawLink = getCellStr(row, colMap.driveLink).trim();
+
+                        if (!title && !author && !position && !status) {
+                            continue;
+                        }
+
+                        let previewId = "";
+                        if (rawLink) {
+                            const match = rawLink.match(/\/d\/([a-zA-Z0-9-_]+)/);
+                            previewId = match ? match[1] : rawLink;
+                        }
+
+                        parsed.push({ year, status, position, author, title, dept, isbn, previewId });
+                    }
+
+                    if (parsed.length > 0) {
+                        loadedDatabase = parsed.reverse();
+                        updateStatusIndicators(true);
+                        showToast(`เชื่อมต่อเสร็จสมบูรณ์! ซิงก์ข้อมูลแล้ว ${parsed.length} รายการ`, "success");
+                    } else {
+                        throw new Error("No items parsed");
+                    }
+                } else {
+                    throw new Error("Table structure invalid in Sheet response");
+                }
+            } catch (err) {
+                console.warn("Failed fetching from sheets, using backup database...", err);
+                loadedDatabase = [...backupDatabase]; 
+                updateStatusIndicators(false);
+                showToast("ใช้ข้อมูลจำลองตามข้อกำหนดเนื่องจากเชื่อมต่อชีตไม่ได้", "warning");
+            } finally {
+                setLoadingState(false);
+                initFilterOptions();
+                filterData();
+            }
+        }
+
+        function setLoadingState(loading) {
+            const inputs = ['searchInput', 'yearSelect', 'deptSelect', 'statusSelect'];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.disabled = loading;
+                    if (loading) {
+                        el.classList.add('animate-pulse');
+                    } else {
+                        el.classList.remove('animate-pulse');
+                    }
+                }
+            });
+
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.placeholder = loading ? "กำลังดึงข้อมูลล่าสุด..." : "ค้นหาผู้เขียน, ชื่อหนังสือ, ISBN...";
+            }
+        }
+
+        function updateStatusIndicators(isSuccess) {
+            const syncTimeMsg = document.getElementById('syncTimeMsg');
+            const dateStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            if (isSuccess) {
+                if (syncTimeMsg) {
+                    syncTimeMsg.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block"></span> เชื่อมต่อ Google Sheets เรียบร้อยเมื่อเวลา ${dateStr}`;
+                    syncTimeMsg.className = "text-emerald-400 text-xs sm:text-sm flex items-center gap-1.5 mt-1 font-light";
+                }
+            } else {
+                if (syncTimeMsg) {
+                    syncTimeMsg.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> แสดงข้อมูลจากระบบจำลอง (Passed: 25, Progress: 4, Failed: 1)`;
+                    syncTimeMsg.className = "text-amber-400 text-xs sm:text-sm flex items-center gap-1.5 mt-1 font-light";
+                }
+            }
+        }
+
+        // Setup Auto Sync Interval if toggled (starts un-checked / OFF)
+        function setupAutoSync() {
+            const toggle = document.getElementById('autoSyncToggle');
+            if (!toggle) return;
+            
+            toggle.addEventListener('change', () => {
+                if (toggle.checked) {
+                    showToast("เปิดระบบดึงข้อมูลอัตโนมัติ (ทุก 30 วินาที)", "info");
+                    autoSyncTimer = setInterval(async () => {
+                        await loadSheetsData();
+                    }, 30000);
+                } else {
+                    showToast("ปิดระบบดึงข้อมูลอัตโนมัติ", "warning");
+                    if (autoSyncTimer) {
+                        clearInterval(autoSyncTimer);
+                        autoSyncTimer = null;
+                    }
+                }
+            });
+
+            if (toggle.checked) {
+                autoSyncTimer = setInterval(async () => {
+                    await loadSheetsData();
+                }, 30000);
+            }
+        }
+
+        // Classify Status with fuzzy matching to support robust calculations
+        function classifyStatus(rawStatus) {
+            if (!rawStatus) return "กำลังดำเนินการประเมิน";
+            const s = rawStatus.trim();
+            if (s.includes("ไม่ผ่าน")) {
+                return "ไม่ผ่านการประเมิน";
+            }
+            if (s.includes("ผ่าน")) {
+                return "ผ่านการประเมิน";
+            }
+            return "กำลังดำเนินการประเมิน";
+        }
+
+        function initFilterOptions() {
+            const yearSelect = document.getElementById('yearSelect');
+            const deptSelect = document.getElementById('deptSelect');
+            const statusSelect = document.getElementById('statusSelect');
+
+            const currentYear = yearSelect.value || 'all';
+            const currentDept = deptSelect.value || 'all';
+            const currentStatus = statusSelect.value || 'all';
+
+            const years = new Set();
+            const depts = new Set();
+
+            loadedDatabase.forEach(item => {
+                if (item.year) years.add(item.year);
+                if (item.dept) depts.add(item.dept);
+            });
+
+            // Set Year Options
+            yearSelect.innerHTML = '<option value="all">ปีการศึกษาทั้งหมด</option>';
+            Array.from(years).sort((a,b) => b.localeCompare(a)).forEach(y => {
+                yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+            });
+
+            // Set Department Options
+            deptSelect.innerHTML = '<option value="all">ภาควิชาทั้งหมด</option>';
+            Array.from(depts).sort().forEach(d => {
+                deptSelect.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+
+            // Re-apply values
+            yearSelect.value = years.has(currentYear) ? currentYear : 'all';
+            deptSelect.value = depts.has(currentDept) ? currentDept : 'all';
+            statusSelect.value = currentStatus;
+        }
+
+        // Reset Filter Dropdowns
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('yearSelect').value = 'all';
+            document.getElementById('deptSelect').value = 'all';
+            document.getElementById('statusSelect').value = 'all';
+            filterData();
+            showToast("ล้างตัวกรองทั้งหมดแล้ว", "success");
+        }
+
+        function filterData() {
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const year = document.getElementById('yearSelect').value;
+            const dept = document.getElementById('deptSelect').value;
+            const status = document.getElementById('statusSelect').value;
+
+            const filtered = loadedDatabase.filter(item => {
+                const posAbbr = item.position ? abbreviatePosition(item.position).toLowerCase() : "";
+                const matchesSearch = 
+                    (item.title ? item.title.toLowerCase().includes(search) : false) ||
+                    (item.position ? item.position.toLowerCase().includes(search) : false) ||
+                    posAbbr.includes(search) || 
+                    (item.author ? item.author.toLowerCase().includes(search) : false) ||
+                    (item.isbn ? item.isbn.replace(/-/g, '').includes(search.replace(/-/g, '')) : false);
+                
+                const matchesYear = (year === 'all' || item.year === year);
+                const matchesDept = (dept === 'all' || item.dept === dept);
+                
+                let matchesStatus = true;
+                if (status !== 'all') {
+                    matchesStatus = (classifyStatus(item.status) === status);
+                }
+
+                return matchesSearch && matchesYear && matchesDept && matchesStatus;
+            });
+
+            activeFilteredData = filtered;
+            currentPage = 1;
+            
+            updateStatsCards(filtered);
+            drawDonut(filtered);
+            renderList(filtered);
+        }
+
+        // Calculate and render statistics summary cards
+        function updateStatsCards(data) {
+            const total = data.length;
+            const pass = data.filter(i => classifyStatus(i.status) === 'ผ่านการประเมิน').length;
+            const fail = data.filter(i => classifyStatus(i.status) === 'ไม่ผ่านการประเมิน').length;
+            const progress = data.filter(i => classifyStatus(i.status) === 'กำลังดำเนินการประเมิน').length;
+
+            document.getElementById('statDiscovered').textContent = total;
+            document.getElementById('statPassed').textContent = pass;
+            document.getElementById('statInProgress').textContent = progress;
+            document.getElementById('statFailed').textContent = fail;
+
+            document.getElementById('visibleCount').textContent = total;
+            document.getElementById('totalCount').textContent = loadedDatabase.length;
+        }
+
+        // Draw SVG Donut Chart with proper SVG attribute adjustments for flawless transform-origins
+        function drawDonut(data) {
+            const pass = data.filter(i => classifyStatus(i.status) === 'ผ่านการประเมิน').length;
+            const fail = data.filter(i => classifyStatus(i.status) === 'ไม่ผ่านการประเมิน').length;
+            const progress = data.filter(i => classifyStatus(i.status) === 'กำลังดำเนินการประเมิน').length;
+            const total = pass + progress + fail;
+
+            document.getElementById('chartTotalCount').textContent = total;
+            document.getElementById('legendPassVal').textContent = `ผ่าน (${pass})`;
+            document.getElementById('legendProgVal').textContent = `กำลังทำ (${progress})`;
+            document.getElementById('legendFailVal').textContent = `ไม่ผ่าน (${fail})`;
+
+            const passCircumference = 2 * Math.PI * 38; // ~238.76
+
+            const slicePass = document.getElementById('slicePass');
+            const sliceProgress = document.getElementById('sliceProgress');
+            const sliceFail = document.getElementById('sliceFail');
+
+            if (total === 0) {
+                slicePass.style.strokeDashoffset = passCircumference;
+                sliceProgress.style.strokeDashoffset = passCircumference;
+                sliceFail.style.strokeDashoffset = passCircumference;
+                return;
+            }
+
+            const passPercent = pass / total;
+            const progressPercent = progress / total;
+            const failPercent = fail / total;
+
+            const passOffset = passCircumference - (passCircumference * passPercent);
+            const progressOffset = passCircumference - (passCircumference * progressPercent);
+            const failOffset = passCircumference - (passCircumference * failPercent);
+
+            slicePass.style.strokeDashoffset = passOffset;
+            
+            sliceProgress.style.strokeDashoffset = progressOffset;
+            sliceProgress.setAttribute('transform', `rotate(${(passPercent * 360) - 90} 50 50)`);
+
+            sliceFail.style.strokeDashoffset = failOffset;
+            sliceFail.setAttribute('transform', `rotate(${((passPercent + progressPercent) * 360) - 90} 50 50)`);
+        }
+
+        function renderList(data) {
+            const container = document.getElementById('statusListRows');
+            const emptyState = document.getElementById('tableEmptyState');
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                document.getElementById('paginationButtons').innerHTML = '';
+                document.getElementById('paginationInfo').textContent = 'แสดงผล 0 จากทั้งหมด 0 หน้า';
+
+                // Dynamically construct and apply custom empty state warning texts based on user actions
+                const searchVal = document.getElementById('searchInput').value.trim();
+                const statusVal = document.getElementById('statusSelect').value;
+                const emptyTitleEl = document.getElementById('emptyStateTitle');
+                const emptySubEl = document.getElementById('emptyStateSub');
+
+                if (statusVal !== 'all') {
+                    emptyTitleEl.textContent = `ไม่พบข้อมูลคนที่ "${statusVal}"`;
+                } else if (searchVal !== '') {
+                    emptyTitleEl.textContent = `ไม่พบข้อมูลคนที่ "${searchVal}"`;
+                } else {
+                    emptyTitleEl.textContent = 'ไม่พบข้อมูลที่ระบุ';
+                }
+
+                emptySubEl.textContent = 'กรุณาลองปรับเปลี่ยนคำค้นหาเป็นหัวข้ออื่น';
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedData = data.slice(startIndex, endIndex);
+
+            paginatedData.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "grid grid-cols-12 gap-3 p-4 bg-white border border-slate-150 rounded-2xl hover:bg-slate-50/60 transition duration-150 items-center text-center sm:text-left shadow-sm";
+
+                // Year
+                const yearCol = document.createElement('div');
+                yearCol.className = "col-span-12 sm:col-span-1 text-center font-bold text-slate-500 text-sm sm:text-base";
+                yearCol.textContent = item.year;
+
+                // Status Badger
+                const statusCol = document.createElement('div');
+                statusCol.className = "col-span-12 sm:col-span-3 flex justify-center items-center";
+
+                let badgeHTML = '';
+                const classified = classifyStatus(item.status);
+                if (classified === 'ผ่านการประเมิน') {
+                    badgeHTML = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 rounded-full border border-emerald-200 shadow-sm w-full justify-center sm:w-auto">
+                            <i class="fa-solid fa-circle-check text-emerald-500 text-[10px]"></i> ผ่านการประเมิน
+                        </span>`;
+                } else if (classified === 'ไม่ผ่านการประเมิน') {
+                    badgeHTML = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-700 bg-rose-50 rounded-full border border-rose-200 shadow-sm w-full justify-center sm:w-auto">
+                            <i class="fa-solid fa-circle-xmark text-rose-500 text-[10px]"></i> ไม่ผ่านการประเมิน
+                        </span>`;
+                } else {
+                    badgeHTML = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 rounded-full border border-amber-200/60 animate-pulse shadow-sm w-full justify-center sm:w-auto">
+                            <i class="fa-solid fa-hourglass text-amber-500 animate-spin text-[10px]"></i> ${item.status || "กำลังดำเนินการ"}
+                        </span>`;
+                }
+                statusCol.innerHTML = badgeHTML;
+
+                // Details Content (Combines academic position and author name beautifully)
+                const detailsCol = document.createElement('div');
+                detailsCol.className = "col-span-12 sm:col-span-8 pl-0 sm:pl-4 text-xs sm:text-sm text-slate-600 leading-relaxed";
+
+                const abbrPos = abbreviatePosition(item.position);
+                const displayAuthor = (abbrPos && item.author) ? `${abbrPos} ${item.author}` : (item.author || abbrPos || "-");
+
+                detailsCol.innerHTML = `
+                    <div class="space-y-1.5">
+                        <p class="font-medium">
+                            <span class="font-bold text-slate-800">ผู้รับการประเมิน:</span> ${displayAuthor}
+                        </p>
+                        <p class="text-[#0C3254] font-semibold text-sm">
+                            <span class="font-bold text-slate-800 text-xs sm:text-sm">ชื่อหนังสือ/ตำราเรียน:</span> 
+                            <span class="text-[#0C3254] font-bold block sm:inline mt-0.5 sm:mt-0">"${item.title}"</span>
+                        </p>
+                        <div class="flex items-center flex-wrap gap-x-3 gap-y-1 pt-1 justify-center sm:justify-start">
+                            <span class="flex items-center gap-1.5 text-xs font-bold text-[#0284C7]">
+                                <i class="fa-solid fa-bookmark text-[10px]"></i> ภาควิชาวิศวกรรม: ${item.dept}
+                            </span>
+                            <span class="text-slate-300 hidden sm:inline text-xs font-bold">|</span>
+                            <span class="flex items-center gap-1.5 text-xs font-bold text-indigo-700">
+                                <i class="fa-solid fa-barcode text-[10px]"></i> รหัส ISBN: ${item.isbn}
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                row.appendChild(yearCol);
+                row.appendChild(statusCol);
+                row.appendChild(detailsCol);
+
+                container.appendChild(row);
+            });
+
+            renderPagination(data.length);
+        }
+
+        function renderPagination(totalItems) {
+            const paginationContainer = document.getElementById('paginationButtons');
+            paginationContainer.innerHTML = '';
+
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            if (totalPages <= 1) {
+                document.getElementById('paginationInfo').textContent = 'แสดงผล 1 จากทั้งหมด 1 หน้า';
+                return;
+            }
+
+            document.getElementById('paginationInfo').textContent = `แสดงหน้าที่ ${currentPage} จากทั้งหมด ${totalPages} หน้า`;
+
+            // Back button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1 transition ${currentPage === 1 ? 'text-slate-300 border-slate-100 cursor-not-allowed opacity-50' : 'text-slate-600 border-slate-200 hover:bg-slate-50'}`;
+            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i> ย้อนกลับ';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderList(activeFilteredData);
+                }
+            };
+            paginationContainer.appendChild(prevBtn);
+
+            // Bounded page numbers to avoid breaking design on large sheets
+            const maxVisibleButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
+
+            if (endPage - startPage + 1 < maxVisibleButtons) {
+                startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                const isCurrent = i === currentPage;
+                btn.className = `w-8 h-8 rounded-lg text-xs font-bold border transition ${isCurrent ? 'bg-sky-600 border-sky-600 text-white shadow-sm cursor-default' : 'text-slate-600 border-slate-200 hover:bg-slate-50'}`;
+                btn.textContent = i;
+                btn.disabled = isCurrent;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderList(activeFilteredData);
+                };
+                paginationContainer.appendChild(btn);
+            }
+
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1 transition ${currentPage === totalPages ? 'text-slate-300 border-slate-100 cursor-not-allowed opacity-50' : 'text-slate-600 border-slate-200 hover:bg-slate-50'}`;
+            nextBtn.innerHTML = 'ถัดไป <i class="fa-solid fa-chevron-right"></i>';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderList(activeFilteredData);
+                }
+            };
+            paginationContainer.appendChild(nextBtn);
+        }
+
+        // Refresh Data Manually
+        async function refreshData() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.classList.add('animate-spin');
+            
+            showToast("กำลังรีเฟรชข้อมูลสด...", "info");
+            await loadSheetsData();
+            
+            setTimeout(() => {
+                refreshIcon.classList.remove('animate-spin');
+            }, 600);
+        }
+
+        // Custom High-Fidelity UI Toast Notifications
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = "flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg border text-xs font-semibold transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto max-w-sm";
+            
+            let icon = '';
+            if (type === "success") {
+                toast.classList.add("bg-emerald-50", "border-emerald-200", "text-emerald-800");
+                icon = '<i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>';
+            } else if (type === "warning") {
+                toast.classList.add("bg-amber-50", "border-amber-200", "text-amber-800");
+                icon = '<i class="fa-solid fa-triangle-exclamation text-amber-500 text-sm"></i>';
+            } else if (type === "error") {
+                toast.classList.add("bg-rose-50", "border-rose-200", "text-rose-800");
+                icon = '<i class="fa-solid fa-circle-xmark text-rose-500 text-sm"></i>';
+            } else {
+                toast.classList.add("bg-sky-50", "border-sky-200", "text-sky-800");
+                icon = '<i class="fa-solid fa-circle-info text-sky-500 text-sm"></i>';
+            }
+
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            // Animate In
+            setTimeout(() => {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            }, 50);
+
+            // Animate Out & Remove
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "scale-95");
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
+```
