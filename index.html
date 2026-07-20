@@ -78,20 +78,23 @@
                 <label class="flex items-center gap-2 cursor-pointer text-xs sm:text-sm text-slate-300 select-none">
                     <input type="checkbox" id="autoSyncToggle" class="sr-only peer">
                     <div class="relative w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-                    <span>ดึงข้อมูลอัตโนมัติ</span>
+                    <!-- CHANGED: 'ดึงข้อมูลอัตโนมัติ' to 'ดึงข้อมูล' -->
+                    <span>ดึงข้อมูล</span>
                 </label>
                 <button onclick="refreshData()" class="bg-sky-600 hover:bg-sky-700 active:scale-95 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-md">
-                    <i id="refreshIcon" class="fa-solid fa-arrows-rotate"></i> รีเฟรชตอนนี้
+                    <!-- CHANGED: 'รีเฟรชตอนนี้' to 'รีเฟรช' -->
+                    <i id="refreshIcon" class="fa-solid fa-arrows-rotate"></i> รีเฟรช
                 </button>
             </div>
         </div>
 
         <!-- Statistics Summary Rows -->
         <div class="p-4 sm:p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50/50 border-b border-slate-100">
-            <!-- Discovered Programs -->
+            <!-- Discovered Evaluators (Formerly Discovered Programs) -->
             <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
                 <div>
-                    <span class="text-xs sm:text-sm text-slate-400 font-medium block">โปรแกรมที่พบ</span>
+                    <!-- CHANGED: 'โปรแกรมที่พบ' to 'ผู้ขอประเมิน' -->
+                    <span class="text-xs sm:text-sm text-slate-400 font-medium block">ผู้ขอประเมิน</span>
                     <span id="statDiscovered" class="text-2xl sm:text-3xl font-extrabold text-slate-800 block my-1">-</span>
                     <span class="text-[11px] text-slate-400 flex items-center gap-1"><i class="fa-solid fa-database"></i> จากรายการค้นหาปัจจุบัน</span>
                 </div>
@@ -151,7 +154,7 @@
                     <svg class="w-full h-full" viewBox="0 0 100 100">
                         <!-- Background Circle -->
                         <circle cx="50" cy="50" r="38" fill="transparent" stroke="#f1f5f9" stroke-width="12"></circle>
-                        <!-- Dynamic Slices (Updated dynamically by JS with specific start-point offsets) -->
+                        <!-- Dynamic Slices -->
                         <circle id="slicePass" cx="50" cy="50" r="38" fill="transparent" stroke="#10B981" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76" transform="rotate(-90 50 50)" style="transition: stroke-dashoffset 0.5s ease;"></circle>
                         <circle id="sliceProgress" cx="50" cy="50" r="38" fill="transparent" stroke="#F59E0B" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76" style="transition: stroke-dashoffset 0.5s ease, transform 0.5s ease;"></circle>
                         <circle id="sliceFail" cx="50" cy="50" r="38" fill="transparent" stroke="#EF4444" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76" style="transition: stroke-dashoffset 0.5s ease, transform 0.5s ease;"></circle>
@@ -190,7 +193,8 @@
             <div class="lg:col-span-8 flex flex-col justify-between">
                 <div class="space-y-4">
                     <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                        <i class="fa-solid fa-magnifying-glass text-slate-400"></i> ค้นหาและคัดกรองข้อมูลสถานะการประเมินแบบระบุรายละเอียด
+                        <!-- CHANGED: 'ค้นหาและคัดกรองข้อมูลสถานะการประเมินแบบระบุรายละเอียด' to 'คัดกรองข้อมูลสถานะการประเมิน' -->
+                        <i class="fa-solid fa-magnifying-glass text-slate-400"></i> คัดกรองข้อมูลสถานะการประเมิน
                     </h3>
 
                     <!-- Controls Grid Layout -->
@@ -202,6 +206,7 @@
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-sm">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </span>
+                                <!-- CHANGED: JS dynamically sets the placeholder. We will also update JS below to 'พิมพ์รายละเอียดเพื่อค้นหา' -->
                                 <input type="text" id="searchInput" oninput="filterData()" 
                                     class="w-full pl-10 pr-4 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-xs sm:text-sm disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                                     placeholder="กำลังดึงข้อมูล..." disabled>
@@ -295,7 +300,7 @@
             </div>
         </div>
 
-        <!-- Footer Info Bar with Soft Light slate typography -->
+        <!-- Footer Info Bar -->
         <div class="bg-slate-900 p-6 text-center text-xs sm:text-sm border-t border-slate-800 tracking-wide">
             <p class="text-slate-400 font-semibold">© 2026 Dashboard แสดงสถานะการประเมินแบบ Real-time</p>
             <p class="text-slate-500 mt-1.5 font-medium">งานเทคโนโลยีการศึกษา คณะวิศวกรรมศาสตร์ สจล.</p>
@@ -514,7 +519,8 @@
 
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
-                searchInput.placeholder = loading ? "กำลังดึงข้อมูลล่าสุด..." : "ค้นหาผู้เขียน, ชื่อหนังสือ, ISBN...";
+                // CHANGED: "ค้นหาผู้เขียน, ชื่อหนังสือ, ISBN..." to "พิมพ์รายละเอียดเพื่อค้นหา..."
+                searchInput.placeholder = loading ? "กำลังดึงข้อมูลล่าสุด..." : "พิมพ์รายละเอียดเพื่อค้นหา...";
             }
         }
 
@@ -654,7 +660,6 @@
             renderList(filtered);
         }
 
-        // Calculate and render statistics summary cards
         function updateStatsCards(data) {
             const total = data.length;
             const pass = data.filter(i => classifyStatus(i.status) === 'ผ่านการประเมิน').length;
@@ -670,7 +675,7 @@
             document.getElementById('totalCount').textContent = loadedDatabase.length;
         }
 
-        // Draw SVG Donut Chart with proper SVG attribute adjustments for flawless transform-origins
+        // Draw SVG Donut Chart with proper SVG attribute adjustments
         function drawDonut(data) {
             const pass = data.filter(i => classifyStatus(i.status) === 'ผ่านการประเมิน').length;
             const fail = data.filter(i => classifyStatus(i.status) === 'ไม่ผ่านการประเมิน').length;
@@ -788,7 +793,7 @@
                 detailsCol.innerHTML = `
                     <div class="space-y-1.5">
                         <p class="font-medium">
-                            <span class="font-bold text-slate-800">ผู้รับการประเมิน:</span> ${displayAuthor}
+                            <span class="font-bold text-slate-800">ผู้ขอประเมิน:</span> ${displayAuthor}
                         </p>
                         <p class="text-[#0C3254] font-semibold text-sm">
                             <span class="font-bold text-slate-800 text-xs sm:text-sm">ชื่อหนังสือ/ตำราเรียน:</span> 
@@ -932,4 +937,3 @@
     </script>
 </body>
 </html>
-```
