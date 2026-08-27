@@ -303,7 +303,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-2">
                     <div>
                         <h2 class="font-bold text-slate-800 text-base">ตารางสถานะการประเมิน</h2>
-                        <p class="text-xs text-slate-400">แสดงรายการประเมินผลทั้งหมดเรียงตามลำดับข้อมูล</p>
+                        <p class="text-xs text-slate-400">แสดงรายการประเมินผลทั้งหมดเรียงลำดับจากล่าสุดขึ้นก่อน (ผู้ที่ยื่นทีหลังแสดงอันดับแรก)</p>
                     </div>
                     <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-medium">
                         พบข้อมูล <span id="filteredCountText" class="font-bold text-sky-600">29</span> จาก <span id="totalCountText">29</span> รายการ
@@ -618,7 +618,7 @@
         let currentPage = 1;
         const itemsPerPage = 8;
 
-        // Mock dataset matching the user's reference screenshot exactly
+        // Mock dataset matching the user's reference screenshot
         const INITIAL_REFERENCE_DATA = [
             ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "-", "ปกติ", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", "#", "#", "#"],
             ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", "#", "#", "#"],
@@ -628,7 +628,6 @@
             ["Text-006", "2569-08-27", "2569", "รศ.ดร.", "กิตติวัฒน์ สิริเกษมสุข", "การศึกษาการทำงานอุตสาหกรรม", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-143-9", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "kittiwat@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", "#", "#", "#"],
             ["Text-007", "2569-08-27", "2569", "รศ.ดร.", "สุดาภัทร ขวัญเสมาบึง", "การออกแบบชิ้นส่วนเครื่องกล", "เครื่องกล", "ผ่านการประเมิน", "978-616-338-235-2", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "sudapat@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", "#", "#", "#"],
             ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", "#", "#", "#"],
-            // Additional fallback items to reach 29 entries like the reference screenshot
             ["Text-009", "2568-05-10", "2568", "ผศ.ดร.", "สมเกียรติ พรหมรักษา", "วิศวกรรมความต้านทานและวัสดุ", "โยธา", "ผ่านการประเมิน", "978-616-338-200-1", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "somkiat@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
             ["Text-010", "2568-06-15", "2568", "รศ.ดร.", "ภาณุพงศ์ มีชัย", "ระบบเครือข่ายเซนเซอร์ไร้สาย", "คอมพิวเตอร์", "ผ่านการประเมิน", "978-616-338-201-2", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "panupong@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
             ["Text-011", "2568-07-20", "2568", "ผศ.", "กัญญา ศรีสุข", "การจัดการห่วงโซ่อุปทานทางวิศวกรรม", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-202-3", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "kanya@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
@@ -691,7 +690,10 @@
                         allData.shift();
                     }
 
-                    if (allData.length === 0) allData = [...INITIAL_REFERENCE_DATA];
+                    // ปรับการเรียงลำดับจากมากไปหาน้อย (ผู้ที่เข้ามาทีหลัง/ข้อมูลล่าสุดขึ้นก่อน)
+                    allData.reverse();
+
+                    if (allData.length === 0) allData = [...INITIAL_REFERENCE_DATA].reverse();
 
                     filteredData = [...allData];
                     initFilters();
@@ -699,7 +701,8 @@
                 })
                 .catch(err => {
                     console.warn("Using mock reference data fallback:", err);
-                    allData = [...INITIAL_REFERENCE_DATA];
+                    // ปรับให้ข้อมูล Fallback เรียงลำดับจากล่าสุดขึ้นก่อนเช่นกัน
+                    allData = [...INITIAL_REFERENCE_DATA].reverse();
                     filteredData = [...allData];
                     initFilters();
                     updateDashboard();
@@ -765,10 +768,6 @@
                 const passedPercent = passed / total;
                 const processPercent = process / total;
                 const failedPercent = failed / total;
-
-                const passedOffset = circumference * (1 - passedPercent);
-                const processOffset = circumference * (1 - processPercent);
-                const failedOffset = circumference * (1 - failedPercent);
 
                 document.getElementById('donutPassed').style.strokeDasharray = `${circumference * passedPercent} ${circumference}`;
                 document.getElementById('donutPassed').style.strokeDashoffset = 0;
@@ -1192,7 +1191,7 @@
             if (editIdx !== '') {
                 allData[editIdx] = newRow;
             } else {
-                allData.unshift(newRow);
+                allData.unshift(newRow); // แทรกขึ้นต้นเพื่อให้อยู่บนสุดเสมอ
             }
 
             filteredData = [...allData];
