@@ -49,7 +49,7 @@
             transform-origin: 50% 50%;
         }
 
-        /* Custom Status Pill Styles matching requested reference image (Orange Pill for non-passed) */
+        /* Custom Status Pill Styles */
         .pill-pending {
             background-color: #fffdf0;
             color: #d97706;
@@ -82,13 +82,13 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <!-- Left Title & Logo -->
-                <div class="flex items-center space-x-3.5 cursor-pointer" onclick="switchView('public')">
-                    <div class="w-11 h-11 bg-sky-600/30 border border-sky-400/40 rounded-xl flex items-center justify-center text-sky-400 font-bold text-xl shadow-inner">
+                <div class="flex items-center space-x-3.5 cursor-pointer group" onclick="switchView('public')" title="ไปยังหน้าหลัก">
+                    <div class="w-11 h-11 bg-sky-600/30 border border-sky-400/40 rounded-xl flex items-center justify-center text-sky-400 font-bold text-xl shadow-inner group-hover:bg-sky-600/50 transition duration-200">
                         <i class="fa-solid fa-chart-line"></i>
                     </div>
                     <div>
                         <div class="flex items-center space-x-2">
-                            <h1 class="text-base sm:text-lg font-bold text-white tracking-wide">ระบบติดตามสถานะการประเมินผล</h1>
+                            <h1 class="text-base sm:text-lg font-bold text-white tracking-wide group-hover:text-sky-300 transition duration-200">ระบบติดตามสถานะการประเมินผล</h1>
                             <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full border border-sky-500/30 font-medium">Real-Time</span>
                         </div>
                         <p class="text-xs text-slate-400 mt-0.5 flex items-center space-x-1">
@@ -98,27 +98,37 @@
                     </div>
                 </div>
 
-                <!-- Right Action Buttons -->
-                <div class="flex items-center space-x-4">
-                    <!-- Data Auto-Sync Toggle -->
-                    <div class="hidden md:flex items-center space-x-2 bg-navy-800/80 px-3 py-1.5 rounded-full border border-slate-700/60 text-xs">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        <span class="text-slate-300 text-xs font-light">ดึงข้อมูล</span>
-                    </div>
+                <!-- Center Quick Navigation Tabs (Visible when logged in) -->
+                <div id="quickNavContainer" class="hidden md:flex items-center space-x-1.5 bg-navy-950/80 p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
+                    <button id="navPublicBtn" onclick="switchView('public')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 bg-sky-600 text-white shadow-sm">
+                        <i class="fa-solid fa-house text-[11px]"></i>
+                        <span>หน้าหลัก</span>
+                    </button>
+                    <button id="navPortalBtn" onclick="returnToPortal()" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800">
+                        <i id="navPortalIcon" class="fa-solid fa-user-gear text-[11px] text-amber-400"></i>
+                        <span id="navPortalText">หน้าเจ้าหน้าที่</span>
+                        <span id="navPortalBadge" class="w-2 h-2 rounded-full bg-amber-400 animate-ping ml-0.5"></span>
+                    </button>
+                </div>
 
+                <!-- Right Action Buttons & User Profile -->
+                <div class="flex items-center space-x-3">
                     <!-- Refresh Button -->
-                    <button onclick="refreshData()" class="inline-flex items-center px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs sm:text-sm rounded-lg transition duration-200 shadow-md">
-                        <i class="fa-solid fa-rotate mr-1.5 text-xs"></i> รีเฟรช
+                    <button onclick="refreshData()" class="inline-flex items-center px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs sm:text-sm rounded-lg transition duration-200 border border-slate-700 shadow-sm" title="อัปเดตข้อมูล">
+                        <i class="fa-solid fa-rotate mr-1.5 text-xs text-sky-400"></i> <span class="hidden sm:inline">รีเฟรช</span>
                     </button>
 
-                    <!-- User Role & Login Button -->
-                    <div id="userInfoBar" class="hidden items-center space-x-2 bg-slate-800 px-3 py-1 rounded-lg border border-slate-700 text-xs">
-                        <span id="userRoleBadge" class="px-2 py-0.5 rounded text-[11px] font-medium"></span>
-                        <span id="userEmailText" class="font-medium text-slate-300 hidden sm:inline"></span>
+                    <!-- Interactive User Profile Bar (Clickable to jump back to Portal) -->
+                    <div id="userInfoBar" onclick="returnToPortal()" title="คลิกเพื่อกลับไปยังหน้าจัดการของคุณ" class="hidden flex items-center space-x-2 bg-slate-800/90 hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700 text-xs cursor-pointer transition-all duration-200 hover:border-sky-500/60 hover:shadow-md group">
+                        <span id="userRoleBadge" class="px-2.5 py-0.5 rounded-md text-[11px] font-bold tracking-wide shadow-sm flex items-center">
+                            <!-- Role Badge injected by JS -->
+                        </span>
+                        <span id="userEmailText" class="font-medium text-slate-300 hidden sm:inline group-hover:text-white"></span>
+                        <i class="fa-solid fa-arrow-right-to-bracket text-[10px] text-slate-400 group-hover:text-sky-400 group-hover:translate-x-0.5 transition-transform"></i>
                     </div>
 
-                    <button id="loginBtn" onclick="openLoginModal()" class="inline-flex items-center px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-xs rounded-lg transition">
-                        <i class="fa-solid fa-right-to-bracket mr-1.5 text-sky-400"></i> เข้าสู่ระบบ
+                    <button id="loginBtn" onclick="openLoginModal()" class="inline-flex items-center px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-lg transition shadow-md">
+                        <i class="fa-solid fa-right-to-bracket mr-1.5 text-sky-200"></i> เข้าสู่ระบบ
                     </button>
 
                     <button id="logoutBtn" onclick="logout()" class="hidden inline-flex items-center px-3 py-1.5 bg-red-900/40 hover:bg-red-900/60 border border-red-700/50 text-red-200 font-medium text-xs rounded-lg transition">
@@ -134,10 +144,8 @@
         <!-- PUBLIC VIEW SECTION -->
         <section id="publicView" class="space-y-6">
             
-            <!-- 1. Top Statistics 4 Summary Cards -->
+            <!-- 1. Top Statistics Summary Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                
-                <!-- Card 1: ผู้ขอประเมิน -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
                     <div class="space-y-1">
                         <p class="text-xs font-semibold text-slate-500">ผู้ขอประเมิน</p>
@@ -151,7 +159,6 @@
                     </div>
                 </div>
 
-                <!-- Card 2: ผ่านการประเมิน -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
                     <div class="space-y-1">
                         <p class="text-xs font-semibold text-slate-500">ผ่านการประเมิน</p>
@@ -165,7 +172,6 @@
                     </div>
                 </div>
 
-                <!-- Card 3: กำลังดำเนินการประเมิน -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
                     <div class="space-y-1">
                         <p class="text-xs font-semibold text-slate-500">กำลังดำเนินการประเมิน</p>
@@ -179,7 +185,6 @@
                     </div>
                 </div>
 
-                <!-- Card 4: ไม่ผ่านการประเมิน -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
                     <div class="space-y-1">
                         <p class="text-xs font-semibold text-slate-500">ไม่ผ่านการประเมิน</p>
@@ -194,37 +199,28 @@
                 </div>
             </div>
 
-            <!-- 2. Middle Grid: Donut Chart Breakdown (Left) + Multi-Criteria Filters (Right) -->
+            <!-- 2. Middle Grid: Donut Chart Breakdown & Multi-Criteria Filters -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <!-- Left Donut Chart Section (approx 4 cols) -->
                 <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
                     <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
                         <i class="fa-solid fa-chart-pie text-emerald-500 text-sm"></i>
                         <h2 class="font-bold text-slate-800 text-sm">สัดส่วนสถานะการประเมิน</h2>
                     </div>
 
-                    <!-- Donut SVG Canvas container -->
                     <div class="relative flex items-center justify-center my-2">
                         <svg class="w-48 h-48" viewBox="0 0 100 100">
-                            <!-- Background Track Circle -->
                             <circle cx="50" cy="50" r="38" fill="transparent" stroke="#f1f5f9" stroke-width="12"></circle>
-                            <!-- Passed (Green) -->
                             <circle id="donutPassed" class="chart-circle" cx="50" cy="50" r="38" fill="transparent" stroke="#10b981" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="30"></circle>
-                            <!-- Pending/Process (Amber) -->
                             <circle id="donutProcess" class="chart-circle" cx="50" cy="50" r="38" fill="transparent" stroke="#f59e0b" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="210"></circle>
-                            <!-- Failed (Red) -->
                             <circle id="donutFailed" class="chart-circle" cx="50" cy="50" r="38" fill="transparent" stroke="#ef4444" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76"></circle>
                         </svg>
 
-                        <!-- Center Text inside Donut -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                             <span id="chartTotalText" class="text-2xl font-extrabold text-slate-800">29</span>
                             <span class="text-[11px] text-slate-400 font-medium">รายการรวม</span>
                         </div>
                     </div>
 
-                    <!-- Chart Legend -->
                     <div class="flex items-center justify-around pt-2 text-xs font-medium text-slate-600">
                         <div class="flex items-center space-x-1.5">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
@@ -241,16 +237,13 @@
                     </div>
                 </div>
 
-                <!-- Right Search & Filters Section (approx 8 cols) -->
                 <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
                     <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
                         <i class="fa-solid fa-magnifying-glass text-sky-500 text-sm"></i>
                         <h2 class="font-bold text-slate-800 text-sm">คัดกรองข้อมูลสถานะการประเมิน</h2>
                     </div>
 
-                    <!-- Filter Options Grid 2x2 -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Search Bar -->
                         <div class="space-y-1">
                             <label class="block text-xs font-semibold text-slate-600">พิมพ์ค้นหา</label>
                             <div class="relative">
@@ -259,7 +252,6 @@
                             </div>
                         </div>
 
-                        <!-- Year Select -->
                         <div class="space-y-1">
                             <label class="block text-xs font-semibold text-slate-600">ปีการศึกษา</label>
                             <select id="yearFilter" onchange="filterData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-xs cursor-pointer">
@@ -267,7 +259,6 @@
                             </select>
                         </div>
 
-                        <!-- Dept Select -->
                         <div class="space-y-1">
                             <label class="block text-xs font-semibold text-slate-600">ภาควิชาวิศวกรรม</label>
                             <select id="deptFilter" onchange="filterData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-xs cursor-pointer">
@@ -275,7 +266,6 @@
                             </select>
                         </div>
 
-                        <!-- Status Select -->
                         <div class="space-y-1">
                             <label class="block text-xs font-semibold text-slate-600">สถานะการประเมิน</label>
                             <select id="statusFilter" onchange="filterData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-xs cursor-pointer">
@@ -284,7 +274,6 @@
                         </div>
                     </div>
 
-                    <!-- Clear Filter Button -->
                     <div class="flex justify-end pt-2 border-t border-slate-100">
                         <button onclick="clearFilters()" class="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center space-x-1">
                             <i class="fa-solid fa-rotate-left text-[11px] mr-1"></i>
@@ -294,9 +283,8 @@
                 </div>
             </div>
 
-            <!-- 3. Main Data List Table Section -->
+            <!-- 3. Main Data Table Section -->
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden space-y-4 p-6">
-                <!-- Section Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-2">
                     <div>
                         <h2 class="font-bold text-slate-800 text-base">ตารางสถานะการประเมิน</h2>
@@ -307,22 +295,18 @@
                     </div>
                 </div>
 
-                <!-- Card-style Data Rows Grid Container -->
                 <div class="space-y-3">
-                    <!-- Column Header Bar -->
                     <div class="hidden md:grid grid-cols-12 gap-4 text-xs font-semibold text-slate-500 px-4 py-2 bg-slate-50/80 rounded-xl border border-slate-100">
                         <div class="col-span-1 text-center">ปี</div>
                         <div class="col-span-3">สถานะการประเมิน</div>
                         <div class="col-span-8">รายละเอียดการประเมิน</div>
                     </div>
 
-                    <!-- Dynamic Items List -->
                     <div id="dataListContainer" class="space-y-2.5">
-                        <!-- Data rows injected dynamically -->
+                        <!-- Public items dynamically rendered -->
                     </div>
                 </div>
 
-                <!-- Bottom Pagination Bar -->
                 <div class="flex flex-col sm:flex-row justify-between items-center pt-4 border-t border-slate-100 text-xs text-slate-500 gap-3">
                     <div id="pageInfoText">
                         แสดงหน้าที่ 1 จากทั้งหมด 4 หน้า
@@ -333,7 +317,6 @@
                     </div>
                 </div>
             </div>
-
         </section>
 
         <!-- LECTURER PORTAL VIEW -->
@@ -362,7 +345,7 @@
                 <div>
                     <span class="px-2.5 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full font-semibold border border-amber-500/30">Admin Panel</span>
                     <h2 class="text-xl font-bold mt-1">จัดการข้อมูลการประเมิน (สำหรับเจ้าหน้าที่)</h2>
-                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา</p>
+                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา (แสดงผล 10 รายการ/หน้า)</p>
                 </div>
                 <button onclick="openAddModal()" class="inline-flex items-center px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-xl transition shadow">
                     <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มผลงานใหม่
@@ -383,7 +366,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <!-- Search Input -->
                     <div class="space-y-1">
                         <label class="block text-xs font-semibold text-slate-600">พิมพ์ค้นหา</label>
                         <div class="relative">
@@ -392,7 +374,6 @@
                         </div>
                     </div>
 
-                    <!-- Year Select -->
                     <div class="space-y-1">
                         <label class="block text-xs font-semibold text-slate-600">ปีการศึกษา</label>
                         <select id="adminYearFilter" onchange="filterAdminData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs cursor-pointer">
@@ -400,7 +381,6 @@
                         </select>
                     </div>
 
-                    <!-- Dept Select -->
                     <div class="space-y-1">
                         <label class="block text-xs font-semibold text-slate-600">ภาควิชาวิศวกรรม</label>
                         <select id="adminDeptFilter" onchange="filterAdminData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs cursor-pointer">
@@ -408,7 +388,6 @@
                         </select>
                     </div>
 
-                    <!-- Status Select -->
                     <div class="space-y-1">
                         <label class="block text-xs font-semibold text-slate-600">สถานะการประเมิน</label>
                         <select id="adminStatusFilter" onchange="filterAdminData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs cursor-pointer">
@@ -440,10 +419,10 @@
                     </table>
                 </div>
 
-                <!-- Bottom Pagination Bar for Admin Panel (8 items per page) -->
+                <!-- Bottom Pagination Bar for Admin Panel (Now 10 items per page) -->
                 <div class="flex flex-col sm:flex-row justify-between items-center p-4 border-t border-slate-100 text-xs text-slate-500 gap-3">
                     <div id="adminPageInfoText">
-                        แสดงหน้าที่ 1 จากทั้งหมด 1 หน้า
+                        แสดงหน้าที่ 1 จากทั้งหมด 1 หน้า (10 รายการ/หน้า)
                     </div>
                     <div id="adminPaginationControls" class="flex items-center space-x-1">
                         <!-- Pagination buttons injected via JS -->
@@ -461,7 +440,6 @@
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
             
-            <!-- Modal Header -->
             <div class="space-y-1 border-b border-slate-100 pb-4">
                 <div class="flex items-center space-x-2">
                     <span id="detailId" class="px-2.5 py-0.5 bg-sky-100 text-sky-700 font-mono text-xs font-bold rounded-md">ID</span>
@@ -471,7 +449,6 @@
                 <p id="detailAuthor" class="text-xs text-slate-500"><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i> ผู้เขียน</p>
             </div>
 
-            <!-- TIMELINE PROGRESS STEPPER -->
             <div class="space-y-3">
                 <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-route mr-1"></i> ขั้นตอนการดำเนินงาน</h4>
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
@@ -481,7 +458,6 @@
                 </div>
             </div>
 
-            <!-- Details Summary Grid -->
             <div class="grid grid-cols-2 gap-3 text-xs">
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <span class="text-slate-400 block font-medium">ภาควิชาวิศวกรรม</span>
@@ -501,13 +477,11 @@
                 </div>
             </div>
 
-            <!-- Remark Box -->
             <div id="detailRemarkContainer" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800">
                 <strong class="font-bold block mb-0.5"><i class="fa-solid fa-circle-info mr-1"></i> หมายเหตุ / แจ้งเตือน:</strong>
                 <p id="detailRemarkText"></p>
             </div>
 
-            <!-- Action File Download Buttons -->
             <div class="space-y-2 pt-2 border-t border-slate-100">
                 <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">เอกสารแนบ</h4>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -562,7 +536,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">อีเมล KMITL</label>
-                    <input type="email" id="loginEmail" required placeholder="example@kmitl.ac.th" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs">
+                    <input type="email" id="loginEmail" required placeholder="textbook@kmitl.ac.th" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs">
                 </div>
 
                 <div id="loginError" class="hidden p-3 bg-red-50 text-red-600 text-xs rounded-xl border border-red-200"></div>
@@ -653,7 +627,7 @@
         <span id="toastMsg" class="font-medium">ทำรายการสำเร็จ</span>
     </div>
 
-    <!-- Bottom Footer (Dark matching design) -->
+    <!-- Bottom Footer -->
     <footer class="bg-navy-900 border-t border-slate-800 py-4 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-7xl mx-auto px-4 space-y-1">
             <p>© 2026 Dashboard แสดงสถานะการประเมินผล แบบ Real-time</p>
@@ -669,17 +643,18 @@
         let allData = [];
         let filteredData = [];
         let currentUser = null;
+        let currentActiveView = 'public';
         
         // Public View Pagination state
         let currentPage = 1;
         const itemsPerPage = 8;
 
-        // Admin View Pagination & Search state
+        // Admin View Pagination & Search state (UPDATED: Changed from 8 to 10 items per page)
         let adminFilteredData = [];
         let adminCurrentPage = 1;
-        const adminItemsPerPage = 8;
+        const adminItemsPerPage = 10;
 
-        // Mock dataset matching the reference dataset
+        // Mock dataset matching reference dataset
         const INITIAL_REFERENCE_DATA = [
             ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "-", "ปกติ", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", "#", "#", "#"],
             ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", "#", "#", "#"],
@@ -712,7 +687,7 @@
             ["Text-029", "2567-12-28", "2567", "ผศ.ดร.", "สิริมา พานิช", "ระบบอัตโนมัติแบบยืดหยุ่น", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-221-4", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "sirima@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"]
         ];
 
-        // Steps definition for evaluation modal
+        // Evaluation Stepper definitions
         const STEPS = [
             { title: 'ยื่นคำขอ', icon: 'fa-file-signature' },
             { title: 'ตรวจเอกสาร', icon: 'fa-clipboard-check' },
@@ -734,15 +709,9 @@
             if (el) el.innerText = timeStr;
         }
 
-        /**
-         * Dynamic Status Badge Helper:
-         * Generates the appropriate status badge HTML.
-         * For "ผ่านการประเมิน" -> Emerald Green Badge
-         * For all other non-passed statuses (รับเอกสาร, ส่งเอกสารผู้ทรง, รอการแก้ไข, ฯลฯ) -> Warm Orange Badge with Tag Icon matching the reference image.
-         */
+        // Render Status Badge
         function renderStatusBadge(evalStatus) {
             const isPassed = evalStatus && evalStatus.includes('ผ่าน') && !evalStatus.includes('ไม่ผ่าน');
-            
             if (isPassed) {
                 return `
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold pill-passed">
@@ -750,7 +719,6 @@
                     </span>
                 `;
             } else {
-                // Orange badge matching the requested sample image
                 return `
                     <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold pill-pending">
                         <i class="fa-solid fa-tag mr-1.5 text-[11px] text-amber-600"></i> ${evalStatus}
@@ -776,7 +744,6 @@
                         allData.shift();
                     }
 
-                    // Sort newest first
                     allData.reverse();
 
                     if (allData.length === 0) allData = [...INITIAL_REFERENCE_DATA].reverse();
@@ -800,7 +767,6 @@
             fetchSheetsData();
         }
 
-        // Populate dropdown options dynamically
         function initFilters() {
             const depts = new Set();
             const statuses = new Set();
@@ -849,13 +815,11 @@
             const failed = filteredData.filter(r => r[7] && r[7].includes('ไม่ผ่าน')).length;
             const process = total - passed - failed;
 
-            // Stats Cards
             document.getElementById('statTotal').innerText = total;
             document.getElementById('statPassed').innerText = passed;
             document.getElementById('statProcess').innerText = process;
             document.getElementById('statFailed').innerText = failed;
 
-            // Donut Chart Text & Legend
             document.getElementById('chartTotalText').innerText = total;
             document.getElementById('legendPassed').innerText = passed;
             document.getElementById('legendProcess').innerText = process;
@@ -864,8 +828,7 @@
             document.getElementById('totalCountText').innerText = allData.length;
             document.getElementById('filteredCountText').innerText = total;
 
-            // Update SVG Donut Circumference & Offsets
-            const circumference = 2 * Math.PI * 38; // ~238.76
+            const circumference = 2 * Math.PI * 38;
             if (total > 0) {
                 const passedPercent = passed / total;
                 const processPercent = process / total;
@@ -942,7 +905,6 @@
             filterAdminData();
         }
 
-        // Render specific page of items
         function renderPage(page) {
             currentPage = page;
             const container = document.getElementById('dataListContainer');
@@ -977,18 +939,12 @@
 
                 html += `
                     <div onclick="openDetailModal(${globalIdx})" class="bg-white border border-slate-200/90 rounded-2xl p-4 hover:shadow-md transition cursor-pointer flex flex-col md:grid md:grid-cols-12 gap-3 items-start md:items-center">
-                        
-                        <!-- Col 1: Year -->
                         <div class="md:col-span-1 text-slate-600 font-bold text-xs md:text-center">
                             ${year}
                         </div>
-
-                        <!-- Col 2: Status Pill -->
                         <div class="md:col-span-3">
                             ${statusBadge}
                         </div>
-
-                        <!-- Col 3: Details -->
                         <div class="md:col-span-8 space-y-1">
                             <div class="text-xs text-slate-900 font-medium">
                                 <span class="font-bold">ผู้ขอประเมิน:</span> ${pos} ${author}
@@ -1002,7 +958,6 @@
                                 <span class="flex items-center text-slate-600"><i class="fa-solid fa-barcode mr-1 text-[10px]"></i> รหัส ISBN: ${isbn}</span>
                             </div>
                         </div>
-
                     </div>
                 `;
             });
@@ -1011,7 +966,6 @@
             renderPagination(filteredData.length, totalPages);
         }
 
-        // Render pagination controls
         function renderPagination(totalItems, totalPages) {
             const pageInfo = document.getElementById('pageInfoText');
             const controls = document.getElementById('paginationControls');
@@ -1026,14 +980,12 @@
 
             let btnHtml = '';
             
-            // Prev Button
             btnHtml += `
                 <button onclick="renderPage(${Math.max(1, currentPage - 1)})" ${currentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
                     <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i> ก่อนหน้า
                 </button>
             `;
 
-            // Page numbers
             for (let i = 1; i <= totalPages; i++) {
                 if (i === currentPage) {
                     btnHtml += `<button class="w-7 h-7 bg-sky-600 text-white font-bold rounded-lg shadow-sm text-xs">${i}</button>`;
@@ -1042,9 +994,186 @@
                 }
             }
 
-            // Next Button
             btnHtml += `
                 <button onclick="renderPage(${Math.min(totalPages, currentPage + 1)})" ${currentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
+                    ถัดไป <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+                </button>
+            `;
+
+            controls.innerHTML = btnHtml;
+        }
+
+        // Return to logged-in portal (Admin or Lecturer)
+        function returnToPortal() {
+            if (!currentUser) {
+                openLoginModal();
+                return;
+            }
+            switchView(currentUser.role);
+        }
+
+        // Navigation Views Switcher
+        function switchView(viewName) {
+            currentActiveView = viewName;
+            document.getElementById('publicView').classList.add('hidden');
+            document.getElementById('lecturerView').classList.add('hidden');
+            document.getElementById('adminView').classList.add('hidden');
+
+            const navPublicBtn = document.getElementById('navPublicBtn');
+            const navPortalBtn = document.getElementById('navPortalBtn');
+
+            if (viewName === 'lecturer' && currentUser && currentUser.role === 'lecturer') {
+                document.getElementById('lecturerView').classList.remove('hidden');
+                renderLecturerPortal();
+                if (navPublicBtn && navPortalBtn) {
+                    navPublicBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
+                    navPortalBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 bg-sky-600 text-white shadow-sm";
+                }
+            } else if (viewName === 'admin' && currentUser && currentUser.role === 'admin') {
+                document.getElementById('adminView').classList.remove('hidden');
+                renderAdminPortal();
+                if (navPublicBtn && navPortalBtn) {
+                    navPublicBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
+                    navPortalBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 bg-amber-600 text-white shadow-sm";
+                }
+            } else {
+                document.getElementById('publicView').classList.remove('hidden');
+                if (navPublicBtn && navPortalBtn) {
+                    navPublicBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 bg-sky-600 text-white shadow-sm";
+                    navPortalBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
+                }
+            }
+        }
+
+        function renderLecturerPortal() {
+            if (!currentUser || currentUser.role !== 'lecturer') return;
+            const userEmail = currentUser.email.toLowerCase();
+            const myBooks = allData.filter(r => r[13] && r[13].trim().toLowerCase() === userEmail);
+
+            document.getElementById('lecturerWelcome').innerText = `สวัสดีอาจารย์ (${userEmail})`;
+            document.getElementById('lecturerBookCount').innerText = myBooks.length;
+
+            const grid = document.getElementById('lecturerCardsGrid');
+            if (myBooks.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200">
+                        <i class="fa-solid fa-book-bookmark text-4xl text-slate-300 mb-2"></i>
+                        <h4 class="text-sm font-bold text-slate-700">ไม่พบข้อมูลผลงานของคุณในระบบ</h4>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            myBooks.forEach(row => {
+                const statusBadge = renderStatusBadge(row[7]);
+                html += `
+                    <div class="bg-white rounded-2xl border p-5 space-y-3 shadow-sm flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <span class="px-2 py-0.5 bg-sky-50 text-sky-600 font-mono text-xs font-bold rounded">${row[0]}</span>
+                            <h3 class="font-bold text-slate-900 text-sm">${row[5]}</h3>
+                            <p class="text-xs text-slate-500">${row[4]} (${row[6]})</p>
+                            <div class="pt-1">${statusBadge}</div>
+                        </div>
+                        <a href="${row[16] || '#'}" target="_blank" class="block w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">ดูผลประเมิน</a>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        /**
+         * Render Admin Portal Table with Search & 10 Items Pagination:
+         */
+        function renderAdminPortal(page = null) {
+            if (!currentUser || currentUser.role !== 'admin') return;
+
+            if (page !== null) adminCurrentPage = page;
+
+            const tbody = document.getElementById('adminTableBody');
+            const totalRecords = adminFilteredData.length;
+            document.getElementById('adminRecordCount').innerText = `${totalRecords} รายการ (จากทั้งหมด ${allData.length} รายการ)`;
+
+            if (totalRecords === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-10 text-center text-slate-400 bg-slate-50">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
+                            <p>ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา</p>
+                        </td>
+                    </tr>
+                `;
+                renderAdminPagination(0, 1);
+                return;
+            }
+
+            // Calculations based on 10 items per page
+            const totalPages = Math.ceil(totalRecords / adminItemsPerPage);
+            const startIdx = (adminCurrentPage - 1) * adminItemsPerPage;
+            const endIdx = Math.min(startIdx + adminItemsPerPage, totalRecords);
+            const pageItems = adminFilteredData.slice(startIdx, endIdx);
+
+            let html = '';
+            pageItems.forEach((row) => {
+                const originalIdx = allData.findIndex(r => r[0] === row[0]);
+                const evalStatus = row[7] || '-';
+                const statusBadge = renderStatusBadge(evalStatus);
+
+                html += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-sky-600 text-xs">${row[0]}</td>
+                        <td class="py-3 px-4">
+                            <div class="font-semibold text-slate-800">${row[5]}</div>
+                            <div class="text-xs text-slate-400">${row[3] || ''} ${row[4] || ''} (${row[6] || '-'})</div>
+                        </td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 text-xs text-slate-600 max-w-xs truncate">${row[15] || '-'}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="openEditModal(${originalIdx !== -1 ? originalIdx : 0})" title="แก้ไขข้อมูล" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteRecord('${row[0]}')" title="ลบรายการ" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+
+            renderAdminPagination(totalRecords, totalPages);
+        }
+
+        function renderAdminPagination(totalItems, totalPages) {
+            const pageInfo = document.getElementById('adminPageInfoText');
+            const controls = document.getElementById('adminPaginationControls');
+
+            if (!pageInfo || !controls) return;
+
+            if (totalItems === 0) {
+                pageInfo.innerText = "ไม่พบรายการ";
+                controls.innerHTML = "";
+                return;
+            }
+
+            pageInfo.innerText = `แสดงหน้าที่ ${adminCurrentPage} จากทั้งหมด ${totalPages} หน้า (10 รายการ/หน้า)`;
+
+            let btnHtml = '';
+            
+            // Prev Button
+            btnHtml += `
+                <button onclick="renderAdminPortal(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
+                    <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i> ก่อนหน้า
+                </button>
+            `;
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === adminCurrentPage) {
+                    btnHtml += `<button class="w-7 h-7 bg-amber-500 text-white font-bold rounded-lg shadow-sm text-xs">${i}</button>`;
+                } else if (i <= 6 || i === totalPages) {
+                    btnHtml += `<button onclick="renderAdminPortal(${i})" class="w-7 h-7 text-slate-600 hover:bg-slate-100 font-medium rounded-lg text-xs transition">${i}</button>`;
+                }
+            }
+
+            // Next Button
+            btnHtml += `
+                <button onclick="renderAdminPortal(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
                     ถัดไป <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
                 </button>
             `;
@@ -1117,159 +1246,6 @@
             container.innerHTML = html;
         }
 
-        // Navigation Views Switching
-        function switchView(viewName) {
-            document.getElementById('publicView').classList.add('hidden');
-            document.getElementById('lecturerView').classList.add('hidden');
-            document.getElementById('adminView').classList.add('hidden');
-
-            if (viewName === 'lecturer' && currentUser && currentUser.role === 'lecturer') {
-                document.getElementById('lecturerView').classList.remove('hidden');
-                renderLecturerPortal();
-            } else if (viewName === 'admin' && currentUser && currentUser.role === 'admin') {
-                document.getElementById('adminView').classList.remove('hidden');
-                renderAdminPortal();
-            } else {
-                document.getElementById('publicView').classList.remove('hidden');
-            }
-        }
-
-        function renderLecturerPortal() {
-            if (!currentUser || currentUser.role !== 'lecturer') return;
-            const userEmail = currentUser.email.toLowerCase();
-            const myBooks = allData.filter(r => r[13] && r[13].trim().toLowerCase() === userEmail);
-
-            document.getElementById('lecturerWelcome').innerText = `สวัสดีอาจารย์ (${userEmail})`;
-            document.getElementById('lecturerBookCount').innerText = myBooks.length;
-
-            const grid = document.getElementById('lecturerCardsGrid');
-            if (myBooks.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200">
-                        <i class="fa-solid fa-book-bookmark text-4xl text-slate-300 mb-2"></i>
-                        <h4 class="text-sm font-bold text-slate-700">ไม่พบข้อมูลผลงานของคุณในระบบ</h4>
-                    </div>`;
-                return;
-            }
-
-            let html = '';
-            myBooks.forEach(row => {
-                const statusBadge = renderStatusBadge(row[7]);
-                html += `
-                    <div class="bg-white rounded-2xl border p-5 space-y-3 shadow-sm flex flex-col justify-between">
-                        <div class="space-y-2">
-                            <span class="px-2 py-0.5 bg-sky-50 text-sky-600 font-mono text-xs font-bold rounded">${row[0]}</span>
-                            <h3 class="font-bold text-slate-900 text-sm">${row[5]}</h3>
-                            <p class="text-xs text-slate-500">${row[4]} (${row[6]})</p>
-                            <div class="pt-1">${statusBadge}</div>
-                        </div>
-                        <a href="${row[16] || '#'}" target="_blank" class="block w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">ดูผลประเมิน</a>
-                    </div>
-                `;
-            });
-            grid.innerHTML = html;
-        }
-
-        /**
-         * Render Admin Portal Table with Search & 8 Items Pagination:
-         */
-        function renderAdminPortal(page = null) {
-            if (!currentUser || currentUser.role !== 'admin') return;
-
-            if (page !== null) adminCurrentPage = page;
-
-            const tbody = document.getElementById('adminTableBody');
-            const totalRecords = adminFilteredData.length;
-            document.getElementById('adminRecordCount').innerText = `${totalRecords} รายการ (จากทั้งหมด ${allData.length} รายการ)`;
-
-            if (totalRecords === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="py-10 text-center text-slate-400 bg-slate-50">
-                            <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
-                            <p>ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา</p>
-                        </td>
-                    </tr>
-                `;
-                renderAdminPagination(0, 1);
-                return;
-            }
-
-            const totalPages = Math.ceil(totalRecords / adminItemsPerPage);
-            const startIdx = (adminCurrentPage - 1) * adminItemsPerPage;
-            const endIdx = Math.min(startIdx + adminItemsPerPage, totalRecords);
-            const pageItems = adminFilteredData.slice(startIdx, endIdx);
-
-            let html = '';
-            pageItems.forEach((row) => {
-                // Find original index in allData for editing/deleting
-                const originalIdx = allData.findIndex(r => r[0] === row[0]);
-                const evalStatus = row[7] || '-';
-                const statusBadge = renderStatusBadge(evalStatus);
-
-                html += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4 font-mono font-bold text-sky-600 text-xs">${row[0]}</td>
-                        <td class="py-3 px-4">
-                            <div class="font-semibold text-slate-800">${row[5]}</div>
-                            <div class="text-xs text-slate-400">${row[3] || ''} ${row[4] || ''} (${row[6] || '-'})</div>
-                        </td>
-                        <td class="py-3 px-4">${statusBadge}</td>
-                        <td class="py-3 px-4 text-xs text-slate-600 max-w-xs truncate">${row[15] || '-'}</td>
-                        <td class="py-3 px-4 text-center">
-                            <button onclick="openEditModal(${originalIdx !== -1 ? originalIdx : 0})" title="แก้ไขข้อมูล" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteRecord('${row[0]}')" title="ลบรายการ" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = html;
-
-            renderAdminPagination(totalRecords, totalPages);
-        }
-
-        function renderAdminPagination(totalItems, totalPages) {
-            const pageInfo = document.getElementById('adminPageInfoText');
-            const controls = document.getElementById('adminPaginationControls');
-
-            if (!pageInfo || !controls) return;
-
-            if (totalItems === 0) {
-                pageInfo.innerText = "ไม่พบรายการ";
-                controls.innerHTML = "";
-                return;
-            }
-
-            pageInfo.innerText = `แสดงหน้าที่ ${adminCurrentPage} จากทั้งหมด ${totalPages} หน้า (8 รายการ/หน้า)`;
-
-            let btnHtml = '';
-            
-            // Prev Button
-            btnHtml += `
-                <button onclick="renderAdminPortal(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
-                    <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i> ก่อนหน้า
-                </button>
-            `;
-
-            // Page numbers (1, 2, 3, 4, 5, 6...)
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === adminCurrentPage) {
-                    btnHtml += `<button class="w-7 h-7 bg-amber-500 text-white font-bold rounded-lg shadow-sm text-xs">${i}</button>`;
-                } else if (i <= 6 || i === totalPages) {
-                    btnHtml += `<button onclick="renderAdminPortal(${i})" class="w-7 h-7 text-slate-600 hover:bg-slate-100 font-medium rounded-lg text-xs transition">${i}</button>`;
-                }
-            }
-
-            // Next Button
-            btnHtml += `
-                <button onclick="renderAdminPortal(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
-                    ถัดไป <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
-                </button>
-            `;
-
-            controls.innerHTML = btnHtml;
-        }
-
         function openLoginModal() {
             document.getElementById('loginModal').classList.remove('hidden');
             document.getElementById('loginError').classList.add('hidden');
@@ -1301,17 +1277,24 @@
             document.getElementById('loginBtn').classList.add('hidden');
             document.getElementById('logoutBtn').classList.remove('hidden');
             document.getElementById('userInfoBar').classList.remove('hidden');
+            document.getElementById('quickNavContainer').classList.remove('hidden');
 
             const badge = document.getElementById('userRoleBadge');
+            const navText = document.getElementById('navPortalText');
+            const navIcon = document.getElementById('navPortalIcon');
             document.getElementById('userEmailText').innerText = currentUser.email;
 
             if (currentUser.role === 'admin') {
-                badge.innerText = 'เจ้าหน้าที่';
-                badge.className = 'px-2 py-0.5 rounded text-[11px] bg-purple-900/40 text-purple-300 border border-purple-700/50';
+                badge.innerHTML = '<i class="fa-solid fa-user-gear mr-1 text-[10px]"></i> เจ้าหน้าที่';
+                badge.className = 'px-2.5 py-0.5 rounded text-[11px] bg-purple-900/50 text-purple-300 border border-purple-600/50 shadow-sm';
+                navText.innerText = 'หน้าเจ้าหน้าที่';
+                navIcon.className = 'fa-solid fa-user-gear text-[11px] text-amber-400';
                 switchView('admin');
             } else {
-                badge.innerText = 'อาจารย์';
-                badge.className = 'px-2 py-0.5 rounded text-[11px] bg-sky-900/40 text-sky-300 border border-sky-700/50';
+                badge.innerHTML = '<i class="fa-solid fa-chalkboard-user mr-1 text-[10px]"></i> อาจารย์';
+                badge.className = 'px-2.5 py-0.5 rounded text-[11px] bg-sky-900/50 text-sky-300 border border-sky-600/50 shadow-sm';
+                navText.innerText = 'หน้าอาจารย์';
+                navIcon.className = 'fa-solid fa-chalkboard-user text-[11px] text-sky-400';
                 switchView('lecturer');
             }
         }
@@ -1321,6 +1304,7 @@
             document.getElementById('loginBtn').classList.remove('hidden');
             document.getElementById('logoutBtn').classList.add('hidden');
             document.getElementById('userInfoBar').classList.add('hidden');
+            document.getElementById('quickNavContainer').classList.add('hidden');
             switchView('public');
             showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
         }
@@ -1377,7 +1361,7 @@
                 document.getElementById('formIsbn').value,
                 "ปกติ",
                 "รอจัดพิมพ์",
-                "", "", "lecturer@kmitl.ac.th", "admin@kmitl.ac.th",
+                "", "", "textbook@kmitl.ac.th", "admin@kmitl.ac.th",
                 document.getElementById('formRemark').value,
                 "#", "#", "#"
             ];
@@ -1385,7 +1369,7 @@
             if (editIdx !== '') {
                 allData[editIdx] = newRow;
             } else {
-                allData.unshift(newRow); // Prepend to show at top
+                allData.unshift(newRow);
             }
 
             filteredData = [...allData];
