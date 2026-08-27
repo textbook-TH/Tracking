@@ -49,26 +49,23 @@
             transform-origin: 50% 50%;
         }
 
-        /* Custom Status Pill Styles matching reference */
+        /* Custom Status Pill Styles matching requested reference image (Orange Pill for non-passed) */
         .pill-pending {
-            background-color: #fefce8;
+            background-color: #fffdf0;
             color: #d97706;
-            border: 1px solid #fef08a;
+            border: 1.5px solid #fde68a;
+            box-shadow: 0 1px 2px rgba(217, 119, 6, 0.04);
         }
         .pill-passed {
             background-color: #ecfdf5;
             color: #059669;
-            border: 1px solid #a7f3d0;
+            border: 1.5px solid #a7f3d0;
+            box-shadow: 0 1px 2px rgba(5, 150, 105, 0.04);
         }
         .pill-failed {
             background-color: #fef2f2;
             color: #dc2626;
-            border: 1px solid #fca5a5;
-        }
-        .pill-process {
-            background-color: #eff6ff;
-            color: #2563eb;
-            border: 1px solid #bfdbfe;
+            border: 1.5px solid #fca5a5;
         }
 
         /* Custom scrollbars */
@@ -364,12 +361,61 @@
             <div class="bg-navy-950 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-slate-800">
                 <div>
                     <span class="px-2.5 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full font-semibold border border-amber-500/30">Admin Panel</span>
-                    <h2 class="text-xl font-bold mt-1">จัดการข้อมูลการประเมิน</h2>
+                    <h2 class="text-xl font-bold mt-1">จัดการข้อมูลการประเมิน (สำหรับเจ้าหน้าที่)</h2>
                     <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา</p>
                 </div>
                 <button onclick="openAddModal()" class="inline-flex items-center px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-xl transition shadow">
                     <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มผลงานใหม่
                 </button>
+            </div>
+
+            <!-- Search & Filter Controls for Admin Panel -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-magnifying-glass text-amber-500 text-sm"></i>
+                        <h2 class="font-bold text-slate-800 text-sm">คัดกรองข้อมูลสำหรับเจ้าหน้าที่</h2>
+                    </div>
+                    <button onclick="clearAdminFilters()" class="px-3 py-1 text-xs font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center space-x-1">
+                        <i class="fa-solid fa-rotate-left text-[11px] mr-1"></i>
+                        <span>ล้างการค้นหา</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <!-- Search Input -->
+                    <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-600">พิมพ์ค้นหา</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="adminSearchInput" oninput="filterAdminData()" placeholder="ชื่อผู้เขียน, ชื่อเรื่อง, ID..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs placeholder-slate-400">
+                        </div>
+                    </div>
+
+                    <!-- Year Select -->
+                    <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-600">ปีการศึกษา</label>
+                        <select id="adminYearFilter" onchange="filterAdminData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs cursor-pointer">
+                            <option value="">ปีการศึกษาทั้งหมด</option>
+                        </select>
+                    </div>
+
+                    <!-- Dept Select -->
+                    <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-600">ภาควิชาวิศวกรรม</label>
+                        <select id="adminDeptFilter" onchange="filterAdminData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs cursor-pointer">
+                            <option value="">ภาควิชาทั้งหมด</option>
+                        </select>
+                    </div>
+
+                    <!-- Status Select -->
+                    <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-600">สถานะการประเมิน</label>
+                        <select id="adminStatusFilter" onchange="filterAdminData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs cursor-pointer">
+                            <option value="">สถานะทั้งหมด</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -392,6 +438,16 @@
                             <!-- Admin rows injected -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Bottom Pagination Bar for Admin Panel (8 items per page) -->
+                <div class="flex flex-col sm:flex-row justify-between items-center p-4 border-t border-slate-100 text-xs text-slate-500 gap-3">
+                    <div id="adminPageInfoText">
+                        แสดงหน้าที่ 1 จากทั้งหมด 1 หน้า
+                    </div>
+                    <div id="adminPaginationControls" class="flex items-center space-x-1">
+                        <!-- Pagination buttons injected via JS -->
+                    </div>
                 </div>
             </div>
         </section>
@@ -614,11 +670,16 @@
         let filteredData = [];
         let currentUser = null;
         
-        // Pagination state
+        // Public View Pagination state
         let currentPage = 1;
         const itemsPerPage = 8;
 
-        // Mock dataset matching the user's reference screenshot
+        // Admin View Pagination & Search state
+        let adminFilteredData = [];
+        let adminCurrentPage = 1;
+        const adminItemsPerPage = 8;
+
+        // Mock dataset matching the reference dataset
         const INITIAL_REFERENCE_DATA = [
             ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "-", "ปกติ", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", "#", "#", "#"],
             ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", "#", "#", "#"],
@@ -673,6 +734,31 @@
             if (el) el.innerText = timeStr;
         }
 
+        /**
+         * Dynamic Status Badge Helper:
+         * Generates the appropriate status badge HTML.
+         * For "ผ่านการประเมิน" -> Emerald Green Badge
+         * For all other non-passed statuses (รับเอกสาร, ส่งเอกสารผู้ทรง, รอการแก้ไข, ฯลฯ) -> Warm Orange Badge with Tag Icon matching the reference image.
+         */
+        function renderStatusBadge(evalStatus) {
+            const isPassed = evalStatus && evalStatus.includes('ผ่าน') && !evalStatus.includes('ไม่ผ่าน');
+            
+            if (isPassed) {
+                return `
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold pill-passed">
+                        <i class="fa-solid fa-circle-check mr-1.5 text-[11px]"></i> ${evalStatus}
+                    </span>
+                `;
+            } else {
+                // Orange badge matching the requested sample image
+                return `
+                    <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold pill-pending">
+                        <i class="fa-solid fa-tag mr-1.5 text-[11px] text-amber-600"></i> ${evalStatus}
+                    </span>
+                `;
+            }
+        }
+
         function fetchSheetsData() {
             fetch(GVIZ_URL)
                 .then(res => res.text())
@@ -690,7 +776,7 @@
                         allData.shift();
                     }
 
-                    // ปรับการเรียงลำดับจากมากไปหาน้อย (ผู้ที่เข้ามาทีหลัง/ข้อมูลล่าสุดขึ้นก่อน)
+                    // Sort newest first
                     allData.reverse();
 
                     if (allData.length === 0) allData = [...INITIAL_REFERENCE_DATA].reverse();
@@ -701,7 +787,6 @@
                 })
                 .catch(err => {
                     console.warn("Using mock reference data fallback:", err);
-                    // ปรับให้ข้อมูล Fallback เรียงลำดับจากล่าสุดขึ้นก่อนเช่นกัน
                     allData = [...INITIAL_REFERENCE_DATA].reverse();
                     filteredData = [...allData];
                     initFilters();
@@ -727,6 +812,7 @@
                 if (row[7]) statuses.add(row[7].trim());
             });
 
+            // Public Filters
             const deptSelect = document.getElementById('deptFilter');
             const statusSelect = document.getElementById('statusFilter');
             const yearSelect = document.getElementById('yearFilter');
@@ -739,6 +825,22 @@
 
             yearSelect.innerHTML = '<option value="">ปีการศึกษาทั้งหมด</option>';
             Array.from(years).sort().reverse().forEach(y => yearSelect.innerHTML += `<option value="${y}">${y}</option>`);
+
+            // Admin Filters
+            const adminDeptSelect = document.getElementById('adminDeptFilter');
+            const adminStatusSelect = document.getElementById('adminStatusFilter');
+            const adminYearSelect = document.getElementById('adminYearFilter');
+
+            if (adminDeptSelect && adminStatusSelect && adminYearSelect) {
+                adminDeptSelect.innerHTML = '<option value="">ภาควิชาทั้งหมด</option>';
+                Array.from(depts).sort().forEach(d => adminDeptSelect.innerHTML += `<option value="${d}">ภาควิชาวิศวกรรม: ${d}</option>`);
+
+                adminStatusSelect.innerHTML = '<option value="">สถานะทั้งหมด</option>';
+                Array.from(statuses).sort().forEach(s => adminStatusSelect.innerHTML += `<option value="${s}">${s}</option>`);
+
+                adminYearSelect.innerHTML = '<option value="">ปีการศึกษาทั้งหมด</option>';
+                Array.from(years).sort().reverse().forEach(y => adminYearSelect.innerHTML += `<option value="${y}">${y}</option>`);
+            }
         }
 
         function updateDashboard() {
@@ -763,7 +865,7 @@
             document.getElementById('filteredCountText').innerText = total;
 
             // Update SVG Donut Circumference & Offsets
-            const circumference = 2 * Math.PI * 38; // 238.76
+            const circumference = 2 * Math.PI * 38; // ~238.76
             if (total > 0) {
                 const passedPercent = passed / total;
                 const processPercent = process / total;
@@ -780,6 +882,7 @@
             }
 
             renderPage(1);
+            filterAdminData();
         }
 
         function filterData() {
@@ -807,6 +910,36 @@
             document.getElementById('statusFilter').value = '';
             document.getElementById('yearFilter').value = '';
             filterData();
+        }
+
+        function filterAdminData() {
+            const searchInput = document.getElementById('adminSearchInput');
+            if (!searchInput) return;
+
+            const search = searchInput.value.toLowerCase().trim();
+            const year = document.getElementById('adminYearFilter').value;
+            const dept = document.getElementById('adminDeptFilter').value;
+            const status = document.getElementById('adminStatusFilter').value;
+
+            adminFilteredData = allData.filter(row => {
+                const matchSearch = !search || row.some(col => String(col).toLowerCase().includes(search));
+                const matchYear = !year || (row[2] && row[2].trim() === year);
+                const matchDept = !dept || (row[6] && row[6].trim() === dept);
+                const matchStatus = !status || (row[7] && row[7].trim() === status);
+
+                return matchSearch && matchYear && matchDept && matchStatus;
+            });
+
+            adminCurrentPage = 1;
+            renderAdminPortal();
+        }
+
+        function clearAdminFilters() {
+            document.getElementById('adminSearchInput').value = '';
+            document.getElementById('adminYearFilter').value = '';
+            document.getElementById('adminDeptFilter').value = '';
+            document.getElementById('adminStatusFilter').value = '';
+            filterAdminData();
         }
 
         // Render specific page of items
@@ -840,19 +973,7 @@
                 const evalStatus = row[7] || '-';
                 const isbn = row[8] || '-';
 
-                // Status pill color assignment matching reference image
-                let pillClass = 'pill-process';
-                let iconClass = 'fa-rotate';
-                if (evalStatus.includes('ผ่าน') && !evalStatus.includes('ไม่ผ่าน')) {
-                    pillClass = 'pill-passed';
-                    iconClass = 'fa-circle-check';
-                } else if (evalStatus.includes('ไม่ผ่าน')) {
-                    pillClass = 'pill-failed';
-                    iconClass = 'fa-circle-xmark';
-                } else if (evalStatus.includes('รับเอกสาร') || evalStatus.includes('ส่งเอกสาร') || evalStatus.includes('แก้ไข')) {
-                    pillClass = 'pill-pending';
-                    iconClass = 'fa-tag';
-                }
+                const statusBadge = renderStatusBadge(evalStatus);
 
                 html += `
                     <div onclick="openDetailModal(${globalIdx})" class="bg-white border border-slate-200/90 rounded-2xl p-4 hover:shadow-md transition cursor-pointer flex flex-col md:grid md:grid-cols-12 gap-3 items-start md:items-center">
@@ -864,9 +985,7 @@
 
                         <!-- Col 2: Status Pill -->
                         <div class="md:col-span-3">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${pillClass}">
-                                <i class="fa-solid ${iconClass} mr-1.5 text-[11px]"></i> ${evalStatus}
-                            </span>
+                            ${statusBadge}
                         </div>
 
                         <!-- Col 3: Details -->
@@ -1035,13 +1154,14 @@
 
             let html = '';
             myBooks.forEach(row => {
+                const statusBadge = renderStatusBadge(row[7]);
                 html += `
                     <div class="bg-white rounded-2xl border p-5 space-y-3 shadow-sm flex flex-col justify-between">
                         <div class="space-y-2">
                             <span class="px-2 py-0.5 bg-sky-50 text-sky-600 font-mono text-xs font-bold rounded">${row[0]}</span>
                             <h3 class="font-bold text-slate-900 text-sm">${row[5]}</h3>
                             <p class="text-xs text-slate-500">${row[4]} (${row[6]})</p>
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold pill-passed inline-block">${row[7]}</span>
+                            <div class="pt-1">${statusBadge}</div>
                         </div>
                         <a href="${row[16] || '#'}" target="_blank" class="block w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">ดูผลประเมิน</a>
                     </div>
@@ -1050,30 +1170,104 @@
             grid.innerHTML = html;
         }
 
-        function renderAdminPortal() {
+        /**
+         * Render Admin Portal Table with Search & 8 Items Pagination:
+         */
+        function renderAdminPortal(page = null) {
             if (!currentUser || currentUser.role !== 'admin') return;
+
+            if (page !== null) adminCurrentPage = page;
+
             const tbody = document.getElementById('adminTableBody');
-            document.getElementById('adminRecordCount').innerText = `${allData.length} รายการ`;
+            const totalRecords = adminFilteredData.length;
+            document.getElementById('adminRecordCount').innerText = `${totalRecords} รายการ (จากทั้งหมด ${allData.length} รายการ)`;
+
+            if (totalRecords === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-10 text-center text-slate-400 bg-slate-50">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
+                            <p>ไม่พบรายการที่ตรงกับเงื่อนไขการค้นหา</p>
+                        </td>
+                    </tr>
+                `;
+                renderAdminPagination(0, 1);
+                return;
+            }
+
+            const totalPages = Math.ceil(totalRecords / adminItemsPerPage);
+            const startIdx = (adminCurrentPage - 1) * adminItemsPerPage;
+            const endIdx = Math.min(startIdx + adminItemsPerPage, totalRecords);
+            const pageItems = adminFilteredData.slice(startIdx, endIdx);
 
             let html = '';
-            allData.forEach((row, idx) => {
+            pageItems.forEach((row) => {
+                // Find original index in allData for editing/deleting
+                const originalIdx = allData.findIndex(r => r[0] === row[0]);
+                const evalStatus = row[7] || '-';
+                const statusBadge = renderStatusBadge(evalStatus);
+
                 html += `
-                    <tr class="hover:bg-slate-50">
+                    <tr class="hover:bg-slate-50 transition">
                         <td class="py-3 px-4 font-mono font-bold text-sky-600 text-xs">${row[0]}</td>
                         <td class="py-3 px-4">
                             <div class="font-semibold text-slate-800">${row[5]}</div>
-                            <div class="text-xs text-slate-400">${row[4]}</div>
+                            <div class="text-xs text-slate-400">${row[3] || ''} ${row[4] || ''} (${row[6] || '-'})</div>
                         </td>
-                        <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold pill-passed">${row[7]}</span></td>
+                        <td class="py-3 px-4">${statusBadge}</td>
                         <td class="py-3 px-4 text-xs text-slate-600 max-w-xs truncate">${row[15] || '-'}</td>
                         <td class="py-3 px-4 text-center">
-                            <button onclick="openEditModal(${idx})" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteRecord('${row[0]}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>
+                            <button onclick="openEditModal(${originalIdx !== -1 ? originalIdx : 0})" title="แก้ไขข้อมูล" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteRecord('${row[0]}')" title="ลบรายการ" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     </tr>
                 `;
             });
             tbody.innerHTML = html;
+
+            renderAdminPagination(totalRecords, totalPages);
+        }
+
+        function renderAdminPagination(totalItems, totalPages) {
+            const pageInfo = document.getElementById('adminPageInfoText');
+            const controls = document.getElementById('adminPaginationControls');
+
+            if (!pageInfo || !controls) return;
+
+            if (totalItems === 0) {
+                pageInfo.innerText = "ไม่พบรายการ";
+                controls.innerHTML = "";
+                return;
+            }
+
+            pageInfo.innerText = `แสดงหน้าที่ ${adminCurrentPage} จากทั้งหมด ${totalPages} หน้า (8 รายการ/หน้า)`;
+
+            let btnHtml = '';
+            
+            // Prev Button
+            btnHtml += `
+                <button onclick="renderAdminPortal(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
+                    <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i> ก่อนหน้า
+                </button>
+            `;
+
+            // Page numbers (1, 2, 3, 4, 5, 6...)
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === adminCurrentPage) {
+                    btnHtml += `<button class="w-7 h-7 bg-amber-500 text-white font-bold rounded-lg shadow-sm text-xs">${i}</button>`;
+                } else if (i <= 6 || i === totalPages) {
+                    btnHtml += `<button onclick="renderAdminPortal(${i})" class="w-7 h-7 text-slate-600 hover:bg-slate-100 font-medium rounded-lg text-xs transition">${i}</button>`;
+                }
+            }
+
+            // Next Button
+            btnHtml += `
+                <button onclick="renderAdminPortal(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
+                    ถัดไป <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+                </button>
+            `;
+
+            controls.innerHTML = btnHtml;
         }
 
         function openLoginModal() {
@@ -1191,7 +1385,7 @@
             if (editIdx !== '') {
                 allData[editIdx] = newRow;
             } else {
-                allData.unshift(newRow); // แทรกขึ้นต้นเพื่อให้อยู่บนสุดเสมอ
+                allData.unshift(newRow); // Prepend to show at top
             }
 
             filteredData = [...allData];
