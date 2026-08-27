@@ -91,10 +91,6 @@
                             <h1 class="text-base sm:text-lg font-bold text-white tracking-wide group-hover:text-sky-300 transition duration-200">ระบบติดตามสถานะการประเมินผล</h1>
                             <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full border border-sky-500/30 font-medium">Real-Time</span>
                         </div>
-                        <p class="text-xs text-slate-400 mt-0.5 flex items-center space-x-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span>เชื่อมต่อ Google Sheets เรียบร้อยเมื่อเวลา <span id="syncTimestamp">15:41:39</span></span>
-                        </p>
                     </div>
                 </div>
 
@@ -118,13 +114,12 @@
                         <i class="fa-solid fa-rotate mr-1.5 text-xs text-sky-400"></i> <span class="hidden sm:inline">รีเฟรช</span>
                     </button>
 
-                    <!-- Interactive User Profile Bar (Clickable to jump back to Portal) -->
-                    <div id="userInfoBar" onclick="returnToPortal()" title="คลิกเพื่อกลับไปยังหน้าจัดการของคุณ" class="hidden flex items-center space-x-2 bg-slate-800/90 hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700 text-xs cursor-pointer transition-all duration-200 hover:border-sky-500/60 hover:shadow-md group">
+                    <!-- User Profile Bar (Non-clickable as requested) -->
+                    <div id="userInfoBar" class="hidden flex items-center space-x-2 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700 text-xs text-slate-300">
                         <span id="userRoleBadge" class="px-2.5 py-0.5 rounded-md text-[11px] font-bold tracking-wide shadow-sm flex items-center">
                             <!-- Role Badge injected by JS -->
                         </span>
-                        <span id="userEmailText" class="font-medium text-slate-300 hidden sm:inline group-hover:text-white"></span>
-                        <i class="fa-solid fa-arrow-right-to-bracket text-[10px] text-slate-400 group-hover:text-sky-400 group-hover:translate-x-0.5 transition-transform"></i>
+                        <span id="userEmailText" class="font-medium text-slate-300 hidden sm:inline"></span>
                     </div>
 
                     <button id="loginBtn" onclick="openLoginModal()" class="inline-flex items-center px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-lg transition shadow-md">
@@ -270,6 +265,8 @@
                             <label class="block text-xs font-semibold text-slate-600">สถานะการประเมิน</label>
                             <select id="statusFilter" onchange="filterData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-xs cursor-pointer">
                                 <option value="">สถานะทั้งหมด</option>
+                                <option value="ผ่านการประเมิน">ผ่านการประเมิน</option>
+                                <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                             </select>
                         </div>
                     </div>
@@ -288,7 +285,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-2">
                     <div>
                         <h2 class="font-bold text-slate-800 text-base">ตารางสถานะการประเมิน</h2>
-                        <p class="text-xs text-slate-400">แสดงรายการประเมินผลทั้งหมดเรียงลำดับจากล่าสุดขึ้นก่อน (ผู้ที่ยื่นทีหลังแสดงอันดับแรก)</p>
+                        <p class="text-xs text-slate-400">แสดงสถานะการประเมินผลหนังสือ/ตำราเรียน</p>
                     </div>
                     <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-medium">
                         พบข้อมูล <span id="filteredCountText" class="font-bold text-sky-600">29</span> จาก <span id="totalCountText">29</span> รายการ
@@ -392,6 +389,8 @@
                         <label class="block text-xs font-semibold text-slate-600">สถานะการประเมิน</label>
                         <select id="adminStatusFilter" onchange="filterAdminData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs cursor-pointer">
                             <option value="">สถานะทั้งหมด</option>
+                            <option value="ผ่านการประเมิน">ผ่านการประเมิน</option>
+                            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                         </select>
                     </div>
                 </div>
@@ -419,7 +418,7 @@
                     </table>
                 </div>
 
-                <!-- Bottom Pagination Bar for Admin Panel (Now 10 items per page) -->
+                <!-- Bottom Pagination Bar for Admin Panel (10 items per page) -->
                 <div class="flex flex-col sm:flex-row justify-between items-center p-4 border-t border-slate-100 text-xs text-slate-500 gap-3">
                     <div id="adminPageInfoText">
                         แสดงหน้าที่ 1 จากทั้งหมด 1 หน้า (10 รายการ/หน้า)
@@ -433,7 +432,7 @@
 
     </main>
 
-    <!-- ITEM DETAILS MODAL WITH PROGRESS STEPPER -->
+    <!-- ITEM DETAILS MODAL WITH PROGRESS STEPPER (Attachments Section Removed) -->
     <div id="detailModal" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 relative border border-slate-100 my-8">
             <button onclick="closeDetailModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1">
@@ -480,21 +479,6 @@
             <div id="detailRemarkContainer" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800">
                 <strong class="font-bold block mb-0.5"><i class="fa-solid fa-circle-info mr-1"></i> หมายเหตุ / แจ้งเตือน:</strong>
                 <p id="detailRemarkText"></p>
-            </div>
-
-            <div class="space-y-2 pt-2 border-t border-slate-100">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">เอกสารแนบ</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <a id="btnEvalDoc" href="#" target="_blank" class="p-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-semibold flex items-center justify-center transition border border-emerald-200">
-                        <i class="fa-solid fa-file-pdf mr-1.5 text-sm"></i> ผลประเมิน
-                    </a>
-                    <a id="btnManuscriptDoc" href="#" target="_blank" class="p-2.5 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl text-xs font-semibold flex items-center justify-center transition border border-sky-200">
-                        <i class="fa-solid fa-file-lines mr-1.5 text-sm"></i> ต้นฉบับ
-                    </a>
-                    <a id="btnCoverDoc" href="#" target="_blank" class="p-2.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-semibold flex items-center justify-center transition border border-purple-200">
-                        <i class="fa-solid fa-image mr-1.5 text-sm"></i> ดูรูปปก
-                    </a>
-                </div>
             </div>
 
             <div class="pt-2 flex justify-end">
@@ -649,7 +633,7 @@
         let currentPage = 1;
         const itemsPerPage = 8;
 
-        // Admin View Pagination & Search state (UPDATED: Changed from 8 to 10 items per page)
+        // Admin View Pagination & Search state
         let adminFilteredData = [];
         let adminCurrentPage = 1;
         const adminItemsPerPage = 10;
@@ -769,40 +753,30 @@
 
         function initFilters() {
             const depts = new Set();
-            const statuses = new Set();
             const years = new Set();
 
             allData.forEach(row => {
                 if (row[2]) years.add(row[2].trim());
                 if (row[6]) depts.add(row[6].trim());
-                if (row[7]) statuses.add(row[7].trim());
             });
 
             // Public Filters
             const deptSelect = document.getElementById('deptFilter');
-            const statusSelect = document.getElementById('statusFilter');
             const yearSelect = document.getElementById('yearFilter');
 
             deptSelect.innerHTML = '<option value="">ภาควิชาทั้งหมด</option>';
-            Array.from(depts).sort().forEach(d => deptSelect.innerHTML += `<option value="${d}">ภาควิชาวิศวกรรม: ${d}</option>`);
-
-            statusSelect.innerHTML = '<option value="">สถานะทั้งหมด</option>';
-            Array.from(statuses).sort().forEach(s => statusSelect.innerHTML += `<option value="${s}">${s}</option>`);
+            Array.from(depts).sort().forEach(d => deptSelect.innerHTML += `<option value="${d}">${d}</option>`);
 
             yearSelect.innerHTML = '<option value="">ปีการศึกษาทั้งหมด</option>';
             Array.from(years).sort().reverse().forEach(y => yearSelect.innerHTML += `<option value="${y}">${y}</option>`);
 
             // Admin Filters
             const adminDeptSelect = document.getElementById('adminDeptFilter');
-            const adminStatusSelect = document.getElementById('adminStatusFilter');
             const adminYearSelect = document.getElementById('adminYearFilter');
 
-            if (adminDeptSelect && adminStatusSelect && adminYearSelect) {
+            if (adminDeptSelect && adminYearSelect) {
                 adminDeptSelect.innerHTML = '<option value="">ภาควิชาทั้งหมด</option>';
-                Array.from(depts).sort().forEach(d => adminDeptSelect.innerHTML += `<option value="${d}">ภาควิชาวิศวกรรม: ${d}</option>`);
-
-                adminStatusSelect.innerHTML = '<option value="">สถานะทั้งหมด</option>';
-                Array.from(statuses).sort().forEach(s => adminStatusSelect.innerHTML += `<option value="${s}">${s}</option>`);
+                Array.from(depts).sort().forEach(d => adminDeptSelect.innerHTML += `<option value="${d}">${d}</option>`);
 
                 adminYearSelect.innerHTML = '<option value="">ปีการศึกษาทั้งหมด</option>';
                 Array.from(years).sort().reverse().forEach(y => adminYearSelect.innerHTML += `<option value="${y}">${y}</option>`);
@@ -857,8 +831,17 @@
             filteredData = allData.filter(row => {
                 const matchSearch = !search || row.some(col => String(col).toLowerCase().includes(search));
                 const matchDept = !dept || (row[6] && row[6].trim() === dept);
-                const matchStatus = !status || (row[7] && row[7].trim() === status);
                 const matchYear = !year || (row[2] && row[2].trim() === year);
+
+                // Status Filter Logic: "กำลังดำเนินการ" shows all EXCEPT "ผ่านการประเมิน"
+                let matchStatus = true;
+                if (status === 'ผ่านการประเมิน') {
+                    matchStatus = row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน');
+                } else if (status === 'กำลังดำเนินการ') {
+                    matchStatus = !(row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน'));
+                } else if (status) {
+                    matchStatus = row[7] && row[7].trim() === status;
+                }
 
                 return matchSearch && matchDept && matchStatus && matchYear;
             });
@@ -888,7 +871,16 @@
                 const matchSearch = !search || row.some(col => String(col).toLowerCase().includes(search));
                 const matchYear = !year || (row[2] && row[2].trim() === year);
                 const matchDept = !dept || (row[6] && row[6].trim() === dept);
-                const matchStatus = !status || (row[7] && row[7].trim() === status);
+
+                // Admin Status Filter Logic: "กำลังดำเนินการ" shows all EXCEPT "ผ่านการประเมิน"
+                let matchStatus = true;
+                if (status === 'ผ่านการประเมิน') {
+                    matchStatus = row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน');
+                } else if (status === 'กำลังดำเนินการ') {
+                    matchStatus = !(row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน'));
+                } else if (status) {
+                    matchStatus = row[7] && row[7].trim() === status;
+                }
 
                 return matchSearch && matchYear && matchDept && matchStatus;
             });
@@ -1074,16 +1066,12 @@
                             <p class="text-xs text-slate-500">${row[4]} (${row[6]})</p>
                             <div class="pt-1">${statusBadge}</div>
                         </div>
-                        <a href="${row[16] || '#'}" target="_blank" class="block w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">ดูผลประเมิน</a>
                     </div>
                 `;
             });
             grid.innerHTML = html;
         }
 
-        /**
-         * Render Admin Portal Table with Search & 10 Items Pagination:
-         */
         function renderAdminPortal(page = null) {
             if (!currentUser || currentUser.role !== 'admin') return;
 
@@ -1106,7 +1094,6 @@
                 return;
             }
 
-            // Calculations based on 10 items per page
             const totalPages = Math.ceil(totalRecords / adminItemsPerPage);
             const startIdx = (adminCurrentPage - 1) * adminItemsPerPage;
             const endIdx = Math.min(startIdx + adminItemsPerPage, totalRecords);
@@ -1155,14 +1142,12 @@
 
             let btnHtml = '';
             
-            // Prev Button
             btnHtml += `
                 <button onclick="renderAdminPortal(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
                     <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i> ก่อนหน้า
                 </button>
             `;
 
-            // Page numbers
             for (let i = 1; i <= totalPages; i++) {
                 if (i === adminCurrentPage) {
                     btnHtml += `<button class="w-7 h-7 bg-amber-500 text-white font-bold rounded-lg shadow-sm text-xs">${i}</button>`;
@@ -1171,7 +1156,6 @@
                 }
             }
 
-            // Next Button
             btnHtml += `
                 <button onclick="renderAdminPortal(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
                     ถัดไป <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
@@ -1204,10 +1188,6 @@
             }
 
             buildStepper(row[7] || '', row[10] || '');
-
-            document.getElementById('btnEvalDoc').href = row[16] || '#';
-            document.getElementById('btnManuscriptDoc').href = row[17] || '#';
-            document.getElementById('btnCoverDoc').href = row[18] || '#';
 
             document.getElementById('detailModal').classList.remove('hidden');
         }
