@@ -291,7 +291,7 @@
             </div>
 
             <div id="tableScrollTarget" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden space-y-4 p-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-2">
+                <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left border-b border-slate-100 pb-4 gap-2">
                     <div>
                         <h2 class="font-bold text-slate-800 text-base">ตารางสถานะการประเมิน</h2>
                         <p class="text-xs text-slate-400">แสดงผลรายการหนังสือ/ตำราเรียน</p>
@@ -933,21 +933,21 @@
                 const statusBadge = renderStatusBadge(evalStatus);
 
                 html += `
-                    <div onclick="openDetailModal(${globalIdx})" class="bg-white border border-slate-200/90 rounded-2xl p-4 hover:shadow-md hover:border-sky-300 transition cursor-pointer flex flex-col md:grid md:grid-cols-12 gap-3 items-start md:items-center group">
-                        <div class="md:col-span-1 text-slate-600 font-bold text-xs md:text-center bg-slate-50 md:bg-transparent px-2.5 py-1 rounded-lg">
+                    <div onclick="openDetailModal(${globalIdx})" class="bg-white border border-slate-200/90 rounded-2xl p-4 hover:shadow-md hover:border-sky-300 transition cursor-pointer flex flex-col md:grid md:grid-cols-12 gap-3 items-center md:items-center text-center md:text-left group">
+                        <div class="hidden md:block md:col-span-1 text-slate-600 font-bold text-xs md:text-center bg-slate-50 md:bg-transparent px-2.5 py-1 rounded-lg">
                             ${year}
                         </div>
-                        <div class="md:col-span-3">
+                        <div class="w-full md:w-auto md:col-span-3 flex justify-center md:justify-start">
                             ${statusBadge}
                         </div>
-                        <div class="md:col-span-8 space-y-1">
+                        <div class="w-full md:col-span-8 space-y-1 flex flex-col items-center md:items-start">
                             <div class="text-xs text-slate-800 font-medium">
                                 <span class="font-bold text-slate-500">ผู้ขอประเมิน:</span> ${pos} ${author}
                             </div>
                             <div class="text-xs font-bold text-slate-900 group-hover:text-sky-600 transition leading-snug">
                                 "${title}"
                             </div>
-                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-500 font-medium pt-0.5">
+                            <div class="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[11px] text-slate-500 font-medium pt-0.5">
                                 <span class="flex items-center text-sky-700"><i class="fa-solid fa-bookmark mr-1 text-[10px] text-sky-500"></i> ภาควิชา: ${dept}</span>
                                 <span class="text-slate-300 hidden sm:inline">|</span>
                                 <span class="flex items-center"><i class="fa-solid fa-barcode mr-1 text-[10px] text-slate-400"></i> ISBN: ${isbn}</span>
