@@ -565,9 +565,15 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block font-semibold text-slate-700 mb-1">ชื่อหนังสือ / ตำราเรียน</label>
-                    <input type="text" id="formBookTitle" required placeholder="ชื่อเรื่องหนังสือ" class="w-full p-2.5 border rounded-xl text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ชื่อหนังสือ / ตำราเรียน</label>
+                        <input type="text" id="formBookTitle" required placeholder="ชื่อเรื่องหนังสือ" class="w-full p-2.5 border rounded-xl text-xs">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">อีเมลอาจารย์ผู้ขอประเมิน (@kmitl.ac.th)</label>
+                        <input type="email" id="formEmail" required placeholder="เช่น teacher@kmitl.ac.th" class="w-full p-2.5 border rounded-xl text-xs">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1297,6 +1303,7 @@
             document.getElementById('formYear').value = new Date().getFullYear() + 543;
             document.getElementById('formPosition').value = '';
             document.getElementById('formAuthor').value = '';
+            document.getElementById('formEmail').value = '';
             document.getElementById('formBookTitle').value = '';
             document.getElementById('formDept').value = '';
             document.getElementById('formIsbn').value = '-';
@@ -1313,6 +1320,7 @@
             document.getElementById('formYear').value = row[2] || '';
             document.getElementById('formPosition').value = row[3] || '';
             document.getElementById('formAuthor').value = row[4] || '';
+            document.getElementById('formEmail').value = row[13] || '';
             document.getElementById('formBookTitle').value = row[5] || '';
             document.getElementById('formDept').value = row[6] || '';
             document.getElementById('formEvalStatus').value = row[7] || 'รับเอกสารการประเมิน';
@@ -1329,6 +1337,8 @@
         function handleSaveRecord(e) {
             e.preventDefault();
             const editIdx = document.getElementById('editRowId').value;
+            const userEmailInput = document.getElementById('formEmail').value.trim().toLowerCase();
+            
             const newRow = [
                 document.getElementById('formId').value,
                 new Date().toISOString().slice(0, 10),
@@ -1341,7 +1351,9 @@
                 document.getElementById('formIsbn').value,
                 "ปกติ",
                 "รอจัดพิมพ์",
-                "", "", "textbook@kmitl.ac.th", "admin@kmitl.ac.th",
+                "", "", 
+                userEmailInput || "textbook@kmitl.ac.th", 
+                "admin@kmitl.ac.th",
                 document.getElementById('formRemark').value,
                 "#", "#", "#"
             ];
