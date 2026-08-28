@@ -24,6 +24,7 @@
                         },
                         kmitl: {
                             50: '#fff7ed',
+                            100: '#ffedd5',
                             500: '#ff6600',
                             600: '#e55c00',
                         }
@@ -39,7 +40,7 @@
     <style>
         body { 
             font-family: 'Prompt', 'Sarabun', sans-serif;
-            background-color: #f4f6f9;
+            background-color: #f8fafc;
         }
 
         /* Dynamic Donut Chart custom CSS */
@@ -49,23 +50,35 @@
             transform-origin: 50% 50%;
         }
 
-        /* Custom Status Pill Styles */
+        /* Status Badge Animations & Styles */
         .pill-pending {
-            background-color: #fffdf0;
+            background-color: #fff7ed;
             color: #d97706;
-            border: 1.5px solid #fde68a;
-            box-shadow: 0 1px 2px rgba(217, 119, 6, 0.04);
+            border: 1px solid #fde68a;
         }
         .pill-passed {
             background-color: #ecfdf5;
             color: #059669;
-            border: 1.5px solid #a7f3d0;
-            box-shadow: 0 1px 2px rgba(5, 150, 105, 0.04);
+            border: 1px solid #a7f3d0;
         }
         .pill-failed {
             background-color: #fef2f2;
             color: #dc2626;
-            border: 1.5px solid #fca5a5;
+            border: 1px solid #fca5a5;
+        }
+        .pill-info {
+            background-color: #f0f9ff;
+            color: #0284c7;
+            border: 1px solid #bae6fd;
+        }
+
+        /* Interactive stat card hover effects */
+        .stat-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
         }
 
         /* Custom scrollbars */
@@ -77,25 +90,25 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
-    <!-- Top Dark Navigation Bar -->
-    <header class="bg-navy-900 text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
+    <header class="bg-navy-900 text-white shadow-xl sticky top-0 z-40 border-b border-slate-800/80 backdrop-blur-md bg-opacity-95">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <!-- Left Title & Logo -->
                 <div class="flex items-center space-x-3.5 cursor-pointer group" onclick="switchView('public')" title="ไปยังหน้าหลัก">
-                    <div class="w-11 h-11 bg-sky-600/30 border border-sky-400/40 rounded-xl flex items-center justify-center text-sky-400 font-bold text-xl shadow-inner group-hover:bg-sky-600/50 transition duration-200">
+                    <div class="w-11 h-11 bg-gradient-to-br from-sky-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md group-hover:scale-105 transition duration-200">
                         <i class="fa-solid fa-chart-line"></i>
                     </div>
                     <div>
                         <div class="flex items-center space-x-2">
                             <h1 class="text-base sm:text-lg font-bold text-white tracking-wide group-hover:text-sky-300 transition duration-200">ระบบติดตามสถานะการประเมินผล</h1>
-                            <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full border border-sky-500/30 font-medium">Real-Time</span>
+                            <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full border border-sky-500/30 font-medium hidden sm:inline-block">Real-Time</span>
                         </div>
+                        <p class="text-[11px] text-slate-400">คณะวิศวกรรมศาสตร์ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
                     </div>
                 </div>
 
-                <!-- Center Quick Navigation Tabs (Visible when logged in) -->
-                <div id="quickNavContainer" class="hidden md:flex items-center space-x-1.5 bg-navy-950/80 p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
+                <!-- Center Navigation Tabs -->
+                <div id="quickNavContainer" class="hidden md:flex items-center space-x-1.5 bg-navy-950/90 p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
                     <button id="navPublicBtn" onclick="switchView('public')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 bg-sky-600 text-white shadow-sm">
                         <i class="fa-solid fa-house text-[11px]"></i>
                         <span>หน้าหลัก</span>
@@ -107,26 +120,23 @@
                     </button>
                 </div>
 
-                <!-- Right Action Buttons & User Profile -->
-                <div class="flex items-center space-x-3">
-                    <!-- Refresh Button -->
-                    <button onclick="refreshData()" class="inline-flex items-center px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs sm:text-sm rounded-lg transition duration-200 border border-slate-700 shadow-sm" title="อัปเดตข้อมูล">
-                        <i class="fa-solid fa-rotate mr-1.5 text-xs text-sky-400"></i> <span class="hidden sm:inline">รีเฟรช</span>
+                <!-- Right Action Buttons -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button onclick="refreshData()" class="inline-flex items-center px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs sm:text-sm rounded-xl transition duration-200 border border-slate-700 shadow-sm" title="อัปเดตข้อมูล">
+                        <i class="fa-solid fa-rotate mr-1.5 text-xs text-sky-400"></i>
+                        <span class="hidden sm:inline">รีเฟรช</span>
                     </button>
 
-                    <!-- User Profile Bar (Non-clickable as requested) -->
                     <div id="userInfoBar" class="hidden flex items-center space-x-2 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700 text-xs text-slate-300">
-                        <span id="userRoleBadge" class="px-2.5 py-0.5 rounded-md text-[11px] font-bold tracking-wide shadow-sm flex items-center">
-                            <!-- Role Badge injected by JS -->
-                        </span>
-                        <span id="userEmailText" class="font-medium text-slate-300 hidden sm:inline"></span>
+                        <span id="userRoleBadge" class="px-2.5 py-0.5 rounded-md text-[11px] font-bold tracking-wide shadow-sm flex items-center"></span>
+                        <span id="userEmailText" class="font-medium text-slate-300 hidden lg:inline"></span>
                     </div>
 
-                    <button id="loginBtn" onclick="openLoginModal()" class="inline-flex items-center px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-lg transition shadow-md">
+                    <button id="loginBtn" onclick="openLoginModal()" class="inline-flex items-center px-3.5 py-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow-md">
                         <i class="fa-solid fa-right-to-bracket mr-1.5 text-sky-200"></i> เข้าสู่ระบบ
                     </button>
 
-                    <button id="logoutBtn" onclick="logout()" class="hidden inline-flex items-center px-3 py-1.5 bg-red-900/40 hover:bg-red-900/60 border border-red-700/50 text-red-200 font-medium text-xs rounded-lg transition">
+                    <button id="logoutBtn" onclick="logout()" class="hidden inline-flex items-center px-3 py-1.5 bg-rose-950/60 hover:bg-rose-900 border border-rose-700/50 text-rose-200 font-medium text-xs rounded-xl transition">
                         <i class="fa-solid fa-power-off mr-1.5"></i> ออกจากระบบ
                     </button>
                 </div>
@@ -139,63 +149,63 @@
         <!-- PUBLIC VIEW SECTION -->
         <section id="publicView" class="space-y-6">
             
-            <!-- 1. Top Statistics Summary Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                
+                <div onclick="filterByStatCard('')" class="stat-card bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between cursor-pointer group hover:border-slate-300">
                     <div class="space-y-1">
-                        <p class="text-xs font-semibold text-slate-500">ผู้ขอประเมิน</p>
-                        <p id="statTotal" class="text-3xl font-extrabold text-slate-800">29</p>
+                        <p class="text-xs font-semibold text-slate-500 group-hover:text-slate-800 transition">ผู้ขอประเมินทั้งหมด</p>
+                        <p id="statTotal" class="text-3xl font-extrabold text-slate-800">0</p>
                         <p class="text-[11px] text-slate-400 flex items-center">
-                            <i class="fa-solid fa-list-check mr-1 text-[10px]"></i> รายการค้นหาปัจจุบัน
+                            <i class="fa-solid fa-list-check mr-1 text-[10px]"></i> คลิกเพื่อดูทั้งหมด
                         </p>
                     </div>
-                    <div class="w-12 h-12 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center text-xl font-bold border border-sky-100">
+                    <div class="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center text-xl font-bold group-hover:bg-slate-200 transition">
                         <i class="fa-solid fa-list-ul"></i>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                <div onclick="filterByStatCard('ผ่านการประเมิน')" class="stat-card bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex items-center justify-between cursor-pointer group hover:border-emerald-300">
                     <div class="space-y-1">
-                        <p class="text-xs font-semibold text-slate-500">ผ่านการประเมิน</p>
-                        <p id="statPassed" class="text-3xl font-extrabold text-emerald-600">25</p>
+                        <p class="text-xs font-semibold text-emerald-700">ผ่านการประเมิน</p>
+                        <p id="statPassed" class="text-3xl font-extrabold text-emerald-600">0</p>
                         <p class="text-[11px] text-emerald-600/80 flex items-center font-light">
-                            <i class="fa-solid fa-check mr-1 text-[10px]"></i> ตรงตามเงื่อนไขประเมิน
+                            <i class="fa-solid fa-filter mr-1 text-[10px]"></i> คลิกเพื่อคัดกรอง
                         </p>
                     </div>
-                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl font-bold border border-emerald-100">
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl font-bold border border-emerald-100 group-hover:bg-emerald-100 transition">
                         <i class="fa-solid fa-circle-check"></i>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                <div onclick="filterByStatCard('กำลังดำเนินการ')" class="stat-card bg-white p-5 rounded-2xl border border-amber-100 shadow-sm flex items-center justify-between cursor-pointer group hover:border-amber-300">
                     <div class="space-y-1">
-                        <p class="text-xs font-semibold text-slate-500">กำลังดำเนินการประเมิน</p>
-                        <p id="statProcess" class="text-3xl font-extrabold text-amber-500">4</p>
+                        <p class="text-xs font-semibold text-amber-700">กำลังดำเนินการประเมิน</p>
+                        <p id="statProcess" class="text-3xl font-extrabold text-amber-500">0</p>
                         <p class="text-[11px] text-amber-600/80 flex items-center font-light">
-                            <i class="fa-solid fa-rotate mr-1 text-[10px]"></i> อยู่ระหว่างการตรวจสอบ
+                            <i class="fa-solid fa-filter mr-1 text-[10px]"></i> คลิกเพื่อคัดกรอง
                         </p>
                     </div>
-                    <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center text-xl font-bold border border-amber-100">
+                    <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center text-xl font-bold border border-amber-100 group-hover:bg-amber-100 transition">
                         <i class="fa-solid fa-hourglass-half"></i>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                <div onclick="filterByStatCard('ไม่ผ่านการประเมิน')" class="stat-card bg-white p-5 rounded-2xl border border-rose-100 shadow-sm flex items-center justify-between cursor-pointer group hover:border-rose-300">
                     <div class="space-y-1">
-                        <p class="text-xs font-semibold text-slate-500">ไม่ผ่านการประเมิน</p>
+                        <p class="text-xs font-semibold text-rose-700">ไม่ผ่านการประเมิน</p>
                         <p id="statFailed" class="text-3xl font-extrabold text-rose-600">0</p>
                         <p class="text-[11px] text-rose-600/80 flex items-center font-light">
-                            <i class="fa-solid fa-xmark mr-1 text-[10px]"></i> ไม่ตรงตามข้อกำหนดหลัก
+                            <i class="fa-solid fa-filter mr-1 text-[10px]"></i> คลิกเพื่อคัดกรอง
                         </p>
                     </div>
-                    <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center text-2xl font-bold border border-rose-100">
+                    <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center text-2xl font-bold border border-rose-100 group-hover:bg-rose-100 transition">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. Middle Grid: Donut Chart Breakdown & Multi-Criteria Filters -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Donut Chart Card -->
                 <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
                     <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
                         <i class="fa-solid fa-chart-pie text-emerald-500 text-sm"></i>
@@ -205,13 +215,13 @@
                     <div class="relative flex items-center justify-center my-2">
                         <svg class="w-48 h-48" viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="38" fill="transparent" stroke="#f1f5f9" stroke-width="12"></circle>
-                            <circle id="donutPassed" class="chart-circle" cx="50" cy="50" r="38" fill="transparent" stroke="#10b981" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="30"></circle>
-                            <circle id="donutProcess" class="chart-circle" cx="50" cy="50" r="38" fill="transparent" stroke="#f59e0b" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="210"></circle>
+                            <circle id="donutPassed" class="chart-circle" cx="50" cy="50" r="38" fill="transparent" stroke="#10b981" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76"></circle>
+                            <circle id="donutProcess" class="chart-circle" cx="50" cy="50" r="38" fill="transparent" stroke="#f59e0b" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76"></circle>
                             <circle id="donutFailed" class="chart-circle" cx="50" cy="50" r="38" fill="transparent" stroke="#ef4444" stroke-width="12" stroke-dasharray="238.76" stroke-dashoffset="238.76"></circle>
                         </svg>
 
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                            <span id="chartTotalText" class="text-2xl font-extrabold text-slate-800">29</span>
+                            <span id="chartTotalText" class="text-2xl font-extrabold text-slate-800">0</span>
                             <span class="text-[11px] text-slate-400 font-medium">รายการรวม</span>
                         </div>
                     </div>
@@ -219,11 +229,11 @@
                     <div class="flex items-center justify-around pt-2 text-xs font-medium text-slate-600">
                         <div class="flex items-center space-x-1.5">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                            <span>ผ่าน (<span id="legendPassed">25</span>)</span>
+                            <span>ผ่าน (<span id="legendPassed">0</span>)</span>
                         </div>
                         <div class="flex items-center space-x-1.5">
                             <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                            <span>กำลังทำ (<span id="legendProcess">4</span>)</span>
+                            <span>กำลังทำ (<span id="legendProcess">0</span>)</span>
                         </div>
                         <div class="flex items-center space-x-1.5">
                             <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
@@ -232,18 +242,25 @@
                     </div>
                 </div>
 
+                <!-- Filters & Controls Card -->
                 <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
-                    <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
-                        <i class="fa-solid fa-magnifying-glass text-sky-500 text-sm"></i>
-                        <h2 class="font-bold text-slate-800 text-sm">คัดกรองข้อมูลสถานะการประเมิน</h2>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-magnifying-glass text-sky-500 text-sm"></i>
+                            <h2 class="font-bold text-slate-800 text-sm">คัดกรองข้อมูลสถานะการประเมิน</h2>
+                        </div>
+                        <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                            <span>ส่งออก CSV</span>
+                        </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="space-y-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="space-y-1 sm:col-span-2 lg:col-span-1">
                             <label class="block text-xs font-semibold text-slate-600">พิมพ์ค้นหา</label>
                             <div class="relative">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                                <input type="text" id="searchInput" oninput="filterData()" placeholder="พิมพ์รายละเอียดเพื่อค้นหา..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-xs placeholder-slate-400">
+                                <input type="text" id="searchInput" oninput="filterData()" placeholder="ชื่ออาจารย์, ชื่อหนังสือ, ID..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-xs placeholder-slate-400">
                             </div>
                         </div>
 
@@ -267,12 +284,24 @@
                                 <option value="">สถานะทั้งหมด</option>
                                 <option value="ผ่านการประเมิน">ผ่านการประเมิน</option>
                                 <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                                <option value="ไม่ผ่านการประเมิน">ไม่ผ่านการประเมิน</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1 sm:col-span-2 lg:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-600">จัดเรียงตาม</label>
+                            <select id="sortFilter" onchange="filterData()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-xs cursor-pointer">
+                                <option value="newest">รายการล่าสุดขึ้นก่อน (Default)</option>
+                                <option value="oldest">รายการเก่าสุดขึ้นก่อน</option>
+                                <option value="year_desc">ปีการศึกษา (ใหม่สุด -> เก่าสุด)</option>
+                                <option value="title_asc">ชื่อหนังสือ (ก - ฮ)</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="flex justify-end pt-2 border-t border-slate-100">
-                        <button onclick="clearFilters()" class="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center space-x-1">
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100 text-xs">
+                        <span class="text-slate-400 text-[11px]" id="activeFilterSummary">กำลังแสดงผลลัพธ์ทั้งหมด</span>
+                        <button onclick="clearFilters()" class="px-3 py-1.5 font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center space-x-1">
                             <i class="fa-solid fa-rotate-left text-[11px] mr-1"></i>
                             <span>ล้างการค้นหาทั้งหมด</span>
                         </button>
@@ -280,33 +309,32 @@
                 </div>
             </div>
 
-            <!-- 3. Main Data Table Section -->
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden space-y-4 p-6">
+            <div id="tableScrollTarget" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden space-y-4 p-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-2">
                     <div>
                         <h2 class="font-bold text-slate-800 text-base">ตารางสถานะการประเมิน</h2>
-                        <p class="text-xs text-slate-400">แสดงสถานะการประเมินผลหนังสือ/ตำราเรียน</p>
+                        <p class="text-xs text-slate-400">แสดงผลรายการหนังสือ/ตำราวิชาการทั้งหมด (คลิกรายการเพื่อดูรายละเอียด)</p>
                     </div>
-                    <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-medium">
-                        พบข้อมูล <span id="filteredCountText" class="font-bold text-sky-600">29</span> จาก <span id="totalCountText">29</span> รายการ
+                    <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl font-medium border border-slate-200/60">
+                        พบข้อมูล <span id="filteredCountText" class="font-bold text-sky-600">0</span> จาก <span id="totalCountText">0</span> รายการ
                     </div>
                 </div>
 
                 <div class="space-y-3">
-                    <div class="hidden md:grid grid-cols-12 gap-4 text-xs font-semibold text-slate-500 px-4 py-2 bg-slate-50/80 rounded-xl border border-slate-100">
-                        <div class="col-span-1 text-center">ปี</div>
+                    <div class="hidden md:grid grid-cols-12 gap-4 text-xs font-semibold text-slate-500 px-4 py-2 bg-slate-50 rounded-xl border border-slate-200/60">
+                        <div class="col-span-1 text-center">ปีประเมิน</div>
                         <div class="col-span-3">สถานะการประเมิน</div>
-                        <div class="col-span-8">รายละเอียดการประเมิน</div>
+                        <div class="col-span-8">รายละเอียดการประเมินหนังสือ / ตำราเรียน</div>
                     </div>
 
                     <div id="dataListContainer" class="space-y-2.5">
-                        <!-- Public items dynamically rendered -->
+                        <!-- Dynamic item rows rendered here -->
                     </div>
                 </div>
 
                 <div class="flex flex-col sm:flex-row justify-between items-center pt-4 border-t border-slate-100 text-xs text-slate-500 gap-3">
                     <div id="pageInfoText">
-                        แสดงหน้าที่ 1 จากทั้งหมด 4 หน้า
+                        แสดงหน้าที่ 1 จากทั้งหมด 1 หน้า
                     </div>
 
                     <div id="paginationControls" class="flex items-center space-x-1">
@@ -316,13 +344,12 @@
             </div>
         </section>
 
-        <!-- LECTURER PORTAL VIEW -->
         <section id="lecturerView" class="hidden space-y-6">
-            <div class="bg-navy-900 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="bg-gradient-to-r from-navy-900 to-slate-900 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-slate-800">
                 <div>
                     <span class="px-2.5 py-0.5 bg-sky-500/20 text-sky-300 text-xs rounded-full font-semibold border border-sky-500/30">Lecturer Portal</span>
                     <h2 id="lecturerWelcome" class="text-2xl font-bold mt-2">สวัสดีอาจารย์</h2>
-                    <p class="text-slate-300 text-xs mt-1">รายการหนังสือและตำราวิชาการที่คุณยื่นขอประเมินทั้งหมด</p>
+                    <p class="text-slate-300 text-xs mt-1">รายการหนังสือและตำราวิชาการที่คุณยื่นขอประเมินทั้งหมดในระบบ</p>
                 </div>
                 <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl px-6 py-3 text-center">
                     <span class="text-xs text-slate-300 block">ผลงานของคุณในระบบ</span>
@@ -336,25 +363,24 @@
             </div>
         </section>
 
-        <!-- ADMIN PORTAL VIEW -->
         <section id="adminView" class="hidden space-y-6">
             <div class="bg-navy-950 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-slate-800">
                 <div>
                     <span class="px-2.5 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full font-semibold border border-amber-500/30">Admin Panel</span>
                     <h2 class="text-xl font-bold mt-1">จัดการข้อมูลการประเมิน (สำหรับเจ้าหน้าที่)</h2>
-                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา (แสดงผล 10 รายการ/หน้า)</p>
+                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา</p>
                 </div>
-                <button onclick="openAddModal()" class="inline-flex items-center px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-xl transition shadow">
+                <button onclick="openAddModal()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow">
                     <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มผลงานใหม่
                 </button>
             </div>
 
-            <!-- Search & Filter Controls for Admin Panel -->
+            <!-- Admin Search & Filter Bar -->
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-magnifying-glass text-amber-500 text-sm"></i>
-                        <h2 class="font-bold text-slate-800 text-sm">คัดกรองข้อมูลสำหรับเจ้าหน้าที่</h2>
+                        <i class="fa-solid fa-user-gear text-amber-500 text-sm"></i>
+                        <h2 class="font-bold text-slate-800 text-sm">ค้นหาและคัดกรองข้อมูลเจ้าหน้าที่</h2>
                     </div>
                     <button onclick="clearAdminFilters()" class="px-3 py-1 text-xs font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center space-x-1">
                         <i class="fa-solid fa-rotate-left text-[11px] mr-1"></i>
@@ -367,7 +393,7 @@
                         <label class="block text-xs font-semibold text-slate-600">พิมพ์ค้นหา</label>
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                            <input type="text" id="adminSearchInput" oninput="filterAdminData()" placeholder="ชื่อผู้เขียน, ชื่อเรื่อง, ID..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs placeholder-slate-400">
+                            <input type="text" id="adminSearchInput" oninput="filterAdminData()" placeholder="ผู้เขียน, ชื่อเรื่อง, ID..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs placeholder-slate-400">
                         </div>
                     </div>
 
@@ -391,11 +417,13 @@
                             <option value="">สถานะทั้งหมด</option>
                             <option value="ผ่านการประเมิน">ผ่านการประเมิน</option>
                             <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                            <option value="ไม่ผ่านการประเมิน">ไม่ผ่านการประเมิน</option>
                         </select>
                     </div>
                 </div>
             </div>
 
+            <!-- Admin Table Card -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 class="font-bold text-slate-800 text-sm">รายการข้อมูลในระบบทั้งหมด (เจ้าหน้าที่)</h3>
@@ -413,18 +441,17 @@
                             </tr>
                         </thead>
                         <tbody id="adminTableBody" class="divide-y divide-slate-100">
-                            <!-- Admin rows injected -->
+                            <!-- Admin rows injected dynamically -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Bottom Pagination Bar for Admin Panel (10 items per page) -->
                 <div class="flex flex-col sm:flex-row justify-between items-center p-4 border-t border-slate-100 text-xs text-slate-500 gap-3">
                     <div id="adminPageInfoText">
-                        แสดงหน้าที่ 1 จากทั้งหมด 1 หน้า (10 รายการ/หน้า)
+                        แสดงหน้าที่ 1 จากทั้งหมด 1 หน้า
                     </div>
                     <div id="adminPaginationControls" class="flex items-center space-x-1">
-                        <!-- Pagination buttons injected via JS -->
+                        <!-- Admin pagination controls -->
                     </div>
                 </div>
             </div>
@@ -432,24 +459,29 @@
 
     </main>
 
-    <!-- ITEM DETAILS MODAL WITH PROGRESS STEPPER (Attachments Section Removed) -->
-    <div id="detailModal" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div id="detailModal" onclick="closeModalOnBackdrop(event, 'detailModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto transition-opacity duration-300">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 relative border border-slate-100 my-8">
-            <button onclick="closeDetailModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1">
+            <button onclick="closeDetailModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
             
-            <div class="space-y-1 border-b border-slate-100 pb-4">
+            <div class="space-y-1.5 border-b border-slate-100 pb-4">
                 <div class="flex items-center space-x-2">
                     <span id="detailId" class="px-2.5 py-0.5 bg-sky-100 text-sky-700 font-mono text-xs font-bold rounded-md">ID</span>
-                    <span id="detailYear" class="text-xs text-slate-400">ปีประเมิน: -</span>
+                    <button onclick="copyToClipboard(document.getElementById('detailId').innerText)" class="text-[11px] text-slate-400 hover:text-sky-600 transition" title="คัดลอก ID">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <span id="detailYear" class="text-xs text-slate-400 ml-2">ปีประเมิน: -</span>
                 </div>
                 <h3 id="detailTitle" class="text-lg sm:text-xl font-bold text-slate-900 leading-snug">ชื่อเรื่องหนังสือ</h3>
                 <p id="detailAuthor" class="text-xs text-slate-500"><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i> ผู้เขียน</p>
             </div>
 
             <div class="space-y-3">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-route mr-1"></i> ขั้นตอนการดำเนินงาน</h4>
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500"><i class="fa-solid fa-route mr-1 text-sky-500"></i> ขั้นตอนการดำเนินงาน</h4>
+                    <span id="detailStepPercentage" class="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">0%</span>
+                </div>
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
                     <div id="timelineSteps" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center">
                         <!-- Dynamic Stepper icons -->
@@ -462,9 +494,14 @@
                     <span class="text-slate-400 block font-medium">ภาควิชาวิศวกรรม</span>
                     <span id="detailDept" class="font-bold text-slate-800 text-xs sm:text-sm">-</span>
                 </div>
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <span class="text-slate-400 block font-medium">รหัส ISBN</span>
-                    <span id="detailIsbn" class="font-bold text-slate-800 text-xs sm:text-sm font-mono">-</span>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center">
+                    <div>
+                        <span class="text-slate-400 block font-medium">รหัส ISBN</span>
+                        <span id="detailIsbn" class="font-bold text-slate-800 text-xs sm:text-sm font-mono">-</span>
+                    </div>
+                    <button onclick="copyToClipboard(document.getElementById('detailIsbn').innerText)" class="text-slate-400 hover:text-sky-600 transition p-1" title="คัดลอก ISBN">
+                        <i class="fa-solid fa-copy text-xs"></i>
+                    </button>
                 </div>
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <span class="text-slate-400 block font-medium">สถานะการประเมิน</span>
@@ -482,23 +519,22 @@
             </div>
 
             <div class="pt-2 flex justify-end">
-                <button onclick="closeDetailModal()" class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs">ปิดหน้าต่าง</button>
+                <button onclick="closeDetailModal()" class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">ปิดหน้าต่าง</button>
             </div>
         </div>
     </div>
 
-    <!-- LOGIN MODAL -->
-    <div id="loginModal" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="loginModal" onclick="closeModalOnBackdrop(event, 'loginModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 relative border border-slate-100">
-            <button onclick="closeLoginModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600">
+            <button onclick="closeLoginModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
             <div class="text-center space-y-2">
-                <div class="w-14 h-14 bg-sky-600 text-white rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-md">
+                <div class="w-14 h-14 bg-gradient-to-tr from-sky-600 to-indigo-600 text-white rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-md">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
                 <h3 class="text-lg font-bold text-slate-900">เข้าสู่ระบบผู้ใช้งาน</h3>
-                <p class="text-xs text-slate-500">กรุณากรอกอีเมลสถาบัน @kmitl.ac.th</p>
+                <p class="text-xs text-slate-500">กรุณากรอกอีเมลสถาบัน @kmitl.ac.th เพื่อเข้าสู่ระบบ</p>
             </div>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -520,20 +556,19 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">อีเมล KMITL</label>
-                    <input type="email" id="loginEmail" required placeholder="textbook@kmitl.ac.th" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs">
+                    <input type="email" id="loginEmail" required placeholder="example@kmitl.ac.th" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs">
                 </div>
 
                 <div id="loginError" class="hidden p-3 bg-red-50 text-red-600 text-xs rounded-xl border border-red-200"></div>
 
-                <button type="submit" class="w-full py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow transition">
+                <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow transition">
                     เข้าสู่ระบบ
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- ADD/EDIT RECORD MODAL -->
-    <div id="recordModal" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div id="recordModal" onclick="closeModalOnBackdrop(event, 'recordModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-4 relative my-8 border border-slate-100">
             <button onclick="closeRecordModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600">
                 <i class="fa-solid fa-xmark text-xl"></i>
@@ -546,44 +581,44 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">ID (รหัสรายการ)</label>
-                        <input type="text" id="formId" required placeholder="เช่น Text-030" class="w-full p-2.5 border rounded-xl text-xs">
+                        <input type="text" id="formId" required placeholder="เช่น Text-030" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">ปีที่ทำการประเมิน</label>
-                        <input type="text" id="formYear" required placeholder="เช่น 2569" class="w-full p-2.5 border rounded-xl text-xs">
+                        <input type="text" id="formYear" required placeholder="เช่น 2569" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">ตำแหน่งทางวิชาการ</label>
-                        <input type="text" id="formPosition" placeholder="เช่น รศ.ดร. / ผศ.ดร." class="w-full p-2.5 border rounded-xl text-xs">
+                        <input type="text" id="formPosition" placeholder="เช่น รศ.ดร. / ผศ.ดร." class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">ชื่อผู้เขียน / อาจารย์</label>
-                        <input type="text" id="formAuthor" required placeholder="ชื่อ-นามสกุล" class="w-full p-2.5 border rounded-xl text-xs">
+                        <input type="text" id="formAuthor" required placeholder="ชื่อ-นามสกุล" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">ชื่อหนังสือ / ตำราเรียน</label>
-                        <input type="text" id="formBookTitle" required placeholder="ชื่อเรื่องหนังสือ" class="w-full p-2.5 border rounded-xl text-xs">
+                        <input type="text" id="formBookTitle" required placeholder="ชื่อเรื่องหนังสือ" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">อีเมลอาจารย์ผู้ขอประเมิน (@kmitl.ac.th)</label>
-                        <input type="email" id="formEmail" required placeholder="เช่น teacher@kmitl.ac.th" class="w-full p-2.5 border rounded-xl text-xs">
+                        <input type="email" id="formEmail" required placeholder="เช่น teacher@kmitl.ac.th" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">ภาควิชาวิศวกรรม</label>
-                        <input type="text" id="formDept" placeholder="เช่น คอมพิวเตอร์ / ไฟฟ้า" class="w-full p-2.5 border rounded-xl text-xs">
+                        <input type="text" id="formDept" placeholder="เช่น คอมพิวเตอร์ / ไฟฟ้า" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">สถานะการประเมิน</label>
-                        <select id="formEvalStatus" class="w-full p-2.5 border rounded-xl bg-white text-xs">
+                        <select id="formEvalStatus" class="w-full p-2.5 border rounded-xl bg-white text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                             <option value="รับเอกสารการประเมิน">รับเอกสารการประเมิน</option>
                             <option value="ส่งเอกสารผู้ทรง รอบ 1">ส่งเอกสารผู้ทรง รอบ 1</option>
                             <option value="รอการแก้ไข รอบ 1">รอการแก้ไข รอบ 1</option>
@@ -595,38 +630,35 @@
 
                 <div>
                     <label class="block font-semibold text-slate-700 mb-1">รหัส ISBN</label>
-                    <input type="text" id="formIsbn" placeholder="เช่น 978-616-338-228-3 หรือ -" class="w-full p-2.5 border rounded-xl text-xs">
+                    <input type="text" id="formIsbn" placeholder="เช่น 978-616-338-228-3 หรือ -" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-700 mb-1">หมายเหตุ</label>
-                    <textarea id="formRemark" rows="2" placeholder="ระบุข้อความแจ้งเตือนเพิ่มเติม..." class="w-full p-2.5 border rounded-xl text-xs"></textarea>
+                    <label class="block font-semibold text-slate-700 mb-1">หมายเหตุ / ข้อความแจ้งเตือน</label>
+                    <textarea id="formRemark" rows="2" placeholder="ระบุข้อความแจ้งเตือนเพิ่มเติม..." class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none"></textarea>
                 </div>
 
                 <div class="pt-2 flex justify-end space-x-2">
-                    <button type="button" onclick="closeRecordModal()" class="px-4 py-2 bg-slate-200 text-slate-700 font-medium rounded-xl text-xs">ยกเลิก</button>
-                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow">บันทึกข้อมูล</button>
+                    <button type="button" onclick="closeRecordModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl text-xs transition">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition">บันทึกข้อมูล</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-navy-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-xs border border-slate-700">
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-navy-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs border border-slate-700">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
         <span id="toastMsg" class="font-medium">ทำรายการสำเร็จ</span>
     </div>
 
-    <!-- Bottom Footer -->
-    <footer class="bg-navy-900 border-t border-slate-800 py-4 text-center text-xs text-slate-400 mt-12">
+    <footer class="bg-navy-900 border-t border-slate-800 py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-7xl mx-auto px-4 space-y-1">
             <p>© 2026 Dashboard แสดงสถานะการประเมินผล แบบ Real-time</p>
-            <p class="text-slate-500 text-[11px]">งานเทคโนโลยีการศึกษา คณะวิศวกรรมศาสตร์ สจล.</p>
+            <p class="text-slate-500 text-[11px]">งานเทคโนโลยีการศึกษา คณะวิศวกรรมศาสตร์ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
         </div>
     </footer>
 
     <script>
-        // Data & State Storage
         const PUBLIC_SHEET_ID = "1A3hnZEPaNslKFp96efTGfZzt0HTs8R79Qvgeh1UDI3E";
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
 
@@ -639,12 +671,12 @@
         let currentPage = 1;
         const itemsPerPage = 8;
 
-        // Admin View Pagination & Search state
+        // Admin View Pagination state
         let adminFilteredData = [];
         let adminCurrentPage = 1;
         const adminItemsPerPage = 10;
 
-        // Mock dataset matching reference dataset
+        // Mock reference dataset
         const INITIAL_REFERENCE_DATA = [
             ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "-", "ปกติ", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", "#", "#", "#"],
             ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", "#", "#", "#"],
@@ -657,27 +689,10 @@
             ["Text-009", "2568-05-10", "2568", "ผศ.ดร.", "สมเกียรติ พรหมรักษา", "วิศวกรรมความต้านทานและวัสดุ", "โยธา", "ผ่านการประเมิน", "978-616-338-200-1", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "somkiat@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
             ["Text-010", "2568-06-15", "2568", "รศ.ดร.", "ภาณุพงศ์ มีชัย", "ระบบเครือข่ายเซนเซอร์ไร้สาย", "คอมพิวเตอร์", "ผ่านการประเมิน", "978-616-338-201-2", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "panupong@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
             ["Text-011", "2568-07-20", "2568", "ผศ.", "กัญญา ศรีสุข", "การจัดการห่วงโซ่อุปทานทางวิศวกรรม", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-202-3", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "kanya@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-012", "2568-08-11", "2568", "รศ.ดร.", "ชัยวัฒน์ วงศ์เทวัญ", "วงจรและระบบสัญญาณดิจิทัล", "โทรคมนาคม", "ผ่านการประเมิน", "978-616-338-203-4", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "chaiwat@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-013", "2568-09-01", "2568", "ผศ.ดร.", "ธีรเดช เจริญกุล", "เคมีวิศวกรรมและการประยุกต์", "เคมี", "ผ่านการประเมิน", "978-616-338-204-5", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "theeradech@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-014", "2568-10-05", "2568", "รศ.ดร.", "ปิยพงษ์ สันติภาพ", "ระบบพลังงานหมุนเวียน", "พลังงาน", "ผ่านการประเมิน", "978-616-338-205-6", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "piyapong@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-015", "2568-11-12", "2568", "ผศ.ดร.", "วรวิทย์ ตั้งใจ", "การประมวลผลภาพดิจิทัล", "คอมพิวเตอร์", "ผ่านการประเมิน", "978-616-338-206-7", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "worawit@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-016", "2568-12-01", "2568", "รศ.", "สุวรรณา สุขสันต์", "วิศวกรรมการสิ่งแวดล้อมขั้นสูง", "สิ่งแวดล้อม", "ผ่านการประเมิน", "978-616-338-207-8", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "suwanna@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-017", "2567-01-10", "2567", "ผศ.ดร.", "พงศธร อินทร์แก้ว", "พลศาสตร์โครงสร้างวิศวกรรม", "โยธา", "ผ่านการประเมิน", "978-616-338-208-9", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "pongsatorn@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-018", "2567-02-14", "2567", "รศ.ดร.", "ธนากร มิ่งขวัญ", "ระบบควบคุมแบบปรับตัวได้", "ควบคุม", "ผ่านการประเมิน", "978-616-338-209-0", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "thanakorn@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-019", "2567-03-22", "2567", "ผศ.ดร.", "ศิริพร บุญช่วย", "ไมโครอิเล็กทรอนิกส์พื้นฐาน", "อิเล็กทรอนิกส์", "ผ่านการประเมิน", "978-616-338-210-6", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "siriporn@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-020", "2567-04-18", "2567", "รศ.ดร.", "อภิชาติ สุวรรณ", "การวิเคราะห์โครงสร้างข้อมูลและอัลกอริทึม", "คอมพิวเตอร์", "ผ่านการประเมิน", "978-616-338-211-3", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "apichat@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-021", "2567-05-30", "2567", "ผศ.ดร.", "ณัฐวุฒิ คงคง", "การวัดและเครื่องมือวัดทางวิศวกรรม", "วัดผล", "ผ่านการประเมิน", "978-616-338-212-0", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "nattawut@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-022", "2567-06-25", "2567", "รศ.ดร.", "มนัส พลอยดี", "การทำเหมืองข้อมูลทางธุรกิจ", "คอมพิวเตอร์", "ผ่านการประเมิน", "978-616-338-213-7", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "manas@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-023", "2567-07-19", "2567", "ผศ.ดร.", "ดวงใจ ใจสว่าง", "การวิเคราะห์ความล้มเหลวของวัสดุ", "วัสดุ", "ผ่านการประเมิน", "978-616-338-214-4", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "duangjai@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-024", "2567-08-08", "2567", "รศ.ดร.", "วีระศักดิ์ ศรีวิชัย", "วิศวกรรมขนถ่ายวัสดุ", "เครื่องกล", "ผ่านการประเมิน", "978-616-338-215-1", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "weerasak@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-025", "2567-09-15", "2567", "ผศ.ดร.", "ภัทราภรณ์ วงษา", "ชีวสารสนเทศศาสตร์เบื้องต้น", "ชีวเวช", "ผ่านการประเมิน", "978-616-338-216-8", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "pattaraporn@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-026", "2567-10-20", "2567", "รศ.ดร.", "ประเสริฐ ดีเลิศ", "การออกแบบระบบจัดส่งกำลังไฟฟ้า", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-217-5", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "prasert@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-027", "2567-11-11", "2567", "ผศ.ดร.", "ชลธิชา สุขสันต์", "วิศวกรรมซอฟต์แวร์ฝังตัว", "คอมพิวเตอร์", "ผ่านการประเมิน", "978-616-338-218-2", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "chonticha@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-028", "2567-12-05", "2567", "รศ.ดร.", "สมศักดิ์ รัตนอุบล", "การสั่นสะเทือนทางวิศวกรรม", "เครื่องกล", "ผ่านการประเมิน", "978-616-338-220-7", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "somsak@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-029", "2567-12-28", "2567", "ผศ.ดร.", "สิริมา พานิช", "ระบบอัตโนมัติแบบยืดหยุ่น", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-221-4", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "sirima@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"]
+            ["Text-012", "2568-08-11", "2568", "รศ.ดร.", "ชัยวัฒน์ วงศ์เทวัญ", "วงจรและระบบสัญญาณดิจิทัล", "โทรคมนาคม", "ผ่านการประเมิน", "978-616-338-203-4", "ปกติ", "จัดพิมพ์เสร็จสิ้น", "", "", "chaiwat@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"]
         ];
 
-        // Evaluation Stepper definitions
+        // Stepper metadata
         const STEPS = [
             { title: 'ยื่นคำขอ', icon: 'fa-file-signature' },
             { title: 'ตรวจเอกสาร', icon: 'fa-clipboard-check' },
@@ -689,33 +704,16 @@
 
         window.onload = function() {
             fetchSheetsData();
-            updateCurrentTime();
+            
+            // ESC Key listener to close modal
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeDetailModal();
+                    closeLoginModal();
+                    closeRecordModal();
+                }
+            });
         };
-
-        function updateCurrentTime() {
-            const now = new Date();
-            const timeStr = now.toTimeString().split(' ')[0];
-            const el = document.getElementById('syncTimestamp');
-            if (el) el.innerText = timeStr;
-        }
-
-        // Render Status Badge
-        function renderStatusBadge(evalStatus) {
-            const isPassed = evalStatus && evalStatus.includes('ผ่าน') && !evalStatus.includes('ไม่ผ่าน');
-            if (isPassed) {
-                return `
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold pill-passed">
-                        <i class="fa-solid fa-circle-check mr-1.5 text-[11px]"></i> ${evalStatus}
-                    </span>
-                `;
-            } else {
-                return `
-                    <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold pill-pending">
-                        <i class="fa-solid fa-tag mr-1.5 text-[11px] text-amber-600"></i> ${evalStatus}
-                    </span>
-                `;
-            }
-        }
 
         function fetchSheetsData() {
             fetch(GVIZ_URL)
@@ -735,7 +733,6 @@
                     }
 
                     allData.reverse();
-
                     if (allData.length === 0) allData = [...INITIAL_REFERENCE_DATA].reverse();
 
                     filteredData = [...allData];
@@ -752,9 +749,39 @@
         }
 
         function refreshData() {
-            updateCurrentTime();
             showToast("อัปเดตข้อมูล Real-time เรียบร้อย", "success");
             fetchSheetsData();
+        }
+
+        function renderStatusBadge(evalStatus) {
+            if (!evalStatus) return '-';
+            const statusStr = evalStatus.trim();
+
+            if (statusStr.includes('ผ่าน') && !statusStr.includes('ไม่ผ่าน')) {
+                return `
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold pill-passed">
+                        <i class="fa-solid fa-circle-check mr-1.5 text-[11px]"></i> ${statusStr}
+                    </span>
+                `;
+            } else if (statusStr.includes('ไม่ผ่าน')) {
+                return `
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold pill-failed">
+                        <i class="fa-solid fa-circle-xmark mr-1.5 text-[11px]"></i> ${statusStr}
+                    </span>
+                `;
+            } else {
+                let iconClass = "fa-hourglass-half";
+                if (statusStr.includes('ส่งเอกสาร')) {
+                    iconClass = "fa-paper-plane";
+                } else if (statusStr.includes('แก้ไข')) {
+                    iconClass = "fa-pen-to-square";
+                }
+                return `
+                    <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold pill-pending">
+                        <i class="fa-solid ${iconClass} mr-1.5 text-[11px] text-amber-600"></i> ${statusStr}
+                    </span>
+                `;
+            }
         }
 
         function initFilters() {
@@ -766,7 +793,6 @@
                 if (row[6]) depts.add(row[6].trim());
             });
 
-            // Public Filters
             const deptSelect = document.getElementById('deptFilter');
             const yearSelect = document.getElementById('yearFilter');
 
@@ -776,7 +802,6 @@
             yearSelect.innerHTML = '<option value="">ปีการศึกษาทั้งหมด</option>';
             Array.from(years).sort().reverse().forEach(y => yearSelect.innerHTML += `<option value="${y}">${y}</option>`);
 
-            // Admin Filters
             const adminDeptSelect = document.getElementById('adminDeptFilter');
             const adminYearSelect = document.getElementById('adminYearFilter');
 
@@ -833,27 +858,52 @@
             const dept = document.getElementById('deptFilter').value;
             const status = document.getElementById('statusFilter').value;
             const year = document.getElementById('yearFilter').value;
+            const sort = document.getElementById('sortFilter').value;
 
             filteredData = allData.filter(row => {
                 const matchSearch = !search || row.some(col => String(col).toLowerCase().includes(search));
                 const matchDept = !dept || (row[6] && row[6].trim() === dept);
                 const matchYear = !year || (row[2] && row[2].trim() === year);
 
-                // Status Filter Logic: "กำลังดำเนินการ" shows all EXCEPT "ผ่านการประเมิน"
                 let matchStatus = true;
                 if (status === 'ผ่านการประเมิน') {
                     matchStatus = row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน');
                 } else if (status === 'กำลังดำเนินการ') {
-                    matchStatus = !(row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน'));
-                } else if (status) {
-                    matchStatus = row[7] && row[7].trim() === status;
+                    matchStatus = !(row[7] && row[7].includes('ผ่าน')) && !(row[7] && row[7].includes('ไม่ผ่าน'));
+                } else if (status === 'ไม่ผ่านการประเมิน') {
+                    matchStatus = row[7] && row[7].includes('ไม่ผ่าน');
                 }
 
                 return matchSearch && matchDept && matchStatus && matchYear;
             });
 
+            // Sorting logic
+            if (sort === 'oldest') {
+                filteredData.reverse();
+            } else if (sort === 'year_desc') {
+                filteredData.sort((a, b) => (b[2] || '').localeCompare(a[2] || ''));
+            } else if (sort === 'title_asc') {
+                filteredData.sort((a, b) => (a[5] || '').localeCompare(b[5] || '', 'th'));
+            }
+
+            // Update Summary badge text
+            const activeSummary = document.getElementById('activeFilterSummary');
+            if (search || dept || status || year) {
+                activeSummary.innerText = `กำลังคัดกรอง: ${status || 'ทุกสถานะ'} | ${dept || 'ทุกภาควิชา'} | ${year ? 'ปี ' + year : 'ทุกปี'}`;
+            } else {
+                activeSummary.innerText = "กำลังแสดงผลลัพธ์ทั้งหมด";
+            }
+
             currentPage = 1;
             updateDashboard();
+        }
+
+        function filterByStatCard(statusType) {
+            document.getElementById('statusFilter').value = statusType;
+            filterData();
+            
+            // Smooth scroll to table
+            document.getElementById('tableScrollTarget').scrollIntoView({ behavior: 'smooth' });
         }
 
         function clearFilters() {
@@ -861,46 +911,8 @@
             document.getElementById('deptFilter').value = '';
             document.getElementById('statusFilter').value = '';
             document.getElementById('yearFilter').value = '';
+            document.getElementById('sortFilter').value = 'newest';
             filterData();
-        }
-
-        function filterAdminData() {
-            const searchInput = document.getElementById('adminSearchInput');
-            if (!searchInput) return;
-
-            const search = searchInput.value.toLowerCase().trim();
-            const year = document.getElementById('adminYearFilter').value;
-            const dept = document.getElementById('adminDeptFilter').value;
-            const status = document.getElementById('adminStatusFilter').value;
-
-            adminFilteredData = allData.filter(row => {
-                const matchSearch = !search || row.some(col => String(col).toLowerCase().includes(search));
-                const matchYear = !year || (row[2] && row[2].trim() === year);
-                const matchDept = !dept || (row[6] && row[6].trim() === dept);
-
-                // Admin Status Filter Logic: "กำลังดำเนินการ" shows all EXCEPT "ผ่านการประเมิน"
-                let matchStatus = true;
-                if (status === 'ผ่านการประเมิน') {
-                    matchStatus = row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน');
-                } else if (status === 'กำลังดำเนินการ') {
-                    matchStatus = !(row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน'));
-                } else if (status) {
-                    matchStatus = row[7] && row[7].trim() === status;
-                }
-
-                return matchSearch && matchYear && matchDept && matchStatus;
-            });
-
-            adminCurrentPage = 1;
-            renderAdminPortal();
-        }
-
-        function clearAdminFilters() {
-            document.getElementById('adminSearchInput').value = '';
-            document.getElementById('adminYearFilter').value = '';
-            document.getElementById('adminDeptFilter').value = '';
-            document.getElementById('adminStatusFilter').value = '';
-            filterAdminData();
         }
 
         function renderPage(page) {
@@ -936,24 +948,24 @@
                 const statusBadge = renderStatusBadge(evalStatus);
 
                 html += `
-                    <div onclick="openDetailModal(${globalIdx})" class="bg-white border border-slate-200/90 rounded-2xl p-4 hover:shadow-md transition cursor-pointer flex flex-col md:grid md:grid-cols-12 gap-3 items-start md:items-center">
-                        <div class="md:col-span-1 text-slate-600 font-bold text-xs md:text-center">
+                    <div onclick="openDetailModal(${globalIdx})" class="bg-white border border-slate-200/90 rounded-2xl p-4 hover:shadow-md hover:border-sky-300 transition cursor-pointer flex flex-col md:grid md:grid-cols-12 gap-3 items-start md:items-center group">
+                        <div class="md:col-span-1 text-slate-600 font-bold text-xs md:text-center bg-slate-50 md:bg-transparent px-2.5 py-1 rounded-lg">
                             ${year}
                         </div>
                         <div class="md:col-span-3">
                             ${statusBadge}
                         </div>
                         <div class="md:col-span-8 space-y-1">
-                            <div class="text-xs text-slate-900 font-medium">
-                                <span class="font-bold">ผู้ขอประเมิน:</span> ${pos} ${author}
+                            <div class="text-xs text-slate-800 font-medium">
+                                <span class="font-bold text-slate-500">ผู้ขอประเมิน:</span> ${pos} ${author}
                             </div>
-                            <div class="text-xs font-bold text-slate-900 leading-snug">
-                                <span class="font-normal text-slate-600">ชื่อหนังสือ/ตำราเรียน:</span> "${title}"
+                            <div class="text-xs font-bold text-slate-900 group-hover:text-sky-600 transition leading-snug">
+                                "${title}"
                             </div>
-                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-sky-600 font-medium pt-0.5">
-                                <span class="flex items-center"><i class="fa-solid fa-bookmark mr-1 text-[10px]"></i> ภาควิชาวิศวกรรม: ${dept}</span>
-                                <span class="text-slate-400">|</span>
-                                <span class="flex items-center text-slate-600"><i class="fa-solid fa-barcode mr-1 text-[10px]"></i> รหัส ISBN: ${isbn}</span>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-500 font-medium pt-0.5">
+                                <span class="flex items-center text-sky-700"><i class="fa-solid fa-bookmark mr-1 text-[10px] text-sky-500"></i> ภาควิชา: ${dept}</span>
+                                <span class="text-slate-300 hidden sm:inline">|</span>
+                                <span class="flex items-center"><i class="fa-solid fa-barcode mr-1 text-[10px] text-slate-400"></i> ISBN: ${isbn}</span>
                             </div>
                         </div>
                     </div>
@@ -1001,7 +1013,42 @@
             controls.innerHTML = btnHtml;
         }
 
-        // Return to logged-in portal (Admin or Lecturer)
+        function exportToCSV() {
+            if (filteredData.length === 0) {
+                showToast("ไม่มีข้อมูลในการส่งออก", "error");
+                return;
+            }
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Thai encoding
+            csvContent += "ID,ปีการศึกษา,ยศ/ตำแหน่ง,ผู้เขียน,ชื่อเรื่องหนังสือ,ภาควิชา,สถานะการประเมิน,ISBN,หมายเหตุ\n";
+
+            filteredData.forEach(row => {
+                const cleanRow = [
+                    `"${row[0] || ''}"`,
+                    `"${row[2] || ''}"`,
+                    `"${row[3] || ''}"`,
+                    `"${row[4] || ''}"`,
+                    `"${row[5] || ''}"`,
+                    `"${row[6] || ''}"`,
+                    `"${row[7] || ''}"`,
+                    `"${row[8] || ''}"`,
+                    `"${row[15] || ''}"`
+                ];
+                csvContent += cleanRow.join(",") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `รายงานสถานะการประเมินผล_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("ส่งออกไฟล์ CSV เรียบร้อยแล้ว", "success");
+        }
+
         function returnToPortal() {
             if (!currentUser) {
                 openLoginModal();
@@ -1010,7 +1057,6 @@
             switchView(currentUser.role);
         }
 
-        // Navigation Views Switcher
         function switchView(viewName) {
             currentActiveView = viewName;
             document.getElementById('publicView').classList.add('hidden');
@@ -1054,9 +1100,10 @@
             const grid = document.getElementById('lecturerCardsGrid');
             if (myBooks.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200">
+                    <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
                         <i class="fa-solid fa-book-bookmark text-4xl text-slate-300 mb-2"></i>
                         <h4 class="text-sm font-bold text-slate-700">ไม่พบข้อมูลผลงานของคุณในระบบ</h4>
+                        <p class="text-xs text-slate-400 mt-1">หากเพิ่งยื่นเรื่อง กรุณาติดต่อเจ้าหน้าที่งานเทคโนโลยีการศึกษา</p>
                     </div>`;
                 return;
             }
@@ -1065,11 +1112,14 @@
             myBooks.forEach(row => {
                 const statusBadge = renderStatusBadge(row[7]);
                 html += `
-                    <div class="bg-white rounded-2xl border p-5 space-y-3 shadow-sm flex flex-col justify-between">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                         <div class="space-y-2">
-                            <span class="px-2 py-0.5 bg-sky-50 text-sky-600 font-mono text-xs font-bold rounded">${row[0]}</span>
-                            <h3 class="font-bold text-slate-900 text-sm">${row[5]}</h3>
-                            <p class="text-xs text-slate-500">${row[4]} (${row[6]})</p>
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-0.5 bg-sky-50 text-sky-700 font-mono text-xs font-bold rounded-md">${row[0]}</span>
+                                <span class="text-xs text-slate-400">ปี ${row[2] || '-'}</span>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-sm leading-snug">${row[5]}</h3>
+                            <p class="text-xs text-slate-500">${row[3] || ''} ${row[4] || '-'} (ภาควิชา${row[6] || '-'})</p>
                             <div class="pt-1">${statusBadge}</div>
                         </div>
                     </div>
@@ -1080,7 +1130,6 @@
 
         function renderAdminPortal(page = null) {
             if (!currentUser || currentUser.role !== 'admin') return;
-
             if (page !== null) adminCurrentPage = page;
 
             const tbody = document.getElementById('adminTableBody');
@@ -1130,6 +1179,44 @@
             tbody.innerHTML = html;
 
             renderAdminPagination(totalRecords, totalPages);
+        }
+
+        function filterAdminData() {
+            const searchInput = document.getElementById('adminSearchInput');
+            if (!searchInput) return;
+
+            const search = searchInput.value.toLowerCase().trim();
+            const year = document.getElementById('adminYearFilter').value;
+            const dept = document.getElementById('adminDeptFilter').value;
+            const status = document.getElementById('adminStatusFilter').value;
+
+            adminFilteredData = allData.filter(row => {
+                const matchSearch = !search || row.some(col => String(col).toLowerCase().includes(search));
+                const matchYear = !year || (row[2] && row[2].trim() === year);
+                const matchDept = !dept || (row[6] && row[6].trim() === dept);
+
+                let matchStatus = true;
+                if (status === 'ผ่านการประเมิน') {
+                    matchStatus = row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน');
+                } else if (status === 'กำลังดำเนินการ') {
+                    matchStatus = !(row[7] && row[7].includes('ผ่าน')) && !(row[7] && row[7].includes('ไม่ผ่าน'));
+                } else if (status === 'ไม่ผ่านการประเมิน') {
+                    matchStatus = row[7] && row[7].includes('ไม่ผ่าน');
+                }
+
+                return matchSearch && matchYear && matchDept && matchStatus;
+            });
+
+            adminCurrentPage = 1;
+            renderAdminPortal();
+        }
+
+        function clearAdminFilters() {
+            document.getElementById('adminSearchInput').value = '';
+            document.getElementById('adminYearFilter').value = '';
+            document.getElementById('adminDeptFilter').value = '';
+            document.getElementById('adminStatusFilter').value = '';
+            filterAdminData();
         }
 
         function renderAdminPagination(totalItems, totalPages) {
@@ -1210,18 +1297,22 @@
             else if (evalStatus.includes('ผ่าน') && !evalStatus.includes('ไม่ผ่าน')) currentStepIdx = 4;
             if (printStatus.includes('เสร็จ')) currentStepIdx = 5;
 
+            // Step percentage calculation
+            const percentage = Math.round(((currentStepIdx + 1) / STEPS.length) * 100);
+            document.getElementById('detailStepPercentage').innerText = `${percentage}% ดำเนินการ`;
+
             let html = '';
             STEPS.forEach((step, idx) => {
                 const isCompleted = idx <= currentStepIdx;
                 const isCurrent = idx === currentStepIdx;
 
                 let stateClass = "bg-slate-200 text-slate-400";
-                if (isCurrent) stateClass = "bg-sky-600 text-white shadow-md scale-105";
+                if (isCurrent) stateClass = "bg-sky-600 text-white shadow-md scale-110 ring-4 ring-sky-100";
                 else if (isCompleted) stateClass = "bg-emerald-500 text-white";
 
                 html += `
-                    <div class="flex flex-col items-center space-y-1">
-                        <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs transition font-bold ${stateClass}">
+                    <div class="flex flex-col items-center space-y-1.5">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs transition duration-300 font-bold ${stateClass}">
                             <i class="fa-solid ${step.icon}"></i>
                         </div>
                         <span class="text-[10px] font-semibold ${isCompleted ? 'text-slate-800' : 'text-slate-400'}">${step.title}</span>
@@ -1230,6 +1321,12 @@
             });
 
             container.innerHTML = html;
+        }
+
+        function closeModalOnBackdrop(e, modalId) {
+            if (e.target.id === modalId) {
+                document.getElementById(modalId).classList.add('hidden');
+            }
         }
 
         function openLoginModal() {
@@ -1272,7 +1369,7 @@
 
             if (currentUser.role === 'admin') {
                 badge.innerHTML = '<i class="fa-solid fa-user-gear mr-1 text-[10px]"></i> เจ้าหน้าที่';
-                badge.className = 'px-2.5 py-0.5 rounded text-[11px] bg-purple-900/50 text-purple-300 border border-purple-600/50 shadow-sm';
+                badge.className = 'px-2.5 py-0.5 rounded text-[11px] bg-amber-900/50 text-amber-300 border border-amber-600/50 shadow-sm';
                 navText.innerText = 'หน้าเจ้าหน้าที่';
                 navIcon.className = 'fa-solid fa-user-gear text-[11px] text-amber-400';
                 switchView('admin');
@@ -1295,7 +1392,6 @@
             showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
         }
 
-        // Admin CRUD Modals
         function openAddModal() {
             document.getElementById('recordModalTitle').innerText = 'เพิ่มรายการผลงานใหม่';
             document.getElementById('editRowId').value = '';
@@ -1374,12 +1470,24 @@
         }
 
         function deleteRecord(id) {
+            if (!confirm(`คุณต้องการลบรายการ ${id} ใช่หรือไม่?`)) return;
             allData = allData.filter(r => r[0] !== id);
             filteredData = [...allData];
             initFilters();
             updateDashboard();
             renderAdminPortal();
             showToast(`ลบรายการ ${id} เรียบร้อยแล้ว`, "success");
+        }
+
+        function copyToClipboard(text) {
+            if (!text || text === '-') return;
+            const input = document.createElement('textarea');
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`, "success");
         }
 
         function showToast(msg, type = "success") {
