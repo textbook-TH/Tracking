@@ -697,7 +697,7 @@
             { title: 'ส่งผู้ทรงฯ', icon: 'fa-paper-plane' },
             { title: 'ปรับปรุง', icon: 'fa-pen-to-square' },
             { title: 'แจ้งผล', icon: 'fa-bullhorn' },
-            { title: 'นำไปจัดพิมพ์ได้', icon: 'fa-print' }
+            { title: 'จัดพิมพ์', icon: 'fa-print' }
         ];
 
         window.onload = function() {
@@ -1280,9 +1280,10 @@
             if (evalStatus.includes('ส่งเอกสารผู้ทรง')) currentStepIdx = 2;
             else if (evalStatus.includes('แก้ไข')) currentStepIdx = 3;
             else if (evalStatus.includes('ผ่าน') && !evalStatus.includes('ไม่ผ่าน')) currentStepIdx = 4;
-            if (printStatus.includes('นำไปจัดพิมพ์ได้') || printStatus.includes('เสร็จ')) currentStepIdx = 5;
+            if (printStatus.includes('นำไปจัดพิมพ์ได้') || printStatus.includes('จัดพิมพ์') || printStatus.includes('เสร็จ')) currentStepIdx = 5;
 
-            const percentage = Math.round(((currentStepIdx + 1) / STEPS.length) * 100);
+            // คำนวณเปอร์เซ็นต์โดยเริ่มที่ขั้นตอนยื่นคำขอ (10%) และสิ้นสุดที่จัดพิมพ์ (100%)
+            const percentage = Math.round(10 + (currentStepIdx * (90 / (STEPS.length - 1))));
             document.getElementById('detailStepPercentage').innerText = `${percentage}% ดำเนินการ`;
 
             let html = '';
