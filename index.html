@@ -103,7 +103,7 @@
                         <div class="flex items-center space-x-2">
                             <h1 class="text-xs sm:text-base lg:text-lg font-bold text-white tracking-wide group-hover:text-sky-300 transition duration-200 truncate">ระบบติดตามสถานะการประเมิน</h1>
                         </div>
-                        <p class="text-[11px] sm:text-xs text-slate-400 truncate">งานเทคโนโลยีการศึกษา</p>
+                        <p class="text-[11px] sm:text-xs text-slate-400 truncate">งานเทคโนโลยีการศึกษา คณะวิศวกรรมศาสตร์ สจล.</p>
                     </div>
                 </div>
 
@@ -509,25 +509,6 @@
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <span class="text-slate-400 block font-medium">สถานะจัดพิมพ์</span>
                     <span id="detailPrintStatus" class="font-bold text-slate-700 text-xs sm:text-sm">-</span>
-                </div>
-            </div>
-
-            <!-- Modal Document Links & Uploaded Files Section -->
-            <div class="space-y-2 pt-1 border-t border-slate-100">
-                <h4 class="text-xs font-bold text-slate-700 flex items-center"><i class="fa-solid fa-folder-open text-amber-500 mr-1.5"></i> เอกสารและไฟล์แนบที่เกี่ยวข้อง</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                    <a id="detailLinkOriginal" target="_blank" class="p-2.5 bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 rounded-xl flex items-center justify-between font-medium transition">
-                        <span class="truncate"><i class="fa-solid fa-file-pdf text-rose-500 mr-1.5"></i> 1. หนังสือต้นฉบับ</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                    </a>
-                    <a id="detailLinkCover" target="_blank" class="p-2.5 bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100 rounded-xl flex items-center justify-between font-medium transition">
-                        <span class="truncate"><i class="fa-solid fa-image text-purple-500 mr-1.5"></i> 2. ปกหนังสือ</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                    </a>
-                    <a id="detailLinkEval" target="_blank" class="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 rounded-xl flex items-center justify-between font-medium transition">
-                        <span class="truncate"><i class="fa-solid fa-clipboard-check text-emerald-600 mr-1.5"></i> 3. ผลประเมิน</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                    </a>
                 </div>
             </div>
 
@@ -1509,19 +1490,14 @@
         }
 
         function renderAdminPortal() {
-            if (!currentUser || currentUser.role !== 'admin') return;
+            const tableBody = document.getElementById('adminTableBody');
+            const countText = document.getElementById('adminRecordCount');
+            if (!tableBody) return;
 
-            document.getElementById('adminRecordCount').innerText = `${adminFilteredData.length} รายการ`;
-            const tbody = document.getElementById('adminTableBody');
+            countText.innerText = `${adminFilteredData.length} รายการ`;
 
             if (adminFilteredData.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="py-12 text-center text-slate-400 bg-slate-50">
-                            <i class="fa-solid fa-inbox text-3xl mb-2 text-slate-300"></i>
-                            <p>ไม่พบรายการข้อมูลในระบบ</p>
-                        </td>
-                    </tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">ไม่พบรายการข้อมูล</td></tr>`;
                 renderAdminPagination(0, 1);
                 return;
             }
@@ -1535,56 +1511,38 @@
             pageItems.forEach((row) => {
                 const globalIdx = allData.indexOf(row);
                 const statusBadge = renderStatusBadge(row[7]);
-
-                const origUrl = (row[16] && row[16] !== '#') ? row[16] : DEFAULT_DRIVE_ORIGINAL;
-                const coverUrl = (row[17] && row[17] !== '#') ? row[17] : DEFAULT_DRIVE_COVER;
-                const evalUrl = (row[18] && row[18] !== '#') ? row[18] : DEFAULT_DRIVE_EVAL;
-
+                
                 html += `
-                    <tr class="hover:bg-slate-50/80 transition">
+                    <tr class="hover:bg-slate-50 transition">
                         <td class="py-3 px-4 font-mono font-bold text-sky-700">${row[0]}</td>
-                        <td class="py-3 px-4 space-y-0.5">
-                            <div class="font-bold text-slate-800">${row[5]}</div>
-                            <div class="text-[11px] text-slate-400">${row[3]} ${row[4]} | ภาควิชา: ${row[6] || '-'}</div>
+                        <td class="py-3 px-4">
+                            <p class="font-bold text-slate-900">${row[5]}</p>
+                            <p class="text-[11px] text-slate-500">${row[3]} ${row[4]} | ภาควิชา${row[6]}</p>
                         </td>
                         <td class="py-3 px-4">${statusBadge}</td>
                         <td class="py-3 px-4">
-                            <div class="flex items-center space-x-1.5">
-                                <a href="${origUrl}" target="_blank" title="หนังสือต้นฉบับ" class="w-7 h-7 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center transition border border-blue-200">
-                                    <i class="fa-solid fa-file-pdf text-xs"></i>
-                                </a>
-                                <a href="${coverUrl}" target="_blank" title="ปกหนังสือ" class="w-7 h-7 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center transition border border-purple-200">
-                                    <i class="fa-solid fa-image text-xs"></i>
-                                </a>
-                                <a href="${evalUrl}" target="_blank" title="ผลประเมิน" class="w-7 h-7 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center transition border border-emerald-200">
-                                    <i class="fa-solid fa-clipboard-check text-xs"></i>
-                                </a>
-                            </div>
+                            <span class="text-[11px] text-slate-400 italic">ไฟล์ถูกซ่อนในระบบ</span>
                         </td>
-                        <td class="py-3 px-4 text-[11px] text-slate-500 max-w-xs truncate">${row[15] || '-'}</td>
-                        <td class="py-3 px-4 text-center space-x-1.5">
-                            <button onclick="openDetailModal(${globalIdx})" class="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition" title="ดูรายละเอียด">
-                                <i class="fa-solid fa-eye"></i>
+                        <td class="py-3 px-4 max-w-xs truncate text-[11px] text-slate-500">${row[15] || '-'}</td>
+                        <td class="py-3 px-4 text-center space-x-1">
+                            <button onclick="openEditModal(${globalIdx})" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium rounded-lg transition" title="แก้ไข">
+                                <i class="fa-solid fa-pen-to-square"></i>
                             </button>
-                            <button onclick="openEditModal(${globalIdx})" class="p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition" title="แก้ไขข้อมูล/อัปโหลดไฟล์">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="openDeleteModal('${row[0]}')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="ลบข้อมูล">
-                                <i class="fa-solid fa-trash"></i>
+                            <button onclick="openDeleteModal('${row[0]}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium rounded-lg transition" title="ลบ">
+                                <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </td>
                     </tr>
                 `;
             });
 
-            tbody.innerHTML = html;
+            tableBody.innerHTML = html;
             renderAdminPagination(adminFilteredData.length, totalPages);
         }
 
         function renderAdminPagination(totalItems, totalPages) {
             const pageInfo = document.getElementById('adminPageInfoText');
             const controls = document.getElementById('adminPaginationControls');
-
             if (!pageInfo || !controls) return;
 
             if (totalItems === 0) {
@@ -1598,7 +1556,7 @@
             let btnHtml = '';
             btnHtml += `
                 <button onclick="changeAdminPage(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
-                    ก่อนหน้า
+                    <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i> ก่อนหน้า
                 </button>
             `;
 
@@ -1612,35 +1570,30 @@
 
             btnHtml += `
                 <button onclick="changeAdminPage(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
-                    ถัดไป
+                    ถัดไป <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
                 </button>
             `;
 
             controls.innerHTML = btnHtml;
         }
 
-        function changeAdminPage(page) {
-            adminCurrentPage = page;
+        function changeAdminPage(p) {
+            adminCurrentPage = p;
             renderAdminPortal();
         }
 
-        function openDetailModal(globalIdx) {
-            const row = allData[globalIdx];
+        function openDetailModal(idx) {
+            const row = allData[idx];
             if (!row) return;
 
             document.getElementById('detailId').innerText = row[0] || '-';
             document.getElementById('detailYear').innerText = `ปีประเมิน: ${row[2] || '-'}`;
             document.getElementById('detailTitle').innerText = row[5] || '-';
-            document.getElementById('detailAuthor').innerHTML = `<i class="fa-solid fa-user-pen mr-1 text-slate-400"></i> ${row[3] || ''} ${row[4] || '-'}`;
+            document.getElementById('detailAuthor').innerText = `ผู้เขียน: ${row[3] || ''} ${row[4] || ''}`;
             document.getElementById('detailDept').innerText = row[6] || '-';
             document.getElementById('detailIsbn').innerText = row[8] || '-';
             document.getElementById('detailEvalStatus').innerText = row[7] || '-';
             document.getElementById('detailPrintStatus').innerText = row[10] || '-';
-
-            // Links handling
-            document.getElementById('detailLinkOriginal').href = (row[16] && row[16] !== '#') ? row[16] : DEFAULT_DRIVE_ORIGINAL;
-            document.getElementById('detailLinkCover').href = (row[17] && row[17] !== '#') ? row[17] : DEFAULT_DRIVE_COVER;
-            document.getElementById('detailLinkEval').href = (row[18] && row[18] !== '#') ? row[18] : DEFAULT_DRIVE_EVAL;
 
             renderModalStepper(row[7], row[10]);
 
@@ -1661,12 +1614,12 @@
         }
 
         function openLoginModal() {
-            document.getElementById('loginError').classList.add('hidden');
             document.getElementById('loginModal').classList.remove('hidden');
         }
 
         function closeLoginModal() {
             document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('loginError').classList.add('hidden');
         }
 
         function handleLogin(e) {
@@ -1674,58 +1627,52 @@
             const email = document.getElementById('loginEmail').value.trim();
             const role = document.querySelector('input[name="loginRole"]:checked').value;
 
-            if (!email.endsWith('@kmitl.ac.th')) {
+            if (!email.toLowerCase().endsWith('@kmitl.ac.th')) {
                 const err = document.getElementById('loginError');
-                err.innerText = "กรุณาใช้อีเมลสถาบัน @kmitl.ac.th เท่านั้น";
+                err.innerText = "กรุณาใช้อีเมลองค์กร @kmitl.ac.th เท่านั้น";
                 err.classList.remove('hidden');
                 return;
             }
 
             currentUser = { email, role };
             closeLoginModal();
-            updateHeaderNavVisibility();
-            showToast(`เข้าสู่ระบบในฐานะ ${role === 'admin' ? 'เจ้าหน้าที่' : 'อาจารย์'} เรียบร้อยแล้ว`, "success");
-
-            if (role === 'lecturer') {
-                switchView('lecturer');
-            } else if (role === 'admin') {
-                switchView('admin');
-            }
+            showToast(`เข้าสู่ระบบในฐานะ ${role === 'admin' ? 'เจ้าหน้าที่' : 'อาจารย์'} เรียบร้อยแล้ว`);
+            switchView(role);
         }
 
         function logout() {
             currentUser = null;
             switchView('public');
-            updateHeaderNavVisibility();
-            showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
+            showToast("ออกจากระบบเรียบร้อยแล้ว");
         }
 
         function openAddModal() {
-            document.getElementById('editRowId').value = '';
-            document.getElementById('recordModalTitle').innerText = 'เพิ่มผลงานใหม่';
-            document.getElementById('formId').value = '';
+            document.getElementById('recordModalTitle').innerText = "เพิ่มผลงานใหม่";
+            document.getElementById('editRowId').value = "";
+            document.getElementById('formId').value = `Text-0${allData.length + 1}`;
             document.getElementById('formYear').value = new Date().getFullYear() + 543;
-            document.getElementById('formPosition').value = '';
-            document.getElementById('formAuthor').value = '';
-            document.getElementById('formBookTitle').value = '';
-            document.getElementById('formEmail').value = '';
-            document.getElementById('formDept').value = '';
-            document.getElementById('formEvalStatus').value = 'รับเอกสารการประเมิน';
-            document.getElementById('formIsbn').value = '';
-            document.getElementById('formRemark').value = '';
+            document.getElementById('formPosition').value = "";
+            document.getElementById('formAuthor').value = "";
+            document.getElementById('formBookTitle').value = "";
+            document.getElementById('formEmail').value = "";
+            document.getElementById('formDept').value = "";
+            document.getElementById('formEvalStatus').value = "รับเอกสารการประเมิน";
+            document.getElementById('formIsbn').value = "-";
+            document.getElementById('formRemark').value = "";
 
-            selectedFiles = { original: null, cover: null, eval: null };
-            ['original', 'cover', 'eval'].forEach(t => removeSelectedFile(t));
+            removeSelectedFile('original');
+            removeSelectedFile('cover');
+            removeSelectedFile('eval');
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
 
-        function openEditModal(globalIdx) {
-            const row = allData[globalIdx];
+        function openEditModal(idx) {
+            const row = allData[idx];
             if (!row) return;
 
-            document.getElementById('editRowId').value = globalIdx;
-            document.getElementById('recordModalTitle').innerText = 'แก้ไขข้อมูลผลงาน';
+            document.getElementById('recordModalTitle').innerText = "แก้ไขข้อมูลผลงาน";
+            document.getElementById('editRowId').value = idx;
             document.getElementById('formId').value = row[0] || '';
             document.getElementById('formYear').value = row[2] || '';
             document.getElementById('formPosition').value = row[3] || '';
@@ -1733,12 +1680,13 @@
             document.getElementById('formBookTitle').value = row[5] || '';
             document.getElementById('formDept').value = row[6] || '';
             document.getElementById('formEvalStatus').value = row[7] || 'รับเอกสารการประเมิน';
-            document.getElementById('formIsbn').value = row[8] || '';
+            document.getElementById('formIsbn').value = row[8] || '-';
             document.getElementById('formEmail').value = row[13] || '';
             document.getElementById('formRemark').value = row[15] || '';
 
-            selectedFiles = { original: null, cover: null, eval: null };
-            ['original', 'cover', 'eval'].forEach(t => removeSelectedFile(t));
+            removeSelectedFile('original');
+            removeSelectedFile('cover');
+            removeSelectedFile('eval');
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -1760,30 +1708,29 @@
                 document.getElementById('formDept').value,
                 document.getElementById('formEvalStatus').value,
                 document.getElementById('formIsbn').value,
-                'ปกติ',
-                'รอจัดพิมพ์',
-                '',
-                '',
+                "ปกติ",
+                "รอจัดพิมพ์",
+                "", "",
                 document.getElementById('formEmail').value,
-                currentUser ? currentUser.email : 'admin@kmitl.ac.th',
+                currentUser ? currentUser.email : "admin@kmitl.ac.th",
                 document.getElementById('formRemark').value,
                 DEFAULT_DRIVE_ORIGINAL,
                 DEFAULT_DRIVE_COVER,
                 DEFAULT_DRIVE_EVAL
             ];
 
-            if (editIdx !== '') {
-                allData[editIdx] = newRow;
-                showToast('แก้ไขข้อมูลสำเร็จ', 'success');
+            if (editIdx !== "") {
+                allData[parseInt(editIdx)] = newRow;
+                showToast("อัปเดตข้อมูลสำเร็จ");
             } else {
                 allData.unshift(newRow);
-                showToast('เพิ่มรายการใหม่สำเร็จ', 'success');
+                showToast("เพิ่มผลงานใหม่สำเร็จ");
             }
 
             closeRecordModal();
-            filterData();
-            if (currentUser && currentUser.role === 'admin') renderAdminPortal();
-            if (currentUser && currentUser.role === 'lecturer') renderLecturerPortal();
+            filteredData = [...allData];
+            initFilters();
+            updateDashboard();
         }
 
         function openDeleteModal(id) {
@@ -1793,64 +1740,69 @@
         }
 
         function closeDeleteModal() {
-            targetDeleteId = null;
             document.getElementById('deleteModal').classList.add('hidden');
+            targetDeleteId = null;
         }
 
         function confirmDeleteRecord() {
             if (!targetDeleteId) return;
             allData = allData.filter(r => r[0] !== targetDeleteId);
             closeDeleteModal();
-            filterData();
-            showToast('ลบรายการเรียบร้อยแล้ว', 'success');
+            showToast("ลบข้อมูลรายการเรียบร้อยแล้ว");
+            filteredData = [...allData];
+            initFilters();
+            updateDashboard();
         }
 
         function exportToCSV() {
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "ID,วันที่บันทึก,ปีการศึกษา,คำนำหน้า,ชื่อ-นามสกุล,ชื่อเรื่อง,ภาควิชา,สถานะ,ISBN,อีเมลอาจารย์,หมายเหตุ\n";
-            allData.forEach(row => {
-                const line = [row[0], row[1], row[2], row[3], row[4], `"${row[5]}"`, row[6], row[7], row[8], row[13], `"${row[15] || ''}"`].join(",");
-                csvContent += line + "\n";
+            csvContent += "ID,Year,Position,Author,Title,Department,Status,ISBN,Email,Remark\n";
+            
+            allData.forEach(r => {
+                const rowStr = [r[0], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[13], r[15]]
+                    .map(v => `"${(v || '').replace(/"/g, '""')}"`)
+                    .join(",");
+                csvContent += rowStr + "\n";
             });
+
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `evaluation_tracker_export_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `evaluation_tracking_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast("ส่งออกข้อมูล CSV เรียบร้อยแล้ว", "success");
-        }
-
-        function closeModalOnBackdrop(e, modalId) {
-            if (e.target.id === modalId) {
-                document.getElementById(modalId).classList.add('hidden');
-            }
         }
 
         function copyToClipboard(text) {
             if (!text || text === '-') return;
             navigator.clipboard.writeText(text).then(() => {
-                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`, "success");
+                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
             });
         }
 
         function showToast(msg, type = "success") {
             const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
             const toastMsg = document.getElementById('toastMsg');
-            const toastIcon = document.getElementById('toastIcon');
 
             toastMsg.innerText = msg;
-            if (type === 'error') {
-                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
+            if (type === "error") {
+                icon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
             } else {
-                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+                icon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
+        }
+
+        function closeModalOnBackdrop(e, modalId) {
+            if (e.target.id === modalId) {
+                document.getElementById(modalId).classList.add('hidden');
+            }
         }
     </script>
 </body>
