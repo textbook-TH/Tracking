@@ -86,47 +86,52 @@
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
     <header class="bg-navy-900 text-white shadow-xl sticky top-0 z-40 border-b border-slate-800/80 backdrop-blur-md bg-opacity-95">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <!-- Left Title & Logo -->
-                <div class="flex items-center space-x-3.5 cursor-pointer group" onclick="switchView('public')" title="ไปยังหน้าหลัก">
-                    <div class="w-11 h-11 bg-gradient-to-br from-sky-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md group-hover:scale-105 transition duration-200">
+                <div class="flex items-center space-x-2.5 sm:space-x-3.5 cursor-pointer group" onclick="switchView('public')" title="ไปยังหน้าหลัก">
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-sky-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md group-hover:scale-105 transition duration-200 shrink-0">
                         <i class="fa-solid fa-chart-line"></i>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <div class="flex items-center space-x-2">
-                            <h1 class="text-base sm:text-lg font-bold text-white tracking-wide group-hover:text-sky-300 transition duration-200">ระบบติดตามสถานะการประเมินผล</h1>
-                            <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full border border-sky-500/30 font-medium hidden sm:inline-block">Real-Time</span>
+                            <h1 class="text-xs sm:text-base lg:text-lg font-bold text-white tracking-wide group-hover:text-sky-300 transition duration-200 truncate">ระบบติดตามสถานะการประเมินผล</h1>
+                            <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full border border-sky-500/30 font-medium hidden md:inline-block">Real-Time</span>
                         </div>
-                        <p class="text-[11px] text-slate-400">คณะวิศวกรรมศาสตร์ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
+                        <p class="text-[10px] sm:text-[11px] text-slate-400 truncate hidden xs:block">คณะวิศวกรรมศาสตร์ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
                     </div>
                 </div>
 
-                <!-- Center Navigation Tabs (Strict Dynamic Visibility) -->
-                <div id="quickNavContainer" class="hidden flex flex-wrap items-center space-x-1 sm:space-x-1.5 bg-navy-950/90 p-1 sm:p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
-                    <button id="navPublicBtn" onclick="switchView('public')" class="hidden px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800">
-                        <i class="fa-solid fa-house text-[11px]"></i>
-                        <span>หน้าหลัก</span>
-                    </button>
-                    <button id="navLecturerBtn" onclick="switchView('lecturer')" class="hidden px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800">
-                        <i class="fa-solid fa-chalkboard-user text-[11px] text-sky-400"></i>
-                        <span>หน้าอาจารย์</span>
-                    </button>
-                    <button id="navAdminBtn" onclick="switchView('admin')" class="hidden px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800">
-                        <i class="fa-solid fa-user-gear text-[11px] text-amber-400"></i>
-                        <span>หน้าเจ้าหน้าที่</span>
-                    </button>
-                </div>
-
-                <!-- Right Action Buttons -->
-                <div class="flex items-center space-x-2 sm:space-x-3">
-                    <button id="loginBtn" onclick="openLoginModal()" class="inline-flex items-center px-3.5 py-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow-md">
-                        <i class="fa-solid fa-right-to-bracket mr-1.5 text-sky-200"></i> เข้าสู่ระบบ
+                <div class="flex items-center space-x-2 shrink-0">
+                    <!-- Logged Out State Button -->
+                    <button id="loginBtn" onclick="openLoginModal()" class="inline-flex items-center px-3.5 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow-md">
+                        <i class="fa-solid fa-right-to-bracket mr-1.5 text-sky-200"></i>
+                        <span>เข้าสู่ระบบ</span>
                     </button>
 
-                    <button id="logoutBtn" onclick="logout()" class="hidden inline-flex items-center px-3.5 py-1.5 bg-rose-950/60 hover:bg-rose-900 border border-rose-700/50 text-rose-200 font-medium text-xs rounded-xl transition shadow-sm">
-                        <i class="fa-solid fa-power-off mr-1.5"></i> ออกจากระบบ
-                    </button>
+                    <!-- Logged In State: Combined Action Pills (ไอคอนบนมือถือ + ข้อความบนจอใหญ่) -->
+                    <div id="loggedInGroup" class="hidden flex items-center bg-navy-950/90 p-1 sm:p-1.5 rounded-2xl border border-slate-700/80 shadow-inner space-x-1">
+                        <button id="navPublicBtn" onclick="switchView('public')" title="หน้าหลัก" class="px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800/80">
+                            <i class="fa-solid fa-house text-xs sm:text-[11px]"></i>
+                            <span class="hidden sm:inline">หน้าหลัก</span>
+                        </button>
+
+                        <button id="navLecturerBtn" onclick="switchView('lecturer')" title="หน้าอาจารย์" class="hidden px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800/80">
+                            <i class="fa-solid fa-chalkboard-user text-xs sm:text-[11px]"></i>
+                            <span class="hidden sm:inline">หน้าอาจารย์</span>
+                        </button>
+
+                        <button id="navAdminBtn" onclick="switchView('admin')" title="หน้าเจ้าหน้าที่" class="hidden px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800/80">
+                            <i class="fa-solid fa-user-gear text-xs sm:text-[11px] text-amber-300"></i>
+                            <span class="hidden sm:inline">หน้าเจ้าหน้าที่</span>
+                        </button>
+
+                        <!-- Logout Button integrated into the group -->
+                        <button id="logoutBtn" onclick="logout()" title="ออกจากระบบ" class="px-2.5 sm:px-4 py-1.5 bg-rose-950/80 hover:bg-rose-900 border border-rose-800/70 text-rose-200 font-semibold text-xs rounded-xl transition shadow-sm flex items-center space-x-1.5">
+                            <i class="fa-solid fa-power-off text-xs sm:text-[11px]"></i>
+                            <span class="hidden sm:inline">ออกจากระบบ</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -137,6 +142,7 @@
         <!-- PUBLIC VIEW SECTION -->
         <section id="publicView" class="space-y-6">
             
+            <!-- Summary Stats Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 
                 <div onclick="filterByStatCard('')" class="stat-card bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between cursor-pointer group hover:border-slate-300">
@@ -192,6 +198,7 @@
                 </div>
             </div>
 
+            <!-- Charts and Filter Panel -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Donut Chart Card -->
                 <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
@@ -283,6 +290,7 @@
                 </div>
             </div>
 
+            <!-- Public Data Table -->
             <div id="tableScrollTarget" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden space-y-4 p-6">
                 <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left border-b border-slate-100 pb-4 gap-2">
                     <div>
@@ -318,7 +326,6 @@
             </div>
         </section>
 
-        <!-- LECTURER PORTAL VIEW -->
         <section id="lecturerView" class="hidden space-y-6">
             <div class="bg-gradient-to-r from-navy-900 to-slate-900 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-slate-800">
                 <div>
@@ -338,7 +345,6 @@
             </div>
         </section>
 
-        <!-- ADMIN PANEL VIEW -->
         <section id="adminView" class="hidden space-y-6">
             <div class="bg-navy-950 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-slate-800">
                 <div>
@@ -720,31 +726,29 @@
         };
 
         function updateHeaderNavVisibility() {
+            const loginBtn = document.getElementById('loginBtn');
+            const loggedInGroup = document.getElementById('loggedInGroup');
             const navPublicBtn = document.getElementById('navPublicBtn');
             const navLecturerBtn = document.getElementById('navLecturerBtn');
             const navAdminBtn = document.getElementById('navAdminBtn');
-            const quickNavContainer = document.getElementById('quickNavContainer');
 
-            // 1. Not logged in: Hide nav bar completely
+            // 1. Not logged in: Show Login button, hide loggedInGroup
             if (!currentUser) {
-                if (quickNavContainer) quickNavContainer.classList.add('hidden');
-                if (navPublicBtn) navPublicBtn.classList.add('hidden');
-                if (navLecturerBtn) navLecturerBtn.classList.add('hidden');
-                if (navAdminBtn) navAdminBtn.classList.add('hidden');
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (loggedInGroup) loggedInGroup.classList.add('hidden');
             } 
-            // 2. Logged in as Lecturer: Show Public + Lecturer ONLY
-            else if (currentUser.role === 'lecturer') {
-                if (quickNavContainer) quickNavContainer.classList.remove('hidden');
-                if (navPublicBtn) navPublicBtn.classList.remove('hidden');
-                if (navLecturerBtn) navLecturerBtn.classList.remove('hidden');
-                if (navAdminBtn) navAdminBtn.classList.add('hidden');
-            } 
-            // 3. Logged in as Admin: Show Public + Admin ONLY
-            else if (currentUser.role === 'admin') {
-                if (quickNavContainer) quickNavContainer.classList.remove('hidden');
-                if (navPublicBtn) navPublicBtn.classList.remove('hidden');
-                if (navLecturerBtn) navLecturerBtn.classList.add('hidden');
-                if (navAdminBtn) navAdminBtn.classList.remove('hidden');
+            // 2. Logged in: Hide Login button, show loggedInGroup
+            else {
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (loggedInGroup) loggedInGroup.classList.remove('hidden');
+
+                if (currentUser.role === 'lecturer') {
+                    if (navLecturerBtn) navLecturerBtn.classList.remove('hidden');
+                    if (navAdminBtn) navAdminBtn.classList.add('hidden');
+                } else if (currentUser.role === 'admin') {
+                    if (navLecturerBtn) navLecturerBtn.classList.add('hidden');
+                    if (navAdminBtn) navAdminBtn.classList.remove('hidden');
+                }
             }
 
             updateNavActiveState();
@@ -755,35 +759,32 @@
             const navLecturerBtn = document.getElementById('navLecturerBtn');
             const navAdminBtn = document.getElementById('navAdminBtn');
 
-            const baseStyle = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5";
-            const activeSky = `${baseStyle} bg-sky-600 text-white shadow-sm`;
-            const activeAmber = `${baseStyle} bg-amber-600 text-white shadow-sm`;
-            const inactiveStyle = `${baseStyle} text-slate-300 hover:text-white hover:bg-slate-800`;
+            const baseStyle = "px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 sm:space-x-2";
+            const activePublic = `${baseStyle} bg-slate-800 text-white shadow-sm border border-slate-700/80`;
+            const activeSky = `${baseStyle} bg-sky-600 text-white shadow-md`;
+            const activeAmber = `${baseStyle} bg-amber-600 text-white shadow-md font-bold`;
+            const inactiveStyle = `${baseStyle} text-slate-300 hover:text-white hover:bg-slate-800/80`;
 
             // Public Tab Style
             if (navPublicBtn) {
-                if (!currentUser) {
-                    navPublicBtn.className = `${inactiveStyle} hidden`;
-                } else {
-                    navPublicBtn.className = (currentActiveView === 'public' ? activeSky : inactiveStyle);
-                }
+                navPublicBtn.className = (currentActiveView === 'public' ? activePublic : inactiveStyle);
             }
 
-            // Lecturer Tab Style (preserve hidden state if not allowed)
+            // Lecturer Tab Style
             if (navLecturerBtn) {
                 const isLecturerRole = currentUser && currentUser.role === 'lecturer';
                 if (!isLecturerRole) {
-                    navLecturerBtn.className = `${inactiveStyle} hidden`;
+                    navLecturerBtn.classList.add('hidden');
                 } else {
                     navLecturerBtn.className = (currentActiveView === 'lecturer' ? activeSky : inactiveStyle);
                 }
             }
 
-            // Admin Tab Style (preserve hidden state if not allowed)
+            // Admin Tab Style
             if (navAdminBtn) {
                 const isAdminRole = currentUser && currentUser.role === 'admin';
                 if (!isAdminRole) {
-                    navAdminBtn.className = `${inactiveStyle} hidden`;
+                    navAdminBtn.classList.add('hidden');
                 } else {
                     navAdminBtn.className = (currentActiveView === 'admin' ? activeAmber : inactiveStyle);
                 }
@@ -1478,10 +1479,6 @@
             updateHeaderNavVisibility();
             closeLoginModal();
 
-            // Toggle Header Action Buttons
-            document.getElementById('loginBtn').classList.add('hidden');
-            document.getElementById('logoutBtn').classList.remove('hidden');
-
             if (role === 'admin') {
                 switchView('admin');
                 showToast("ยินดีต้อนรับ เจ้าหน้าที่เข้าสู่ระบบ", "success");
@@ -1494,9 +1491,6 @@
         function logout() {
             currentUser = null;
             updateHeaderNavVisibility();
-            document.getElementById('loginBtn').classList.remove('hidden');
-            document.getElementById('logoutBtn').classList.add('hidden');
-
             switchView('public');
             showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
         }
