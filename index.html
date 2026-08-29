@@ -202,6 +202,7 @@
                 </div>
             </div>
 
+            <!-- Chart & Controls Row -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Donut Chart Card -->
                 <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
@@ -240,7 +241,6 @@
                     </div>
                 </div>
 
-                <!-- Filters & Controls Card -->
                 <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div class="flex items-center space-x-2">
@@ -576,8 +576,11 @@
             </button>
             <h3 id="recordModalTitle" class="text-lg font-bold text-slate-900">เพิ่มผลงานใหม่</h3>
 
-            <form id="documentForm" onsubmit="handleSaveRecord(event)" class="space-y-4 text-xs">
+            <form id="recordForm" onsubmit="handleSaveRecord(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="editRowId">
+                <input type="hidden" id="originalFileUrl">
+                <input type="hidden" id="coverFileUrl">
+                <input type="hidden" id="evalFileUrl">
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -866,9 +869,6 @@
             ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "วศ.สจล. 68-012", "นำไปจัดพิมพ์ได้", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL]
         ];
 
-        /* ========================================================
-           LOGIC การแปลงไฟล์และอัปโหลดไปยัง GOOGLE APPS SCRIPT
-           ======================================================== */
 
         // ฟังก์ชันแปลงไฟล์เป็น Base64 (ตัด Prefix data:xxx;base64, ออก)
         const fileToBase64 = (file) => {
@@ -899,7 +899,7 @@
                 }
 
                 if (!file) {
-                    return ""; // ถ้าไม่มีการเลือกไฟล์ ให้ส่งค่าว่างกลับไป
+                    return ""; // ถ้าไม่มีการเลือกไฟล์ใหม่ ให้ส่งค่าว่างกลับไป
                 }
 
                 const base64Data = await fileToBase64(file);
@@ -911,14 +911,13 @@
                     folder: folderName // ส่งชื่อโฟลเดอร์ระบุประเภทไฟล์
                 };
 
-                // ส่ง POST Request
+                // ส่ง POST Request ไปยัง Apps Script Web App URL
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'text/plain;charset=utf-8', // ใช้ text/plain เพื่อเลี่ยง CORS preflight บล็อก
+                        'Content-Type': 'text/plain;charset=utf-8', // เลี่ยงปัญหา CORS preflight
                     },
-                    body: JSON.stringify(payload),
-                    redirect: 'follow'
+                    body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
@@ -933,12 +932,12 @@
             }
         }
 
-        // Event Handler เมื่อกด Submit ฟอร์มบันทึกข้อมูล
+        // Event ตอนกด Submit ฟอร์มบันทึกข้อมูลและอัปโหลดไฟล์
         async function handleSaveRecord(event) {
             event.preventDefault();
 
-            const submitBtn = document.getElementById('submitBtn');
-            const originalText = submitBtn ? submitBtn.innerText : "บันทึกข้อมูลและไฟล์";
+            const submitBtn = document.getElementById('submitBtn') || event.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.innerText : "บันทึกข้อมูล";
 
             if (submitBtn) {
                 submitBtn.disabled = true;
@@ -946,41 +945,38 @@
             }
 
             try {
-                // ดึงไฟล์จาก Input หรือ Drag & Drop State
-                const fileOrig = selectedFiles.original || document.getElementById('fileInputOriginal')?.files[0];
-                const fileCover = selectedFiles.cover || document.getElementById('fileInputCover')?.files[0];
-                const fileEval = selectedFiles.eval || document.getElementById('fileInputEval')?.files[0];
-
-                // อัปโหลดไฟล์แยกกันทั้ง 3 ช่องพร้อมกัน
+                // ปรับ ID ช่องไฟล์ให้ตรงกับ index.html (fileInputOriginal, fileInputCover, fileInputEval)
                 const [textMasterUrl, bookCoverUrl, evaluationUrl] = await Promise.all([
-                    uploadFileToScript(fileOrig, 'TextMasterFolder'),
-                    uploadFileToScript(fileCover, 'BookCoverFolder'),
-                    uploadFileToScript(fileEval, 'EvaluationFolder')
+                    uploadFileToScript('fileInputOriginal', 'TextMasterFolder'),
+                    uploadFileToScript('fileInputCover', 'BookCoverFolder'),
+                    uploadFileToScript('fileInputEval', 'EvaluationFolder')
                 ]);
 
                 const editId = document.getElementById('editRowId').value;
+                
+                // รวบรวม Data ทั้งหมดเพื่อนำไปบันทึกต่อ
                 const formData = {
-                    id: document.getElementById('formId').value,
-                    year: document.getElementById('formYear').value,
-                    position: document.getElementById('formPosition').value,
-                    author: document.getElementById('formAuthor').value,
-                    title: document.getElementById('formBookTitle').value,
-                    email: document.getElementById('formEmail').value,
-                    dept: document.getElementById('formDept').value,
-                    evalStatus: document.getElementById('formEvalStatus').value,
-                    printStatus: document.getElementById('formPrintStatus').value,
-                    kmitlCode: document.getElementById('formKmitlCode').value,
-                    isbn: document.getElementById('formIsbn').value,
-                    remark: document.getElementById('formRemark').value,
-                    // หากอัปโหลดใหม่ ให้ใช้ URL ใหม่ มิฉะนั้นใช้ URL เดิม
-                    textMasterUrl: textMasterUrl || currentSavedUrls.original,
-                    bookCoverUrl: bookCoverUrl || currentSavedUrls.cover,
-                    evaluationUrl: evaluationUrl || currentSavedUrls.eval
+                    id: document.getElementById('formId')?.value || '',
+                    year: document.getElementById('formYear')?.value || '',
+                    position: document.getElementById('formPosition')?.value || '',
+                    author: document.getElementById('formAuthor')?.value || '',
+                    title: document.getElementById('formBookTitle')?.value || '',
+                    email: document.getElementById('formEmail')?.value || '',
+                    dept: document.getElementById('formDept')?.value || '',
+                    evalStatus: document.getElementById('formEvalStatus')?.value || '',
+                    printStatus: document.getElementById('formPrintStatus')?.value || '',
+                    kmitlCode: document.getElementById('formKmitlCode')?.value || '',
+                    isbn: document.getElementById('formIsbn')?.value || '',
+                    remark: document.getElementById('formRemark')?.value || '',
+                    // หากไม่มีการอัปโหลดไฟล์ใหม่ ให้ดึง URL เดิมจากตัวแปร/ฟิลด์เดิมมาใช้
+                    textMasterUrl: textMasterUrl || document.getElementById('originalFileUrl')?.value || currentSavedUrls.original,
+                    bookCoverUrl: bookCoverUrl || document.getElementById('coverFileUrl')?.value || currentSavedUrls.cover,
+                    evaluationUrl: evaluationUrl || document.getElementById('evalFileUrl')?.value || currentSavedUrls.eval
                 };
 
-                console.log("Upload & Save Success Data:", formData);
+                console.log("Upload Success Data:", formData);
 
-                // บันทึก/อัปเดตข้อมูลลง Array ฝั่ง Client
+                // อัปเดตข้อมูลในระบบ Client
                 const newRowData = [
                     formData.id, new Date().toISOString().split('T')[0], formData.year, formData.position,
                     formData.author, formData.title, formData.dept, formData.evalStatus, formData.isbn,
@@ -1006,14 +1002,11 @@
             } finally {
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = originalText;
+                    submitBtn.innerText = originalBtnText;
                 }
             }
         }
 
-        /* ========================================================
-           UI INTERACTION & SYSTEM FUNCTIONS
-           ======================================================== */
 
         window.onload = function() {
             updateHeaderNavVisibility();
@@ -1115,6 +1108,7 @@
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
+
         function updateHeaderNavVisibility() {
             const loginBtn = document.getElementById('loginBtn');
             const loggedInGroup = document.getElementById('loggedInGroup');
@@ -1196,6 +1190,7 @@
 
             updateHeaderNavVisibility();
         }
+
 
         function fetchSheetsData() {
             fetch(GVIZ_URL)
@@ -1331,6 +1326,7 @@
             renderPage(1);
             filterAdminData();
         }
+
 
         function filterData() {
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1470,6 +1466,7 @@
             controls.innerHTML = btnHtml;
         }
 
+
         function filterAdminData() {
             const search = document.getElementById('adminSearchInput') ? document.getElementById('adminSearchInput').value.toLowerCase().trim() : '';
             const dept = document.getElementById('adminDeptFilter') ? document.getElementById('adminDeptFilter').value : '';
@@ -1495,6 +1492,14 @@
 
             adminCurrentPage = 1;
             renderAdminPortal();
+        }
+
+        function clearAdminFilters() {
+            if (document.getElementById('adminSearchInput')) document.getElementById('adminSearchInput').value = '';
+            if (document.getElementById('adminDeptFilter')) document.getElementById('adminDeptFilter').value = '';
+            if (document.getElementById('adminStatusFilter')) document.getElementById('adminStatusFilter').value = '';
+            if (document.getElementById('adminYearFilter')) document.getElementById('adminYearFilter').value = '';
+            filterAdminData();
         }
 
         function renderAdminPortal() {
@@ -1604,6 +1609,7 @@
             renderAdminPortal();
         }
 
+
         function renderLecturerPortal() {
             if (!currentUser || currentUser.role !== 'lecturer') return;
             const userEmail = currentUser.email.toLowerCase();
@@ -1615,50 +1621,190 @@
             const grid = document.getElementById('lecturerCardsGrid');
             if (myBooks.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
-                        <i class="fa-solid fa-book-bookmark text-4xl text-slate-300 mb-2"></i>
+                    <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                        <i class="fa-solid fa-book-bookmark text-4xl text-slate-300"></i>
                         <h4 class="text-sm font-bold text-slate-700">ไม่พบข้อมูลผลงานของคุณในระบบ</h4>
-                        <p class="text-xs text-slate-400 mt-1">หากเพิ่งยื่นเรื่อง กรุณาติดต่อเจ้าหน้าที่งานเทคโนโลยีการศึกษา</p>
+                        <p class="text-xs text-slate-400">หากเพิ่งยื่นเรื่อง กรุณาติดต่อเจ้าหน้าที่งานเทคโนโลยีการศึกษา</p>
                     </div>`;
                 return;
             }
 
             let html = '';
             myBooks.forEach(row => {
-                const statusBadge = renderStatusBadge(row[7]);
                 const globalIdx = allData.indexOf(row);
+                const statusBadge = renderStatusBadge(row[7]);
+                const origLink = row[16] || DEFAULT_DRIVE_ORIGINAL;
+                const coverLink = row[17] || DEFAULT_DRIVE_COVER;
+                const evalLink = row[18] || DEFAULT_DRIVE_EVAL;
+
                 html += `
-                    <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between">
-                                <span class="px-2.5 py-0.5 bg-sky-50 text-sky-700 font-mono text-xs font-bold rounded-md">${row[0]}</span>
-                                <span class="text-xs text-slate-400">ปี ${row[2]}</span>
-                            </div>
-                            <h3 class="font-bold text-slate-900 text-sm leading-snug">${row[5]}</h3>
-                            <p class="text-xs text-slate-500">${row[3]} ${row[4]}</p>
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4 hover:shadow-md transition">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="px-2.5 py-0.5 bg-slate-100 text-slate-700 font-mono text-xs font-bold rounded-md">${row[0]}</span>
+                            ${statusBadge}
                         </div>
-                        <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
-                            <div>${statusBadge}</div>
-                            <button onclick="openDetailModal(${globalIdx})" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-600 font-medium text-xs rounded-xl transition">
-                                ดูรายละเอียด
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm line-clamp-2" title="${row[5]}">"${row[5]}"</h3>
+                            <p class="text-xs text-slate-500 mt-1">ปีการศึกษา: ${row[2]} | ภาควิชา: ${row[6]}</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <div class="flex items-center space-x-2">
+                                <a href="${origLink}" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:text-sky-800 font-semibold flex items-center space-x-1">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                    <span>ต้นฉบับ</span>
+                                </a>
+                                <span class="text-slate-300">|</span>
+                                <a href="${coverLink}" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:text-purple-800 font-semibold flex items-center space-x-1">
+                                    <i class="fa-solid fa-image"></i>
+                                    <span>ปก</span>
+                                </a>
+                                <span class="text-slate-300">|</span>
+                                <a href="${evalLink}" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-800 font-semibold flex items-center space-x-1">
+                                    <i class="fa-solid fa-clipboard-check"></i>
+                                    <span>ผลประเมิน</span>
+                                </a>
+                            </div>
+                            <button onclick="openDetailModal(${globalIdx})" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition">
+                                รายละเอียด
                             </button>
                         </div>
                     </div>
                 `;
             });
+
             grid.innerHTML = html;
         }
 
-        /* Modal Handlers */
+
+        function openDetailModal(globalIdx) {
+            const row = allData[globalIdx];
+            if (!row) return;
+
+            document.getElementById('detailId').innerText = row[0] || '-';
+            document.getElementById('detailYear').innerText = `ปีประเมิน: ${row[2] || '-'}`;
+            document.getElementById('detailTitle').innerText = row[5] || '-';
+            document.getElementById('detailAuthor').innerText = `${row[3] || ''} ${row[4] || ''}`;
+            document.getElementById('detailDept').innerText = row[6] || '-';
+            document.getElementById('detailIsbn').innerText = row[8] || '-';
+            document.getElementById('detailEvalStatus').innerText = row[7] || '-';
+            document.getElementById('detailPrintStatus').innerText = row[10] || '-';
+
+            const remarkContainer = document.getElementById('detailRemarkContainer');
+            if (row[15] && row[15].trim() !== '') {
+                document.getElementById('detailRemarkText').innerText = row[15];
+                remarkContainer.classList.remove('hidden');
+            } else {
+                remarkContainer.classList.add('hidden');
+            }
+
+            // Stepper calculation based on evaluation status
+            const evalStatus = row[7] || '';
+            let currentStep = 1;
+            let percentage = 15;
+
+            if (evalStatus.includes('รับเอกสาร')) { currentStep = 1; percentage = 15; }
+            else if (evalStatus.includes('สรรหา')) { currentStep = 2; percentage = 30; }
+            else if (evalStatus.includes('เข้ากรรมการ')) { currentStep = 3; percentage = 45; }
+            else if (evalStatus.includes('ส่งเอกสารผู้ทรง') || evalStatus.includes('รอบ 1')) { currentStep = 4; percentage = 65; }
+            else if (evalStatus.includes('ส่งเอกสารผู้ทรง รอบ 2') || evalStatus.includes('รอบ 2')) { currentStep = 5; percentage = 85; }
+            else if (evalStatus.includes('ผ่านการประเมิน') || evalStatus.includes('สรุปผล')) { currentStep = 6; percentage = 100; }
+
+            document.getElementById('detailStepPercentage').innerHTML = `
+                <i class="fa-solid fa-chart-line mr-1"></i> ความคืบหน้า ${percentage}%
+            `;
+
+            const steps = [
+                { label: 'รับเอกสาร', icon: 'fa-file-import' },
+                { label: 'สรรหาผู้ทรงฯ', icon: 'fa-user-search' },
+                { label: 'กรรมการคณะ', icon: 'fa-users-rectangle' },
+                { label: 'ประเมินรอบ 1', icon: 'fa-file-signature' },
+                { label: 'ประเมินรอบ 2', icon: 'fa-file-circle-check' },
+                { label: 'สรุปผล', icon: 'fa-award' }
+            ];
+
+            let stepperHtml = '';
+            steps.forEach((step, idx) => {
+                const stepNum = idx + 1;
+                const isPassed = stepNum <= currentStep;
+                const isCurrent = stepNum === currentStep;
+
+                let iconBg = isCurrent ? 'bg-sky-600 text-white shadow-lg shadow-sky-200 ring-2 ring-sky-300' : 
+                             (isPassed ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400');
+
+                stepperHtml += `
+                    <div class="flex flex-col items-center space-y-1">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-xs font-bold ${iconBg} transition duration-200">
+                            <i class="fa-solid ${step.icon}"></i>
+                        </div>
+                        <span class="text-[10px] font-medium ${isCurrent ? 'text-sky-700 font-bold' : (isPassed ? 'text-slate-700' : 'text-slate-400')}">${step.label}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('timelineSteps').innerHTML = stepperHtml;
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+
+        function openLoginModal() {
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const role = document.querySelector('input[name="loginRole"]:checked').value;
+
+            if (!email.toLowerCase().endsWith('@kmitl.ac.th')) {
+                const err = document.getElementById('loginError');
+                err.innerText = "กรุณากรอกอีเมลสถาบันที่ลงท้ายด้วย @kmitl.ac.th เท่านั้น";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            currentUser = { email: email, role: role };
+            closeLoginModal();
+            showToast(`เข้าสู่ระบบสำเร็จในฐานะ ${role === 'admin' ? 'เจ้าหน้าที่' : 'อาจารย์'}`, "success");
+
+            if (role === 'admin') switchView('admin');
+            else switchView('lecturer');
+        }
+
+        function logout() {
+            currentUser = null;
+            switchView('public');
+            showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
+        }
+
         function openAddModal() {
             document.getElementById('recordModalTitle').innerText = "เพิ่มผลงานใหม่";
             document.getElementById('editRowId').value = "";
-            document.getElementById('documentForm').reset();
-            
+            document.getElementById('recordForm').reset();
+
+            // Clear file preview states
             selectedFiles = { original: null, cover: null, eval: null };
-            removeSelectedFile('original');
-            removeSelectedFile('cover');
-            removeSelectedFile('eval');
+            ['Original', 'Cover', 'Eval'].forEach(t => {
+                const previewEl = document.getElementById(`filePreview${t}`);
+                const dropZoneEl = document.getElementById(`dropZone${t}`);
+                if (previewEl) previewEl.classList.add('hidden');
+                if (dropZoneEl) dropZoneEl.classList.remove('hidden');
+            });
+
+            currentSavedUrls = {
+                original: DEFAULT_DRIVE_ORIGINAL,
+                cover: DEFAULT_DRIVE_COVER,
+                eval: DEFAULT_DRIVE_EVAL
+            };
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -1667,8 +1813,9 @@
             const row = allData[globalIdx];
             if (!row) return;
 
-            document.getElementById('recordModalTitle').innerText = "แก้ไขข้อมูลผลงาน";
+            document.getElementById('recordModalTitle').innerText = `แก้ไขข้อมูลรายการ (${row[0]})`;
             document.getElementById('editRowId').value = row[0];
+
             document.getElementById('formId').value = row[0] || '';
             document.getElementById('formYear').value = row[2] || '';
             document.getElementById('formPosition').value = row[3] || '';
@@ -1688,78 +1835,15 @@
                 eval: row[18] || DEFAULT_DRIVE_EVAL
             };
 
-            selectedFiles = { original: null, cover: null, eval: null };
-            removeSelectedFile('original');
-            removeSelectedFile('cover');
-            removeSelectedFile('eval');
+            document.getElementById('originalFileUrl').value = currentSavedUrls.original;
+            document.getElementById('coverFileUrl').value = currentSavedUrls.cover;
+            document.getElementById('evalFileUrl').value = currentSavedUrls.eval;
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
 
         function closeRecordModal() {
             document.getElementById('recordModal').classList.add('hidden');
-        }
-
-        function openDetailModal(globalIdx) {
-            const row = allData[globalIdx];
-            if (!row) return;
-
-            document.getElementById('detailId').innerText = row[0] || '-';
-            document.getElementById('detailYear').innerText = `ปีประเมิน: ${row[2] || '-'}`;
-            document.getElementById('detailTitle').innerText = row[5] || '-';
-            document.getElementById('detailAuthor').innerHTML = `<i class="fa-solid fa-user-pen mr-1 text-slate-400"></i> ${row[3] || ''} ${row[4] || '-'}`;
-            document.getElementById('detailDept').innerText = row[6] || '-';
-            document.getElementById('detailIsbn').innerText = row[8] || '-';
-            document.getElementById('detailEvalStatus').innerText = row[7] || '-';
-            document.getElementById('detailPrintStatus').innerText = row[10] || '-';
-
-            const remarkContainer = document.getElementById('detailRemarkContainer');
-            if (row[15] && row[15].trim() !== '') {
-                document.getElementById('detailRemarkText').innerText = row[15];
-                remarkContainer.classList.remove('hidden');
-            } else {
-                remarkContainer.classList.add('hidden');
-            }
-
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
-
-        function closeDetailModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-        }
-
-        function openLoginModal() {
-            document.getElementById('loginError').classList.add('hidden');
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginModal').classList.remove('hidden');
-        }
-
-        function closeLoginModal() {
-            document.getElementById('loginModal').classList.add('hidden');
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const role = document.querySelector('input[name="loginRole"]:checked').value;
-
-            if (!email || !email.includes('@')) {
-                document.getElementById('loginError').innerText = "กรุณากรอกอีเมลที่ถูกต้อง";
-                document.getElementById('loginError').classList.remove('hidden');
-                return;
-            }
-
-            currentUser = { email, role };
-            closeLoginModal();
-            updateHeaderNavVisibility();
-            showToast(`เข้าสู่ระบบสำเร็จในฐานะ ${role === 'admin' ? 'เจ้าหน้าที่' : 'อาจารย์'}`, "success");
-            switchView(role);
-        }
-
-        function logout() {
-            currentUser = null;
-            switchView('public');
-            showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
         }
 
         function openDeleteModal(id) {
@@ -1775,65 +1859,77 @@
 
         function confirmDeleteRecord() {
             if (!targetDeleteId) return;
+
             allData = allData.filter(r => r[0] !== targetDeleteId);
             filteredData = [...allData];
             updateDashboard();
             closeDeleteModal();
-            showToast("ลบข้อมูลเรียบร้อยแล้ว", "success");
+            showToast(`ลบรายการ ${targetDeleteId} เรียบร้อยแล้ว`, "success");
         }
 
-        function closeModalOnBackdrop(e, modalId) {
-            if (e.target.id === modalId) {
+        function closeModalOnBackdrop(event, modalId) {
+            if (event.target.id === modalId) {
                 document.getElementById(modalId).classList.add('hidden');
             }
         }
 
-        function showToast(msg, type = "success") {
+
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
             const icon = document.getElementById('toastIcon');
-            const text = document.getElementById('toastMsg');
+            const toastMsg = document.getElementById('toastMsg');
 
-            text.innerText = msg;
-            if (type === "success") {
-                icon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
-            } else {
+            toastMsg.innerText = msg;
+            if (type === 'error') {
                 icon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
+            } else {
+                icon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
             setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+            }, 3500);
         }
 
         function copyToClipboard(text) {
             if (!text || text === '-') return;
             navigator.clipboard.writeText(text).then(() => {
-                showToast("คัดลอกลง คลิปบอร์ด แล้ว", "success");
+                showToast("คัดลอกลงคลิปบอร์ดแล้ว: " + text, "success");
             });
         }
 
         function exportToCSV() {
-            let csvContent = "\uFEFF";
-            csvContent += "ID,Date,Year,Position,Author,Title,Department,Status,ISBN,KmitlCode,PrintStatus,Email,Remark\n";
+            if (allData.length === 0) {
+                showToast("ไม่มีข้อมูลสำหรับส่งออก", "error");
+                return;
+            }
 
-            allData.forEach(row => {
-                const csvRow = [
-                    row[0], row[1], row[2], row[3], row[4],
-                    `"${row[5]}"`, row[6], row[7], row[8],
-                    row[9], row[10], row[13], `"${row[15] || ''}"`
+            const headers = ["ID", "วันที่ยื่น", "ปีการศึกษา", "คำนำหน้า", "ผู้เขียน", "ชื่อเรื่อง", "ภาควิชา", "สถานะการประเมิน", "ISBN", "รหัส วศ.สจล.", "สถานะจัดพิมพ์", "หมายเหตุ"];
+            const csvRows = [headers.join(',')];
+
+            allData.forEach(r => {
+                const rowValues = [
+                    `"${r[0] || ''}"`, `"${r[1] || ''}"`, `"${r[2] || ''}"`, `"${r[3] || ''}"`,
+                    `"${r[4] || ''}"`, `"${r[5] || ''}"`, `"${r[6] || ''}"`, `"${r[7] || ''}"`,
+                    `"${r[8] || ''}"`, `"${r[9] || ''}"`, `"${r[10] || ''}"`, `"${r[15] || ''}"`
                 ];
-                csvContent += csvRow.join(",") + "\n";
+                csvRows.push(rowValues.join(','));
             });
 
+            const csvContent = "\uFEFF" + csvRows.join("\n");
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `evaluation_data_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `evaluation_status_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            showToast("ส่งออกไฟล์ CSV สำเร็จ", "success");
         }
     </script>
 </body>
