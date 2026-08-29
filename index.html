@@ -103,40 +103,28 @@
                 </div>
 
                 <!-- Center Navigation Tabs -->
-                <div id="quickNavContainer" class="hidden md:flex items-center space-x-1.5 bg-navy-950/90 p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
-                    <button id="navPublicBtn" onclick="switchView('public')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 bg-sky-600 text-white shadow-sm">
+                <div id="quickNavContainer" class="flex flex-wrap items-center space-x-1 sm:space-x-1.5 bg-navy-950/90 p-1 sm:p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
+                    <button id="navPublicBtn" onclick="switchView('public')" class="px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-sky-600 text-white shadow-sm">
                         <i class="fa-solid fa-house text-[11px]"></i>
                         <span>หน้าหลัก</span>
                     </button>
-                    <button id="navPortalBtn" onclick="returnToPortal()" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800">
-                        <i id="navPortalIcon" class="fa-solid fa-user-gear text-[11px] text-amber-400"></i>
-                        <span id="navPortalText">หน้าเจ้าหน้าที่</span>
-                        <span id="navPortalBadge" class="w-2 h-2 rounded-full bg-amber-400 animate-ping ml-0.5"></span>
+                    <button id="navLecturerBtn" onclick="switchView('lecturer')" class="hidden px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-chalkboard-user text-[11px] text-sky-400"></i>
+                        <span>หน้าอาจารย์</span>
+                    </button>
+                    <button id="navAdminBtn" onclick="switchView('admin')" class="hidden px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-user-gear text-[11px] text-amber-400"></i>
+                        <span>หน้าเจ้าหน้าที่</span>
                     </button>
                 </div>
 
-                <!-- Right Action Buttons -->
+                <!-- Right Action Buttons (Cleaned Header with Login/Logout only) -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
-                    <button onclick="exportToCSV()" class="inline-flex items-center px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white font-medium text-xs sm:text-sm rounded-xl transition duration-200 shadow-sm" title="ส่งออกไฟล์ CSV">
-                        <i class="fa-solid fa-file-csv mr-1.5 text-xs"></i>
-                        <span class="hidden sm:inline">ส่งออก CSV</span>
-                    </button>
-
-                    <button onclick="refreshData()" class="inline-flex items-center px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs sm:text-sm rounded-xl transition duration-200 border border-slate-700 shadow-sm" title="อัปเดตข้อมูล">
-                        <i class="fa-solid fa-rotate mr-1.5 text-xs text-sky-400"></i>
-                        <span class="hidden sm:inline">รีเฟรช</span>
-                    </button>
-
-                    <div id="userInfoBar" class="hidden flex items-center space-x-2 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700 text-xs text-slate-300">
-                        <span id="userRoleBadge" class="px-2.5 py-0.5 rounded-md text-[11px] font-bold tracking-wide shadow-sm flex items-center"></span>
-                        <span id="userEmailText" class="font-medium text-slate-300 hidden lg:inline"></span>
-                    </div>
-
                     <button id="loginBtn" onclick="openLoginModal()" class="inline-flex items-center px-3.5 py-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow-md">
                         <i class="fa-solid fa-right-to-bracket mr-1.5 text-sky-200"></i> เข้าสู่ระบบ
                     </button>
 
-                    <button id="logoutBtn" onclick="logout()" class="hidden inline-flex items-center px-3 py-1.5 bg-rose-950/60 hover:bg-rose-900 border border-rose-700/50 text-rose-200 font-medium text-xs rounded-xl transition">
+                    <button id="logoutBtn" onclick="logout()" class="hidden inline-flex items-center px-3.5 py-1.5 bg-rose-950/60 hover:bg-rose-900 border border-rose-700/50 text-rose-200 font-medium text-xs rounded-xl transition shadow-sm">
                         <i class="fa-solid fa-power-off mr-1.5"></i> ออกจากระบบ
                     </button>
                 </div>
@@ -350,6 +338,7 @@
             </div>
         </section>
 
+        <!-- ADMIN PANEL VIEW -->
         <section id="adminView" class="hidden space-y-6">
             <div class="bg-navy-950 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-slate-800">
                 <div>
@@ -446,6 +435,7 @@
 
     </main>
 
+    <!-- Detail Modal -->
     <div id="detailModal" onclick="closeModalOnBackdrop(event, 'detailModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto transition-opacity duration-300">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 relative border border-slate-100 my-8">
             <button onclick="closeDetailModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition">
@@ -515,6 +505,7 @@
         </div>
     </div>
 
+    <!-- Login Modal -->
     <div id="loginModal" onclick="closeModalOnBackdrop(event, 'loginModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 relative border border-slate-100">
             <button onclick="closeLoginModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1">
@@ -559,6 +550,7 @@
         </div>
     </div>
 
+    <!-- Record Modal -->
     <div id="recordModal" onclick="closeModalOnBackdrop(event, 'recordModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-4 relative my-8 border border-slate-100">
             <button onclick="closeRecordModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600">
@@ -649,6 +641,7 @@
         </div>
     </div>
 
+    <!-- Delete Modal -->
     <div id="deleteModal" onclick="closeModalOnBackdrop(event, 'deleteModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 relative border border-slate-100 text-center">
             <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
@@ -712,6 +705,7 @@
         ];
 
         window.onload = function() {
+            updateHeaderNavVisibility();
             fetchSheetsData();
             
             // ESC Key listener to close modal
@@ -725,13 +719,6 @@
             });
         };
 
-        /**
-         * คำนวณความคืบหน้าของขั้นตอนและการแสดงผลสี
-         * 1. กรณีไม่ผ่านการประเมิน: 100% (สิ้นสุดกระบวนการ)
-         * 2. การสื่อสารด้วยสี:
-         *    - สีเขียว: ผ่าน/สำเร็จ
-         *    - สีแดง: แสดงเฉพาะ "แจ้งผล" (ขั้นตอนที่ 5) และ "จัดพิมพ์" (ขั้นตอนที่ 6) สำหรับกรณีไม่ผ่านการประเมิน
-         */
         function calculateStepProgress(evalStatus, printStatus) {
             const isFailed = (evalStatus === 'ไม่ผ่านการประเมิน');
             const isPassed = (evalStatus === 'ผ่านการประเมิน' || printStatus === 'นำไปจัดพิมพ์ได้' || printStatus === 'จัดพิมพ์เสร็จ');
@@ -758,7 +745,6 @@
                 };
             }
 
-            // คำนวณขั้นตอนกำลังดำเนินการ 1-5
             let step = 1;
             let percent = 10;
 
@@ -834,24 +820,19 @@
                 let displayIcon = s.icon;
 
                 if (progress.isFailed) {
-                    // กรณีไม่ผ่านการประเมิน:
-                    // ขั้นตอน 1-4 แสดงเป็นสีเขียว (ผ่านขั้นตอนการยื่น/ประเมิน/ปรับปรุงมาเรียบร้อยแล้ว)
                     if (stepNum <= 4) {
                         circleClass = 'bg-emerald-500 text-white shadow-sm';
                         textClass = 'text-emerald-700 font-semibold';
                     } else if (stepNum === 5) {
-                        // ขั้นตอนที่ 5 "แจ้งผล" เป็นสีแดง (แจ้งผลไม่ผ่าน)
                         circleClass = 'bg-rose-600 text-white shadow-lg shadow-rose-200 ring-4 ring-rose-100';
                         textClass = 'text-rose-600 font-bold';
                         displayIcon = 'fa-circle-xmark';
                     } else if (stepNum === 6) {
-                        // ขั้นตอนที่ 6 "จัดพิมพ์" เป็นสีแดง (ไม่อนุญาตจัดพิมพ์)
                         circleClass = 'bg-rose-500 text-white opacity-90 shadow-sm';
                         textClass = 'text-rose-600 font-semibold';
                         displayIcon = 'fa-ban';
                     }
                 } else if (progress.isPassed) {
-                    // กรณีผ่านการประเมิน: ทุกขั้นตอน 1-6 แสดงสีเขียว
                     if (stepNum === 6) {
                         circleClass = 'bg-emerald-600 text-white shadow-md shadow-emerald-200 ring-4 ring-emerald-100';
                         textClass = 'text-emerald-700 font-bold';
@@ -860,13 +841,10 @@
                         textClass = 'text-emerald-700 font-semibold';
                     }
                 } else {
-                    // กรณีกำลังดำเนินการ:
                     if (stepNum < progress.stepIndex) {
-                        // ขั้นตอนที่ผ่านมาแล้ว แสดงสีเขียว
                         circleClass = 'bg-emerald-500 text-white shadow-sm';
                         textClass = 'text-emerald-700 font-semibold';
                     } else if (stepNum === progress.stepIndex) {
-                        // ขั้นตอนปัจจุบัน กำลังดำเนินการ แสดงสีฟ้า
                         circleClass = 'bg-sky-600 text-white shadow-lg shadow-sky-200 ring-4 ring-sky-100 animate-pulse';
                         textClass = 'text-sky-700 font-bold';
                     }
@@ -914,11 +892,6 @@
                     initFilters();
                     updateDashboard();
                 });
-        }
-
-        function refreshData() {
-            showToast("อัปเดตข้อมูล Real-time เรียบร้อย", "success");
-            fetchSheetsData();
         }
 
         function renderStatusBadge(evalStatus) {
@@ -1167,79 +1140,110 @@
             controls.innerHTML = btnHtml;
         }
 
-        function exportToCSV() {
-            if (filteredData.length === 0) {
-                showToast("ไม่มีข้อมูลในการส่งออก", "error");
-                return;
+        function updateHeaderNavVisibility() {
+            const navLecturerBtn = document.getElementById('navLecturerBtn');
+            const navAdminBtn = document.getElementById('navAdminBtn');
+
+            if (!currentUser) {
+                if (navLecturerBtn) navLecturerBtn.classList.add('hidden');
+                if (navAdminBtn) navAdminBtn.classList.add('hidden');
+            } else if (currentUser.role === 'lecturer') {
+                if (navLecturerBtn) navLecturerBtn.classList.remove('hidden');
+                if (navAdminBtn) navAdminBtn.classList.add('hidden');
+            } else if (currentUser.role === 'admin') {
+                if (navLecturerBtn) navLecturerBtn.classList.add('hidden');
+                if (navAdminBtn) navAdminBtn.classList.remove('hidden');
             }
-
-            let csvContent = "\uFEFF";
-            csvContent += "ID,ปีการศึกษา,ยศ/ตำแหน่ง,ผู้เขียน,ชื่อเรื่องหนังสือ,ภาควิชา,สถานะการประเมิน,ISBN,หมายเหตุ\n";
-
-            filteredData.forEach(row => {
-                const cleanRow = [
-                    `"${row[0] || ''}"`,
-                    `"${row[2] || ''}"`,
-                    `"${row[3] || ''}"`,
-                    `"${row[4] || ''}"`,
-                    `"${row[5] || ''}"`,
-                    `"${row[6] || ''}"`,
-                    `"${row[7] || ''}"`,
-                    `"${row[8] || ''}"`,
-                    `"${row[15] || ''}"`
-                ];
-                csvContent += cleanRow.join(",") + "\n";
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `รายงานสถานะการประเมินผล_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            showToast("ส่งออกไฟล์ CSV เรียบร้อยแล้ว", "success");
+            updateNavActiveState();
         }
 
-        function returnToPortal() {
-            if (!currentUser) {
-                openLoginModal();
-                return;
+        function updateNavActiveState() {
+            const navPublicBtn = document.getElementById('navPublicBtn');
+            const navLecturerBtn = document.getElementById('navLecturerBtn');
+            const navAdminBtn = document.getElementById('navAdminBtn');
+
+            const activeSky = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-sky-600 text-white shadow-sm";
+            const activeAmber = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-amber-600 text-white shadow-sm";
+            const inactiveStyle = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
+
+            if (navPublicBtn) {
+                navPublicBtn.className = (currentActiveView === 'public' ? activeSky : inactiveStyle);
             }
-            switchView(currentUser.role);
+            if (navLecturerBtn) {
+                const isHidden = navLecturerBtn.classList.contains('hidden');
+                navLecturerBtn.className = (currentActiveView === 'lecturer' ? activeSky : inactiveStyle) + (isHidden ? " hidden" : "");
+            }
+            if (navAdminBtn) {
+                const isHidden = navAdminBtn.classList.contains('hidden');
+                navAdminBtn.className = (currentActiveView === 'admin' ? activeAmber : inactiveStyle) + (isHidden ? " hidden" : "");
+            }
         }
 
         function switchView(viewName) {
+            // If trying to access protected views without login, prompt login modal
+            if ((viewName === 'lecturer' || viewName === 'admin') && !currentUser) {
+                openLoginModal();
+                showToast("กรุณาเข้าสู่ระบบก่อนสลับไปยังหน้านี้", "error");
+                return;
+            }
+
+            // Security check: restrict access to non-assigned role views
+            if (currentUser) {
+                if (viewName === 'lecturer' && currentUser.role !== 'lecturer') return;
+                if (viewName === 'admin' && currentUser.role !== 'admin') return;
+            }
+
+            currentActiveView = viewName;
+            document.getElementById('publicView').classList.add('hidden');
+            document.getElementById('lecturerView').classList.add('hidden');
+            document.getElementById('adminView').classList.add('hidden');
+
+            if (viewName === 'lecturer') {
+                document.getElementById('lecturerView').classList.remove('hidden');
+                renderLecturerPortal();
+            } else if (viewName === 'admin') {
+                document.getElementById('adminView').classList.remove('hidden');
+                renderAdminPortal();
+            } else {
+                document.getElementById('publicView').classList.remove('hidden');
+            }
+
+            updateHeaderNavVisibility();
+        }
+
+        function switchView(viewName) {
+            // If trying to access protected views without login, prompt login modal
+            if ((viewName === 'lecturer' || viewName === 'admin') && !currentUser) {
+                openLoginModal();
+                showToast("กรุณาเข้าสู่ระบบก่อนสลับไปยังหน้านี้", "error");
+                return;
+            }
+
             currentActiveView = viewName;
             document.getElementById('publicView').classList.add('hidden');
             document.getElementById('lecturerView').classList.add('hidden');
             document.getElementById('adminView').classList.add('hidden');
 
             const navPublicBtn = document.getElementById('navPublicBtn');
-            const navPortalBtn = document.getElementById('navPortalBtn');
+            const navLecturerBtn = document.getElementById('navLecturerBtn');
+            const navAdminBtn = document.getElementById('navAdminBtn');
 
-            if (viewName === 'lecturer' && currentUser && currentUser.role === 'lecturer') {
+            const inactiveStyle = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
+            if (navPublicBtn) navPublicBtn.className = inactiveStyle;
+            if (navLecturerBtn) navLecturerBtn.className = inactiveStyle;
+            if (navAdminBtn) navAdminBtn.className = inactiveStyle;
+
+            if (viewName === 'lecturer') {
                 document.getElementById('lecturerView').classList.remove('hidden');
                 renderLecturerPortal();
-                if (navPublicBtn && navPortalBtn) {
-                    navPublicBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
-                    navPortalBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 bg-sky-600 text-white shadow-sm";
-                }
-            } else if (viewName === 'admin' && currentUser && currentUser.role === 'admin') {
+                if (navLecturerBtn) navLecturerBtn.className = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-sky-600 text-white shadow-sm";
+            } else if (viewName === 'admin') {
                 document.getElementById('adminView').classList.remove('hidden');
                 renderAdminPortal();
-                if (navPublicBtn && navPortalBtn) {
-                    navPublicBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
-                    navPortalBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 bg-amber-600 text-white shadow-sm";
-                }
+                if (navAdminBtn) navAdminBtn.className = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-amber-600 text-white shadow-sm";
             } else {
                 document.getElementById('publicView').classList.remove('hidden');
-                if (navPublicBtn && navPortalBtn) {
-                    navPublicBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 bg-sky-600 text-white shadow-sm";
-                    navPortalBtn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
-                }
+                if (navPublicBtn) navPublicBtn.className = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-sky-600 text-white shadow-sm";
             }
         }
 
@@ -1435,7 +1439,6 @@
             document.getElementById('detailEvalStatus').innerText = row[7] || '-';
             document.getElementById('detailPrintStatus').innerText = row[10] || '-';
 
-            // เรนเดอร์ Stepper ด้วยเงื่อนไขสีที่ปรับปรุงแล้ว
             renderModalStepper(row[7], row[10]);
 
             const remarkText = row[15];
@@ -1476,26 +1479,17 @@
             }
 
             currentUser = { email, role };
+            updateHeaderNavVisibility();
             closeLoginModal();
 
+            // Toggle Header Action Buttons (Only login/logout button)
             document.getElementById('loginBtn').classList.add('hidden');
             document.getElementById('logoutBtn').classList.remove('hidden');
-            
-            const userInfoBar = document.getElementById('userInfoBar');
-            const roleBadge = document.getElementById('userRoleBadge');
-            const emailText = document.getElementById('userEmailText');
-
-            userInfoBar.classList.remove('hidden');
-            emailText.innerText = email;
 
             if (role === 'admin') {
-                roleBadge.innerText = 'เจ้าหน้าที่ (Admin)';
-                roleBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
                 switchView('admin');
                 showToast("ยินดีต้อนรับ เจ้าหน้าที่เข้าสู่ระบบ", "success");
             } else {
-                roleBadge.innerText = 'อาจารย์ (Lecturer)';
-                roleBadge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30';
                 switchView('lecturer');
                 showToast("เข้าสู่ระบบสำหรับอาจารย์เรียบร้อย", "success");
             }
@@ -1503,9 +1497,9 @@
 
         function logout() {
             currentUser = null;
+            updateHeaderNavVisibility();
             document.getElementById('loginBtn').classList.remove('hidden');
             document.getElementById('logoutBtn').classList.add('hidden');
-            document.getElementById('userInfoBar').classList.add('hidden');
             
             const navPortalText = document.getElementById('navPortalText');
             if (navPortalText) navPortalText.innerText = 'หน้าเจ้าหน้าที่';
