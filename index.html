@@ -102,9 +102,9 @@
                     </div>
                 </div>
 
-                <!-- Center Navigation Tabs -->
-                <div id="quickNavContainer" class="flex flex-wrap items-center space-x-1 sm:space-x-1.5 bg-navy-950/90 p-1 sm:p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
-                    <button id="navPublicBtn" onclick="switchView('public')" class="px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-sky-600 text-white shadow-sm">
+                <!-- Center Navigation Tabs (Strict Dynamic Visibility) -->
+                <div id="quickNavContainer" class="hidden flex flex-wrap items-center space-x-1 sm:space-x-1.5 bg-navy-950/90 p-1 sm:p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
+                    <button id="navPublicBtn" onclick="switchView('public')" class="hidden px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800">
                         <i class="fa-solid fa-house text-[11px]"></i>
                         <span>หน้าหลัก</span>
                     </button>
@@ -118,7 +118,7 @@
                     </button>
                 </div>
 
-                <!-- Right Action Buttons (Cleaned Header with Login/Logout only) -->
+                <!-- Right Action Buttons -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
                     <button id="loginBtn" onclick="openLoginModal()" class="inline-flex items-center px-3.5 py-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow-md">
                         <i class="fa-solid fa-right-to-bracket mr-1.5 text-sky-200"></i> เข้าสู่ระบบ
@@ -719,6 +719,109 @@
             });
         };
 
+        function updateHeaderNavVisibility() {
+            const navPublicBtn = document.getElementById('navPublicBtn');
+            const navLecturerBtn = document.getElementById('navLecturerBtn');
+            const navAdminBtn = document.getElementById('navAdminBtn');
+            const quickNavContainer = document.getElementById('quickNavContainer');
+
+            // 1. Not logged in: Hide nav bar completely
+            if (!currentUser) {
+                if (quickNavContainer) quickNavContainer.classList.add('hidden');
+                if (navPublicBtn) navPublicBtn.classList.add('hidden');
+                if (navLecturerBtn) navLecturerBtn.classList.add('hidden');
+                if (navAdminBtn) navAdminBtn.classList.add('hidden');
+            } 
+            // 2. Logged in as Lecturer: Show Public + Lecturer ONLY
+            else if (currentUser.role === 'lecturer') {
+                if (quickNavContainer) quickNavContainer.classList.remove('hidden');
+                if (navPublicBtn) navPublicBtn.classList.remove('hidden');
+                if (navLecturerBtn) navLecturerBtn.classList.remove('hidden');
+                if (navAdminBtn) navAdminBtn.classList.add('hidden');
+            } 
+            // 3. Logged in as Admin: Show Public + Admin ONLY
+            else if (currentUser.role === 'admin') {
+                if (quickNavContainer) quickNavContainer.classList.remove('hidden');
+                if (navPublicBtn) navPublicBtn.classList.remove('hidden');
+                if (navLecturerBtn) navLecturerBtn.classList.add('hidden');
+                if (navAdminBtn) navAdminBtn.classList.remove('hidden');
+            }
+
+            updateNavActiveState();
+        }
+
+        function updateNavActiveState() {
+            const navPublicBtn = document.getElementById('navPublicBtn');
+            const navLecturerBtn = document.getElementById('navLecturerBtn');
+            const navAdminBtn = document.getElementById('navAdminBtn');
+
+            const baseStyle = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5";
+            const activeSky = `${baseStyle} bg-sky-600 text-white shadow-sm`;
+            const activeAmber = `${baseStyle} bg-amber-600 text-white shadow-sm`;
+            const inactiveStyle = `${baseStyle} text-slate-300 hover:text-white hover:bg-slate-800`;
+
+            // Public Tab Style
+            if (navPublicBtn) {
+                if (!currentUser) {
+                    navPublicBtn.className = `${inactiveStyle} hidden`;
+                } else {
+                    navPublicBtn.className = (currentActiveView === 'public' ? activeSky : inactiveStyle);
+                }
+            }
+
+            // Lecturer Tab Style (preserve hidden state if not allowed)
+            if (navLecturerBtn) {
+                const isLecturerRole = currentUser && currentUser.role === 'lecturer';
+                if (!isLecturerRole) {
+                    navLecturerBtn.className = `${inactiveStyle} hidden`;
+                } else {
+                    navLecturerBtn.className = (currentActiveView === 'lecturer' ? activeSky : inactiveStyle);
+                }
+            }
+
+            // Admin Tab Style (preserve hidden state if not allowed)
+            if (navAdminBtn) {
+                const isAdminRole = currentUser && currentUser.role === 'admin';
+                if (!isAdminRole) {
+                    navAdminBtn.className = `${inactiveStyle} hidden`;
+                } else {
+                    navAdminBtn.className = (currentActiveView === 'admin' ? activeAmber : inactiveStyle);
+                }
+            }
+        }
+
+        function switchView(viewName) {
+            // If trying to access protected views without login, prompt login modal
+            if ((viewName === 'lecturer' || viewName === 'admin') && !currentUser) {
+                openLoginModal();
+                showToast("กรุณาเข้าสู่ระบบก่อนสลับไปยังหน้านี้", "error");
+                return;
+            }
+
+            // Security check: restrict access to non-assigned role views
+            if (currentUser) {
+                if (viewName === 'lecturer' && currentUser.role !== 'lecturer') return;
+                if (viewName === 'admin' && currentUser.role !== 'admin') return;
+            }
+
+            currentActiveView = viewName;
+            document.getElementById('publicView').classList.add('hidden');
+            document.getElementById('lecturerView').classList.add('hidden');
+            document.getElementById('adminView').classList.add('hidden');
+
+            if (viewName === 'lecturer') {
+                document.getElementById('lecturerView').classList.remove('hidden');
+                renderLecturerPortal();
+            } else if (viewName === 'admin') {
+                document.getElementById('adminView').classList.remove('hidden');
+                renderAdminPortal();
+            } else {
+                document.getElementById('publicView').classList.remove('hidden');
+            }
+
+            updateHeaderNavVisibility();
+        }
+
         function calculateStepProgress(evalStatus, printStatus) {
             const isFailed = (evalStatus === 'ไม่ผ่านการประเมิน');
             const isPassed = (evalStatus === 'ผ่านการประเมิน' || printStatus === 'นำไปจัดพิมพ์ได้' || printStatus === 'จัดพิมพ์เสร็จ');
@@ -746,7 +849,7 @@
             }
 
             let step = 1;
-            let percent = 10;
+            let percent = 15;
 
             switch (evalStatus) {
                 case 'รับเอกสารการประเมิน':
@@ -1140,113 +1243,6 @@
             controls.innerHTML = btnHtml;
         }
 
-        function updateHeaderNavVisibility() {
-            const navLecturerBtn = document.getElementById('navLecturerBtn');
-            const navAdminBtn = document.getElementById('navAdminBtn');
-
-            if (!currentUser) {
-                if (navLecturerBtn) navLecturerBtn.classList.add('hidden');
-                if (navAdminBtn) navAdminBtn.classList.add('hidden');
-            } else if (currentUser.role === 'lecturer') {
-                if (navLecturerBtn) navLecturerBtn.classList.remove('hidden');
-                if (navAdminBtn) navAdminBtn.classList.add('hidden');
-            } else if (currentUser.role === 'admin') {
-                if (navLecturerBtn) navLecturerBtn.classList.add('hidden');
-                if (navAdminBtn) navAdminBtn.classList.remove('hidden');
-            }
-            updateNavActiveState();
-        }
-
-        function updateNavActiveState() {
-            const navPublicBtn = document.getElementById('navPublicBtn');
-            const navLecturerBtn = document.getElementById('navLecturerBtn');
-            const navAdminBtn = document.getElementById('navAdminBtn');
-
-            const activeSky = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-sky-600 text-white shadow-sm";
-            const activeAmber = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-amber-600 text-white shadow-sm";
-            const inactiveStyle = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
-
-            if (navPublicBtn) {
-                navPublicBtn.className = (currentActiveView === 'public' ? activeSky : inactiveStyle);
-            }
-            if (navLecturerBtn) {
-                const isHidden = navLecturerBtn.classList.contains('hidden');
-                navLecturerBtn.className = (currentActiveView === 'lecturer' ? activeSky : inactiveStyle) + (isHidden ? " hidden" : "");
-            }
-            if (navAdminBtn) {
-                const isHidden = navAdminBtn.classList.contains('hidden');
-                navAdminBtn.className = (currentActiveView === 'admin' ? activeAmber : inactiveStyle) + (isHidden ? " hidden" : "");
-            }
-        }
-
-        function switchView(viewName) {
-            // If trying to access protected views without login, prompt login modal
-            if ((viewName === 'lecturer' || viewName === 'admin') && !currentUser) {
-                openLoginModal();
-                showToast("กรุณาเข้าสู่ระบบก่อนสลับไปยังหน้านี้", "error");
-                return;
-            }
-
-            // Security check: restrict access to non-assigned role views
-            if (currentUser) {
-                if (viewName === 'lecturer' && currentUser.role !== 'lecturer') return;
-                if (viewName === 'admin' && currentUser.role !== 'admin') return;
-            }
-
-            currentActiveView = viewName;
-            document.getElementById('publicView').classList.add('hidden');
-            document.getElementById('lecturerView').classList.add('hidden');
-            document.getElementById('adminView').classList.add('hidden');
-
-            if (viewName === 'lecturer') {
-                document.getElementById('lecturerView').classList.remove('hidden');
-                renderLecturerPortal();
-            } else if (viewName === 'admin') {
-                document.getElementById('adminView').classList.remove('hidden');
-                renderAdminPortal();
-            } else {
-                document.getElementById('publicView').classList.remove('hidden');
-            }
-
-            updateHeaderNavVisibility();
-        }
-
-        function switchView(viewName) {
-            // If trying to access protected views without login, prompt login modal
-            if ((viewName === 'lecturer' || viewName === 'admin') && !currentUser) {
-                openLoginModal();
-                showToast("กรุณาเข้าสู่ระบบก่อนสลับไปยังหน้านี้", "error");
-                return;
-            }
-
-            currentActiveView = viewName;
-            document.getElementById('publicView').classList.add('hidden');
-            document.getElementById('lecturerView').classList.add('hidden');
-            document.getElementById('adminView').classList.add('hidden');
-
-            const navPublicBtn = document.getElementById('navPublicBtn');
-            const navLecturerBtn = document.getElementById('navLecturerBtn');
-            const navAdminBtn = document.getElementById('navAdminBtn');
-
-            const inactiveStyle = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800";
-            if (navPublicBtn) navPublicBtn.className = inactiveStyle;
-            if (navLecturerBtn) navLecturerBtn.className = inactiveStyle;
-            if (navAdminBtn) navAdminBtn.className = inactiveStyle;
-
-            if (viewName === 'lecturer') {
-                document.getElementById('lecturerView').classList.remove('hidden');
-                renderLecturerPortal();
-                if (navLecturerBtn) navLecturerBtn.className = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-sky-600 text-white shadow-sm";
-            } else if (viewName === 'admin') {
-                document.getElementById('adminView').classList.remove('hidden');
-                renderAdminPortal();
-                if (navAdminBtn) navAdminBtn.className = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-amber-600 text-white shadow-sm";
-            } else {
-                document.getElementById('publicView').classList.remove('hidden');
-                if (navPublicBtn) navPublicBtn.className = "px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1 sm:space-x-1.5 bg-sky-600 text-white shadow-sm";
-            }
-        }
-
         function renderLecturerPortal() {
             if (!currentUser || currentUser.role !== 'lecturer') return;
             const userEmail = currentUser.email.toLowerCase();
@@ -1482,7 +1478,7 @@
             updateHeaderNavVisibility();
             closeLoginModal();
 
-            // Toggle Header Action Buttons (Only login/logout button)
+            // Toggle Header Action Buttons
             document.getElementById('loginBtn').classList.add('hidden');
             document.getElementById('logoutBtn').classList.remove('hidden');
 
@@ -1500,9 +1496,6 @@
             updateHeaderNavVisibility();
             document.getElementById('loginBtn').classList.remove('hidden');
             document.getElementById('logoutBtn').classList.add('hidden');
-            
-            const navPortalText = document.getElementById('navPortalText');
-            if (navPortalText) navPortalText.innerText = 'หน้าเจ้าหน้าที่';
 
             switchView('public');
             showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
