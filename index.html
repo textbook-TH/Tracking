@@ -348,7 +348,7 @@
                 <div>
                     <span class="px-2.5 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full font-semibold border border-amber-500/30">Admin Panel</span>
                     <h2 class="text-xl font-bold mt-1">จัดการข้อมูลการประเมิน (สำหรับเจ้าหน้าที่)</h2>
-                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา</p>
+                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา พร้อมอัปโหลดไฟล์</p>
                 </div>
                 <button onclick="openAddModal()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow">
                     <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มผลงานใหม่
@@ -416,6 +416,7 @@
                                 <th class="py-3 px-4">ID</th>
                                 <th class="py-3 px-4">ผู้เขียน / ชื่อเรื่อง</th>
                                 <th class="py-3 px-4">สถานะประเมิน</th>
+                                <th class="py-3 px-4">ไฟล์แนบ</th>
                                 <th class="py-3 px-4">หมายเหตุ</th>
                                 <th class="py-3 px-4 text-center">จัดการ</th>
                             </tr>
@@ -499,6 +500,25 @@
                 </div>
             </div>
 
+            <!-- Modal Document Links Section -->
+            <div class="space-y-2 pt-1 border-t border-slate-100">
+                <h4 class="text-xs font-bold text-slate-700 flex items-center"><i class="fa-solid fa-folder-open text-amber-500 mr-1.5"></i> เอกสารและไฟล์แนบ</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <a id="detailLinkOriginal" target="_blank" class="p-2.5 bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 rounded-xl flex items-center justify-between font-medium transition">
+                        <span class="truncate"><i class="fa-solid fa-file-lines text-blue-500 mr-1.5"></i> หนังสือต้นฉบับ</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                    <a id="detailLinkCover" target="_blank" class="p-2.5 bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100 rounded-xl flex items-center justify-between font-medium transition">
+                        <span class="truncate"><i class="fa-solid fa-image text-purple-500 mr-1.5"></i> ปกหนังสือ</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                    <a id="detailLinkEval" target="_blank" class="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 rounded-xl flex items-center justify-between font-medium transition">
+                        <span class="truncate"><i class="fa-solid fa-square-poll-vertical text-emerald-500 mr-1.5"></i> ผลประเมิน</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
             <div id="detailRemarkContainer" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800">
                 <strong class="font-bold block mb-0.5"><i class="fa-solid fa-circle-info mr-1"></i> หมายเหตุ / แจ้งเตือน:</strong>
                 <p id="detailRemarkText"></p>
@@ -555,9 +575,9 @@
         </div>
     </div>
 
-    <!-- Record Modal -->
+    <!-- Record Modal (Add / Edit Work) -->
     <div id="recordModal" onclick="closeModalOnBackdrop(event, 'recordModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-4 relative my-8 border border-slate-100">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-4 relative my-8 border border-slate-100 max-h-[90vh] overflow-y-auto">
             <button onclick="closeRecordModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
@@ -633,12 +653,68 @@
                     <input type="text" id="formIsbn" placeholder="เช่น 978-616-338-228-3 หรือ -" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                 </div>
 
+                <!-- NEW SECTION: File Upload & Google Drive Links -->
+                <div class="border-t border-slate-200 pt-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="block font-bold text-slate-800 text-xs flex items-center">
+                            <i class="fa-brands fa-google-drive text-emerald-600 mr-1.5 text-sm"></i> 
+                            อัปโหลดและแนบไฟล์ Google Drive
+                        </label>
+                        <span class="text-[10px] text-slate-400">ระบุ URL หรือกดเปิดเพื่ออัปโหลดลง Drive</span>
+                    </div>
+
+                    <!-- 1. หนังสือต้นฉบับ -->
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-slate-700 text-[11px] flex items-center">
+                                <i class="fa-solid fa-file-pdf text-rose-500 mr-1"></i> 1. หนังสือต้นฉบับ
+                            </span>
+                            <a href="https://drive.google.com/drive/folders/1w7NmxarGzwPjmylxV95c7zFNTAPnOcLh?usp=sharing" target="_blank" class="px-2 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium rounded-md text-[10px] transition inline-flex items-center">
+                                <i class="fa-brands fa-google-drive mr-1"></i> เปิดโฟลเดอร์ Google Drive
+                            </a>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="url" id="formOriginalBookUrl" placeholder="ระบุ ลิงก์หนังสือต้นฉบับ (เช่น https://drive.google.com/...)" class="w-full p-2 border rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- 2. ปกหนังสือ -->
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-slate-700 text-[11px] flex items-center">
+                                <i class="fa-solid fa-image text-purple-500 mr-1"></i> 2. ปกหนังสือ
+                            </span>
+                            <a href="https://drive.google.com/drive/folders/1JeOY6u-Oyja3U4zYfvDI_0L8SmUuBNZl?usp=sharing" target="_blank" class="px-2 py-0.5 bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium rounded-md text-[10px] transition inline-flex items-center">
+                                <i class="fa-brands fa-google-drive mr-1"></i> เปิดโฟลเดอร์ Google Drive
+                            </a>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="url" id="formCoverUrl" placeholder="ระบุ ลิงก์รูปภาพปกหนังสือ (เช่น https://drive.google.com/...)" class="w-full p-2 border rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- 3. ผลประเมิน -->
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-slate-700 text-[11px] flex items-center">
+                                <i class="fa-solid fa-clipboard-check text-emerald-600 mr-1"></i> 3. ผลประเมิน
+                            </span>
+                            <a href="https://drive.google.com/drive/folders/1A4lYd76DuomliSBmGorAAFoUlywGnCmH?usp=drive_link" target="_blank" class="px-2 py-0.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-medium rounded-md text-[10px] transition inline-flex items-center">
+                                <i class="fa-brands fa-google-drive mr-1"></i> เปิดโฟลเดอร์ Google Drive
+                            </a>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="url" id="formEvalResultUrl" placeholder="ระบุ ลิงก์เอกสารผลการประเมิน (เช่น https://drive.google.com/...)" class="w-full p-2 border rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block font-semibold text-slate-700 mb-1">หมายเหตุ / ข้อความแจ้งเตือน</label>
                     <textarea id="formRemark" rows="2" placeholder="ระบุข้อความแจ้งเตือนเพิ่มเติม..." class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none"></textarea>
                 </div>
 
-                <div class="pt-2 flex justify-end space-x-2">
+                <div class="pt-2 flex justify-end space-x-2 border-t border-slate-100">
                     <button type="button" onclick="closeRecordModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl text-xs transition">ยกเลิก</button>
                     <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition">บันทึกข้อมูล</button>
                 </div>
@@ -680,6 +756,11 @@
         const PUBLIC_SHEET_ID = "1A3hnZEPaNslKFp96efTGfZzt0HTs8R79Qvgeh1UDI3E";
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
 
+        // Default Drive Folders for fallback
+        const DEFAULT_DRIVE_ORIGINAL = "https://drive.google.com/drive/folders/1w7NmxarGzwPjmylxV95c7zFNTAPnOcLh?usp=sharing";
+        const DEFAULT_DRIVE_COVER = "https://drive.google.com/drive/folders/1JeOY6u-Oyja3U4zYfvDI_0L8SmUuBNZl?usp=sharing";
+        const DEFAULT_DRIVE_EVAL = "https://drive.google.com/drive/folders/1A4lYd76DuomliSBmGorAAFoUlywGnCmH?usp=drive_link";
+
         let allData = [];
         let filteredData = [];
         let currentUser = null;
@@ -695,18 +776,18 @@
         let adminCurrentPage = 1;
         const adminItemsPerPage = 10;
 
-        // Mock reference dataset
+        // Mock reference dataset with default Google Drive links at columns 16, 17, 18
         const INITIAL_REFERENCE_DATA = [
-            ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "-", "ปกติ", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", "#", "#", "#"],
-            ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", "#", "#", "#"],
-            ["Text-003", "2569-08-27", "2569", "รศ.ดร.", "วิบูลย์ ปิยวัฒนเมธา", "กระบวนการผลิตและการประยุกต์ใช้ระบบไมโครไฟฟ้าจุลทรรศน์", "ชีวเวชแพทย์", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "wibool@kmitl.ac.th", "admin@kmitl.ac.th", "อยู่ระหว่างการพิจารณา", "#", "#", "#"],
-            ["Text-004", "2569-08-27", "2569", "ผศ.ดร.", "อรรถพล ปัจจสถิตย์", "กรอบแนวคิดการภาพข้อมูลสำหรับศูนย์ปฏิบัติความมั่นคงไซเบอร์", "ไอโอทีและสารสนเทศ", "รอการแก้ไข รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "attapon@kmitl.ac.th", "admin@kmitl.ac.th", "กรุณาปรับปรุงแก้ไขตามข้อเสนอแนะ", "#", "#", "#"],
-            ["Text-005", "2569-08-27", "2569", "Asst. Prof.", "Woon Koun Song", "DEEP LEARNING and APPLICATIONS in INTELLIGENT CONTROL", "หุ่นยนต์และปัญญาประดิษฐ์", "ผ่านการประเมิน", "978-616-338-228-3", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "woon@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", "#", "#", "#"],
-            ["Text-006", "2569-08-27", "2569", "รศ.ดร.", "กิตติวัฒน์ สิริเกษมสุข", "การศึกษาการทำงานอุตสาหกรรม", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-143-9", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "kittiwat@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", "#", "#", "#"],
-            ["Text-007", "2569-08-27", "2569", "รศ.ดร.", "สุดาภัทร ขวัญเสมาบึง", "การออกแบบชิ้นส่วนเครื่องกล", "เครื่องกล", "ไม่ผ่านการประเมิน", "-", "ปกติ", "ไม่อนุญาตให้จัดพิมพ์", "", "", "sudapat@kmitl.ac.th", "admin@kmitl.ac.th", "ไม่ผ่านการประเมินเนื่องจากผลการประเมินไม่ผ่านเกณฑ์", "#", "#", "#"],
-            ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", "#", "#", "#"],
-            ["Text-009", "2568-05-10", "2568", "ผศ.ดร.", "สมเกียรติ พรหมรักษา", "วิศวกรรมความต้านทานและวัสดุ", "โยธา", "ผ่านการประเมิน", "978-616-338-200-1", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "somkiat@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"],
-            ["Text-010", "2568-06-15", "2568", "รศ.ดร.", "ภาณุพงศ์ มีชัย", "ระบบเครือข่ายเซนเซอร์ไร้สาย", "คอมพิวเตอร์", "ผ่านการประเมิน", "978-616-338-201-2", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "panupong@kmitl.ac.th", "admin@kmitl.ac.th", "", "#", "#", "#"]
+            ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "-", "ปกติ", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-003", "2569-08-27", "2569", "รศ.ดร.", "วิบูลย์ ปิยวัฒนเมธา", "กระบวนการผลิตและการประยุกต์ใช้ระบบไมโครไฟฟ้าจุลทรรศน์", "ชีวเวชแพทย์", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "wibool@kmitl.ac.th", "admin@kmitl.ac.th", "อยู่ระหว่างการพิจารณา", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-004", "2569-08-27", "2569", "ผศ.ดร.", "อรรถพล ปัจจสถิตย์", "กรอบแนวคิดการภาพข้อมูลสำหรับศูนย์ปฏิบัติความมั่นคงไซเบอร์", "ไอโอทีและสารสนเทศ", "รอการแก้ไข รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "attapon@kmitl.ac.th", "admin@kmitl.ac.th", "กรุณาปรับปรุงแก้ไขตามข้อเสนอแนะ", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-005", "2569-08-27", "2569", "Asst. Prof.", "Woon Koun Song", "DEEP LEARNING and APPLICATIONS in INTELLIGENT CONTROL", "หุ่นยนต์และปัญญาประดิษฐ์", "ผ่านการประเมิน", "978-616-338-228-3", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "woon@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-006", "2569-08-27", "2569", "รศ.ดร.", "กิตติวัฒน์ สิริเกษมสุข", "การศึกษาการทำงานอุตสาหกรรม", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-143-9", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "kittiwat@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-007", "2569-08-27", "2569", "รศ.ดร.", "สุดาภัทร ขวัญเสมาบึง", "การออกแบบชิ้นส่วนเครื่องกล", "เครื่องกล", "ไม่ผ่านการประเมิน", "-", "ปกติ", "ไม่อนุญาตให้จัดพิมพ์", "", "", "sudapat@kmitl.ac.th", "admin@kmitl.ac.th", "ไม่ผ่านการประเมินเนื่องจากผลการประเมินไม่ผ่านเกณฑ์", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-009", "2568-05-10", "2568", "ผศ.ดร.", "สมเกียรติ พรหมรักษา", "วิศวกรรมความต้านทานและวัสดุ", "โยธา", "ผ่านการประเมิน", "978-616-338-200-1", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "somkiat@kmitl.ac.th", "admin@kmitl.ac.th", "", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-010", "2568-06-15", "2568", "รศ.ดร.", "ภาณุพงศ์ มีชัย", "ระบบเครือข่ายเซนเซอร์ไร้สาย", "คอมพิวเตอร์", "ผ่านการประเมิน", "978-616-338-201-2", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "panupong@kmitl.ac.th", "admin@kmitl.ac.th", "", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL]
         ];
 
         window.onload = function() {
@@ -969,7 +1050,12 @@
 
                     allData = rows.map(r => {
                         const cells = r.c || [];
-                        return cells.map(cell => cell ? (cell.v !== null ? String(cell.v) : "") : "");
+                        const mapped = cells.map(cell => cell ? (cell.v !== null ? String(cell.v) : "") : "");
+                        // Ensure columns 16, 17, 18 have drive folder fallbacks if missing or '#'
+                        if (!mapped[16] || mapped[16] === "#") mapped[16] = DEFAULT_DRIVE_ORIGINAL;
+                        if (!mapped[17] || mapped[17] === "#") mapped[17] = DEFAULT_DRIVE_COVER;
+                        if (!mapped[18] || mapped[18] === "#") mapped[18] = DEFAULT_DRIVE_EVAL;
+                        return mapped;
                     });
 
                     if (allData.length > 0 && (allData[0][0] === "ID" || allData[0][0].includes("ID"))) {
@@ -1327,7 +1413,7 @@
             if (adminFilteredData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="py-12 text-center text-slate-400 bg-slate-50">
+                        <td colspan="6" class="py-12 text-center text-slate-400 bg-slate-50">
                             <i class="fa-solid fa-inbox text-3xl mb-2 text-slate-300"></i>
                             <p>ไม่พบรายการข้อมูลในระบบ</p>
                         </td>
@@ -1346,6 +1432,10 @@
                 const globalIdx = allData.indexOf(row);
                 const statusBadge = renderStatusBadge(row[7]);
 
+                const origUrl = (row[16] && row[16] !== '#') ? row[16] : DEFAULT_DRIVE_ORIGINAL;
+                const coverUrl = (row[17] && row[17] !== '#') ? row[17] : DEFAULT_DRIVE_COVER;
+                const evalUrl = (row[18] && row[18] !== '#') ? row[18] : DEFAULT_DRIVE_EVAL;
+
                 html += `
                     <tr class="hover:bg-slate-50/80 transition">
                         <td class="py-3 px-4 font-mono font-bold text-sky-700">${row[0]}</td>
@@ -1354,6 +1444,19 @@
                             <div class="text-[11px] text-slate-400">${row[3]} ${row[4]} | ภาควิชา: ${row[6] || '-'}</div>
                         </td>
                         <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4">
+                            <div class="flex items-center space-x-1.5">
+                                <a href="${origUrl}" target="_blank" title="หนังสือต้นฉบับ" class="w-7 h-7 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center transition border border-blue-200">
+                                    <i class="fa-solid fa-file-pdf text-xs"></i>
+                                </a>
+                                <a href="${coverUrl}" target="_blank" title="ปกหนังสือ" class="w-7 h-7 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center transition border border-purple-200">
+                                    <i class="fa-solid fa-image text-xs"></i>
+                                </a>
+                                <a href="${evalUrl}" target="_blank" title="ผลประเมิน" class="w-7 h-7 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center transition border border-emerald-200">
+                                    <i class="fa-solid fa-clipboard-check text-xs"></i>
+                                </a>
+                            </div>
+                        </td>
                         <td class="py-3 px-4 text-[11px] text-slate-500 max-w-xs truncate">${row[15] || '-'}</td>
                         <td class="py-3 px-4 text-center space-x-1.5">
                             <button onclick="openDetailModal(${globalIdx})" class="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition" title="ดูรายละเอียด">
@@ -1430,6 +1533,11 @@
             document.getElementById('detailEvalStatus').innerText = row[7] || '-';
             document.getElementById('detailPrintStatus').innerText = row[10] || '-';
 
+            // Set Document Attachment links
+            document.getElementById('detailLinkOriginal').href = (row[16] && row[16] !== '#') ? row[16] : DEFAULT_DRIVE_ORIGINAL;
+            document.getElementById('detailLinkCover').href = (row[17] && row[17] !== '#') ? row[17] : DEFAULT_DRIVE_COVER;
+            document.getElementById('detailLinkEval').href = (row[18] && row[18] !== '#') ? row[18] : DEFAULT_DRIVE_EVAL;
+
             renderModalStepper(row[7], row[10]);
 
             const remarkText = row[15];
@@ -1503,6 +1611,11 @@
             document.getElementById('formIsbn').value = "-";
             document.getElementById('formRemark').value = "";
 
+            // Reset File Links to default drive folders
+            document.getElementById('formOriginalBookUrl').value = DEFAULT_DRIVE_ORIGINAL;
+            document.getElementById('formCoverUrl').value = DEFAULT_DRIVE_COVER;
+            document.getElementById('formEvalResultUrl').value = DEFAULT_DRIVE_EVAL;
+
             document.getElementById('recordModal').classList.remove('hidden');
         }
 
@@ -1523,6 +1636,11 @@
             document.getElementById('formIsbn').value = row[8] || '-';
             document.getElementById('formRemark').value = row[15] || '';
 
+            // Populate File Links
+            document.getElementById('formOriginalBookUrl').value = (row[16] && row[16] !== '#') ? row[16] : DEFAULT_DRIVE_ORIGINAL;
+            document.getElementById('formCoverUrl').value = (row[17] && row[17] !== '#') ? row[17] : DEFAULT_DRIVE_COVER;
+            document.getElementById('formEvalResultUrl').value = (row[18] && row[18] !== '#') ? row[18] : DEFAULT_DRIVE_EVAL;
+
             document.getElementById('recordModal').classList.remove('hidden');
         }
 
@@ -1534,6 +1652,10 @@
             e.preventDefault();
             const editIdx = document.getElementById('editRowId').value;
             
+            const originalUrl = document.getElementById('formOriginalBookUrl').value.trim() || DEFAULT_DRIVE_ORIGINAL;
+            const coverUrl = document.getElementById('formCoverUrl').value.trim() || DEFAULT_DRIVE_COVER;
+            const evalUrl = document.getElementById('formEvalResultUrl').value.trim() || DEFAULT_DRIVE_EVAL;
+
             const newRow = [
                 document.getElementById('formId').value,
                 new Date().toISOString().slice(0, 10),
@@ -1551,15 +1673,17 @@
                 document.getElementById('formEmail').value,
                 currentUser ? currentUser.email : "admin@kmitl.ac.th",
                 document.getElementById('formRemark').value,
-                "#", "#", "#"
+                originalUrl, 
+                coverUrl, 
+                evalUrl
             ];
 
             if (editIdx !== "") {
                 allData[parseInt(editIdx)] = newRow;
-                showToast("อัปเดตข้อมูลรายการเรียบร้อย", "success");
+                showToast("อัปเดตข้อมูลรายการและแนบไฟล์เรียบร้อย", "success");
             } else {
                 allData.unshift(newRow);
-                showToast("บันทึกข้อมูลรายการใหม่เรียบร้อย", "success");
+                showToast("บันทึกข้อมูลรายการใหม่พร้อมไฟล์เรียบร้อย", "success");
             }
 
             closeRecordModal();
