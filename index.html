@@ -601,8 +601,20 @@
                         <label class="block font-semibold text-slate-700 mb-1">สถานะการประเมิน</label>
                         <select id="formEvalStatus" class="w-full p-2.5 border rounded-xl bg-white text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                             <option value="รับเอกสารการประเมิน">รับเอกสารการประเมิน</option>
+                            <option value="สรรหาผู้ทรงคุณวุฒิ">สรรหาผู้ทรงคุณวุฒิ</option>
+                            <option value="เข้ากรรมการคณะ">เข้ากรรมการคณะ</option>
                             <option value="ส่งเอกสารผู้ทรง รอบ 1">ส่งเอกสารผู้ทรง รอบ 1</option>
+                            <option value="ติดตามผล รอบ 1">ติดตามผล รอบ 1</option>
+                            <option value="รับเอกสารผู้ทรง รอบ 1">รับเอกสารผู้ทรง รอบ 1</option>
+                            <option value="ส่งเอกสารผู้ประเมิน รอบ 1">ส่งเอกสารผู้ประเมิน รอบ 1</option>
                             <option value="รอการแก้ไข รอบ 1">รอการแก้ไข รอบ 1</option>
+                            <option value="ส่งเอกสารผู้ทรง รอบ 2">ส่งเอกสารผู้ทรง รอบ 2</option>
+                            <option value="ติดตามผล รอบ 2">ติดตามผล รอบ 2</option>
+                            <option value="รับเอกสารผู้ทรง รอบ 2">รับเอกสารผู้ทรง รอบ 2</option>
+                            <option value="ส่งเอกสารผู้ประเมิน รอบ 2">ส่งเอกสารผู้ประเมิน รอบ 2</option>
+                            <option value="รอการแก้ไข รอบ 2">รอการแก้ไข รอบ 2</option>
+                            <option value="สรุปผลการประเมิน">สรุปผลการประเมิน</option>
+                            <option value="เข้ากรรมการคณะสรุปผล">เข้ากรรมการคณะสรุปผล</option>
                             <option value="ผ่านการประเมิน">ผ่านการประเมิน</option>
                             <option value="ไม่ผ่านการประเมิน">ไม่ผ่านการประเมิน</option>
                         </select>
@@ -1277,9 +1289,15 @@
         function buildStepper(evalStatus, printStatus) {
             const container = document.getElementById('timelineSteps');
             let currentStepIdx = 0;
-            if (evalStatus.includes('ส่งเอกสารผู้ทรง')) currentStepIdx = 2;
-            else if (evalStatus.includes('แก้ไข')) currentStepIdx = 3;
-            else if (evalStatus.includes('ผ่าน') && !evalStatus.includes('ไม่ผ่าน')) currentStepIdx = 4;
+            if (evalStatus.includes('สรรหา') || evalStatus.includes('เข้ากรรมการคณะ')) {
+                currentStepIdx = 1;
+            } else if (evalStatus.includes('ส่งเอกสาร') || evalStatus.includes('ติดตามผล') || evalStatus.includes('รับเอกสารผู้ทรง')) {
+                currentStepIdx = 2;
+            } else if (evalStatus.includes('แก้ไข')) {
+                currentStepIdx = 3;
+            } else if (evalStatus.includes('สรุปผล') || evalStatus.includes('ผ่าน')) {
+                currentStepIdx = 4;
+            }
             if (printStatus.includes('นำไปจัดพิมพ์ได้') || printStatus.includes('จัดพิมพ์') || printStatus.includes('เสร็จ')) currentStepIdx = 5;
 
             // คำนวณเปอร์เซ็นต์โดยเริ่มที่ขั้นตอนยื่นคำขอ (10%) และสิ้นสุดที่จัดพิมพ์ (100%)
