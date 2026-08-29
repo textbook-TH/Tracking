@@ -293,7 +293,6 @@
                 </div>
             </div>
 
-            <!-- Public Data Table -->
             <div id="tableScrollTarget" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden space-y-4 p-6">
                 <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left border-b border-slate-100 pb-4 gap-3">
                     <div>
@@ -777,7 +776,9 @@
 
                 <div class="pt-2 flex justify-end space-x-2 border-t border-slate-100">
                     <button type="button" onclick="closeRecordModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl text-xs transition">ยกเลิก</button>
-                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition">บันทึกข้อมูลและไฟล์</button>
+                    <button type="submit" id="btnSaveRecord" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition flex items-center justify-center">
+                        <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> บันทึกข้อมูลและไฟล์
+                    </button>
                 </div>
             </form>
         </div>
@@ -814,6 +815,9 @@
     </footer>
 
     <script>
+        // URL จาก Google Apps Script ของคุณ
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUuXICRwPuq2WHTrNpIhc-VHLx_Sa6tt5qCErtoJxp_0r0P_4OgUiU7nMUlLErs3DT/exec";
+
         const PUBLIC_SHEET_ID = "1A3hnZEPaNslKFp96efTGfZzt0HTs8R79Qvgeh1UDI3E";
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
 
@@ -827,6 +831,7 @@
         let currentUser = null;
         let currentActiveView = 'public';
         let targetDeleteId = null;
+        let editingRowIndex = -1;
         
         // Uploaded files state in current modal session
         let selectedFiles = {
@@ -862,6 +867,60 @@
             ["Text-007", "2569-08-27", "2569", "รศ.ดร.", "สุดาภัทร ขวัญเสมาบึง", "การออกแบบชิ้นส่วนเครื่องกล", "เครื่องกล", "ไม่ผ่านการประเมิน", "", "วศ.สจล. 69-007", "นำไปจัดพิมพ์ไม่ได้", "", "", "sudapat@kmitl.ac.th", "admin@kmitl.ac.th", "ไม่ผ่านการประเมินเนื่องจากผลการประเมินไม่ผ่านเกณฑ์", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
             ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "วศ.สจล. 68-012", "นำไปจัดพิมพ์ได้", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL]
         ];
+
+        /**
+         * ฟังก์ชันส่งไฟล์ไป Google Drive ผ่าน Google Apps Script (Promisified)
+         * @param {File} file - ไฟล์ที่ต้องการอัปโหลด
+         * @param {string} type - ประเภทโฟลเดอร์: 'text' (หรือ 'original'), 'cover', หรือ 'eval'
+         * @returns {Promise<string>} ลิงก์ไฟล์ที่อัปโหลดสำเร็จ
+         */
+        function uploadFileToDrive(file, type) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const rawBase64 = e.target.result.split(',')[1];
+                    // Mapping type parameter to match Google Script specs
+                    const apiType = (type === 'original') ? 'text' : type;
+                    
+                    const payload = {
+                        filename: file.name,
+                        mimeType: file.type || 'application/octet-stream',
+                        base64: rawBase64,
+                        type: apiType // 'text' (หนังสือต้นฉบับ), 'cover' (ปกหนังสือ), 'eval' (ผลการประเมิน)
+                    };
+
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.result === "success") {
+                            showToast("อัปโหลดไฟล์ " + (data.fileName || file.name) + " ลง Google Drive สำเร็จ!", "success");
+                            console.log("Drive File Link:", data.fileUrl);
+                            resolve(data.fileUrl);
+                        } else {
+                            showToast("เกิดข้อผิดพลาดในการอัปโหลด: " + (data.error || "ไม่ทราบสาเหตุ"), "error");
+                            reject(new Error(data.error || "Upload failed"));
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Fetch Upload Error:", err);
+                        showToast("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์", "error");
+                        reject(err);
+                    });
+                };
+
+                reader.onerror = function(err) {
+                    console.error("FileReader Error:", err);
+                    showToast("เกิดข้อผิดพลาดในการอ่านไฟล์", "error");
+                    reject(err);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
 
         window.onload = function() {
             updateHeaderNavVisibility();
@@ -1635,11 +1694,12 @@
 
             const remarkText = row[15];
             const remarkContainer = document.getElementById('detailRemarkContainer');
+            const remarkEl = document.getElementById('detailRemarkText');
             if (remarkText && remarkText.trim() !== '' && remarkText !== '-') {
-                document.getElementById('detailRemarkText').innerText = remarkText;
-                remarkContainer.classList.remove('hidden');
+                if (remarkEl) remarkEl.innerText = remarkText;
+                if (remarkContainer) remarkContainer.classList.remove('hidden');
             } else {
-                remarkContainer.classList.add('hidden');
+                if (remarkContainer) remarkContainer.classList.add('hidden');
             }
 
             document.getElementById('detailModal').classList.remove('hidden');
@@ -1652,40 +1712,39 @@
         function openLoginModal() {
             document.getElementById('loginModal').classList.remove('hidden');
         }
-
         function closeLoginModal() {
             document.getElementById('loginModal').classList.add('hidden');
             document.getElementById('loginError').classList.add('hidden');
         }
-
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
-            const role = document.querySelector('input[name="loginRole"]:checked').value;
+            const roleRadio = document.querySelector('input[name="loginRole"]:checked');
+            const role = roleRadio ? roleRadio.value : 'lecturer';
 
             if (!email.toLowerCase().endsWith('@kmitl.ac.th')) {
-                const err = document.getElementById('loginError');
-                err.innerText = "กรุณาใช้อีเมลองค์กร @kmitl.ac.th เท่านั้น";
-                err.classList.remove('hidden');
+                const errEl = document.getElementById('loginError');
+                errEl.innerText = "กรุณาใช้อีเมลสถาบันที่ลงท้ายด้วย @kmitl.ac.th เท่านั้น";
+                errEl.classList.remove('hidden');
                 return;
             }
 
             currentUser = { email, role };
             closeLoginModal();
-            showToast(`เข้าสู่ระบบในฐานะ ${role === 'admin' ? 'เจ้าหน้าที่' : 'อาจารย์'} เรียบร้อยแล้ว`);
+            showToast(`เข้าสู่ระบบสำเร็จ (${role === 'admin' ? 'เจ้าหน้าที่' : 'อาจารย์'})`, 'success');
             switchView(role);
         }
-
         function logout() {
             currentUser = null;
+            showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
             switchView('public');
-            showToast("ออกจากระบบเรียบร้อยแล้ว");
         }
 
         function openAddModal() {
+            editingRowIndex = -1;
             document.getElementById('recordModalTitle').innerText = "เพิ่มผลงานใหม่";
             document.getElementById('editRowId').value = "";
-            document.getElementById('formId').value = `Text-0${allData.length + 1}`;
+            document.getElementById('formId').value = "Text-" + String(allData.length + 1).padStart(3, '0');
             document.getElementById('formYear').value = new Date().getFullYear() + 543;
             document.getElementById('formPosition').value = "";
             document.getElementById('formAuthor').value = "";
@@ -1698,14 +1757,18 @@
             document.getElementById('formIsbn').value = "";
             document.getElementById('formRemark').value = "";
 
-            removeSelectedFile('original');
-            removeSelectedFile('cover');
-            removeSelectedFile('eval');
+            resetFileInputs();
+            currentSavedUrls = {
+                original: DEFAULT_DRIVE_ORIGINAL,
+                cover: DEFAULT_DRIVE_COVER,
+                eval: DEFAULT_DRIVE_EVAL
+            };
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
 
         function openEditModal(idx) {
+            editingRowIndex = idx;
             const row = allData[idx];
             if (!row) return;
 
@@ -1724,53 +1787,102 @@
             document.getElementById('formIsbn').value = row[8] || "";
             document.getElementById('formRemark').value = row[15] || "";
 
+            resetFileInputs();
+            currentSavedUrls = {
+                original: row[16] || DEFAULT_DRIVE_ORIGINAL,
+                cover: row[17] || DEFAULT_DRIVE_COVER,
+                eval: row[18] || DEFAULT_DRIVE_EVAL
+            };
+
+            document.getElementById('recordModal').classList.remove('hidden');
+        }
+
+        function resetFileInputs() {
             removeSelectedFile('original');
             removeSelectedFile('cover');
             removeSelectedFile('eval');
-
-            document.getElementById('recordModal').classList.remove('hidden');
         }
 
         function closeRecordModal() {
             document.getElementById('recordModal').classList.add('hidden');
         }
 
-        function handleSaveRecord(e) {
+        async function handleSaveRecord(e) {
             e.preventDefault();
-            const editIdx = document.getElementById('editRowId').value;
-            const now = new Date().toISOString().split('T')[0];
+            const submitBtn = document.getElementById('btnSaveRecord');
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : 'บันทึกข้อมูลและไฟล์';
 
-            const newRow = [
-                document.getElementById('formId').value.trim(),
-                now,
-                document.getElementById('formYear').value.trim(),
-                document.getElementById('formPosition').value.trim(),
-                document.getElementById('formAuthor').value.trim(),
-                document.getElementById('formBookTitle').value.trim(),
-                document.getElementById('formDept').value.trim(),
-                document.getElementById('formEvalStatus').value,
-                document.getElementById('formIsbn').value.trim(),
-                document.getElementById('formKmitlCode').value.trim(),
-                document.getElementById('formPrintStatus').value,
-                "", "",
-                document.getElementById('formEmail').value.trim(),
-                currentUser ? currentUser.email : "admin@kmitl.ac.th",
-                document.getElementById('formRemark').value.trim(),
-                DEFAULT_DRIVE_ORIGINAL,
-                DEFAULT_DRIVE_COVER,
-                DEFAULT_DRIVE_EVAL
-            ];
+            try {
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> กำลังอัปโหลดไฟล์ไปที่ Google Drive...';
+                }
 
-            if (editIdx !== "") {
-                allData[parseInt(editIdx)] = newRow;
-                showToast("อัปเดตข้อมูลเรียบร้อยแล้ว");
-            } else {
-                allData.unshift(newRow);
-                showToast("เพิ่มผลงานใหม่เรียบร้อยแล้ว");
+                // 1. Upload original file if selected
+                if (selectedFiles.original) {
+                    const url = await uploadFileToDrive(selectedFiles.original, 'text');
+                    if (url) currentSavedUrls.original = url;
+                }
+
+                // 2. Upload cover file if selected
+                if (selectedFiles.cover) {
+                    const url = await uploadFileToDrive(selectedFiles.cover, 'cover');
+                    if (url) currentSavedUrls.cover = url;
+                }
+
+                // 3. Upload evaluation result file if selected
+                if (selectedFiles.eval) {
+                    const url = await uploadFileToDrive(selectedFiles.eval, 'eval');
+                    if (url) currentSavedUrls.eval = url;
+                }
+
+                const todayStr = new Date().toISOString().split('T')[0];
+                const recordData = [
+                    document.getElementById('formId').value.trim(),
+                    todayStr,
+                    document.getElementById('formYear').value.trim(),
+                    document.getElementById('formPosition').value.trim(),
+                    document.getElementById('formAuthor').value.trim(),
+                    document.getElementById('formBookTitle').value.trim(),
+                    document.getElementById('formDept').value.trim(),
+                    document.getElementById('formEvalStatus').value,
+                    document.getElementById('formIsbn').value.trim(),
+                    document.getElementById('formKmitlCode').value.trim(),
+                    document.getElementById('formPrintStatus').value,
+                    "",
+                    "",
+                    document.getElementById('formEmail').value.trim(),
+                    currentUser ? currentUser.email : "admin@kmitl.ac.th",
+                    document.getElementById('formRemark').value.trim(),
+                    currentSavedUrls.original,
+                    currentSavedUrls.cover,
+                    currentSavedUrls.eval
+                ];
+
+                if (editingRowIndex >= 0 && editingRowIndex < allData.length) {
+                    allData[editingRowIndex] = recordData;
+                    showToast("แก้ไขข้อมูลและอัปโหลดไฟล์ลง Google Drive สำเร็จ", "success");
+                } else {
+                    allData.unshift(recordData);
+                    showToast("เพิ่มผลงานใหม่และอัปโหลดไฟล์ลง Google Drive สำเร็จ", "success");
+                }
+
+                closeRecordModal();
+                filteredData = [...allData];
+                initFilters();
+                updateDashboard();
+                if (currentActiveView === 'admin') renderAdminPortal();
+                if (currentActiveView === 'lecturer') renderLecturerPortal();
+
+            } catch (err) {
+                console.error("Save Record Error:", err);
+                showToast("เกิดข้อผิดพลาดในการบันทึกข้อมูลหรืออัปโหลดไฟล์", "error");
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
             }
-
-            closeRecordModal();
-            filterData();
         }
 
         function openDeleteModal(id) {
@@ -1787,40 +1899,42 @@
         function confirmDeleteRecord() {
             if (!targetDeleteId) return;
             allData = allData.filter(r => r[0] !== targetDeleteId);
+            showToast(`ลบรายการ ${targetDeleteId} เรียบร้อยแล้ว`, "success");
             closeDeleteModal();
-            filterData();
-            showToast("ลบข้อมูลเรียบร้อยแล้ว");
-        }
-
-        function closeModalOnBackdrop(e, modalId) {
-            if (e.target.id === modalId) {
-                document.getElementById(modalId).classList.add('hidden');
-            }
+            filteredData = [...allData];
+            initFilters();
+            updateDashboard();
         }
 
         function exportToCSV() {
-            const headers = ["ID", "วันที่บันทึก", "ปีประเมิน", "คำนำหน้า", "ผู้เขียน", "ชื่อเรื่อง", "ภาควิชา", "สถานะประเมิน", "ISBN", "รหัส วศ.สจล.", "สถานะจัดพิมพ์", "", "", "อีเมลอาจารย์", "ผู้บันทึก", "หมายเหตุ"];
-            let csvContent = "\uFEFF" + headers.join(",") + "\n";
-
+            if (allData.length === 0) {
+                showToast("ไม่มีข้อมูลสำหรับส่งออก", "error");
+                return;
+            }
+            const headers = ["ID", "วันที่บันทึก", "ปีการศึกษา", "ตำแหน่งทางวิชาการ", "ผู้เขียน", "ชื่อหนังสือ", "ภาควิชา", "สถานะการประเมิน", "ISBN", "รหัส วศ.สจล.", "สถานะจัดพิมพ์", "", "", "อีเมลอาจารย์", "ผู้บันทึก", "หมายเหตุ", "ลิงก์หนังสือต้นฉบับ", "ลิงก์ปกหนังสือ", "ลิงก์ผลการประเมิน"];
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+            csvContent += headers.map(h => `"${h}"`).join(",") + "\n";
             allData.forEach(row => {
-                const escaped = row.slice(0, 16).map(val => `"${String(val || '').replace(/"/g, '""')}"`);
-                csvContent += escaped.join(",") + "\n";
+                csvContent += row.map(cell => `"${(cell || "").replace(/"/g, '""')}"`).join(",") + "\n";
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `evaluation_records_${new Date().toISOString().split('T')[0]}.csv`;
+            link.setAttribute("href", url);
+            link.setAttribute("download", `evaluation_status_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
             link.click();
-            showToast("ส่งออกไฟล์ CSV สำเร็จ");
+            document.body.removeChild(link);
+            showToast("ส่งออกข้อมูล CSV สำเร็จ", "success");
         }
 
         function copyToClipboard(text) {
             if (!text || text === '-') return;
             navigator.clipboard.writeText(text).then(() => {
-                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
-            }).catch(() => {
-                showToast("ไม่สามารถคัดลอกข้อความได้", "error");
+                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`, "success");
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
             });
         }
 
@@ -1829,8 +1943,10 @@
             const toastMsg = document.getElementById('toastMsg');
             const toastIcon = document.getElementById('toastIcon');
 
+            if (!toast || !toastMsg || !toastIcon) return;
+
             toastMsg.innerText = msg;
-            if (type === "error") {
+            if (type === 'error') {
                 toastIcon.className = "fa-solid fa-circle-xmark text-rose-400 text-base";
             } else {
                 toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
@@ -1842,7 +1958,16 @@
             setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+            }, 3500);
+        }
+
+        function closeModalOnBackdrop(e, modalId) {
+            if (e.target.id === modalId) {
+                if (modalId === 'detailModal') closeDetailModal();
+                if (modalId === 'loginModal') closeLoginModal();
+                if (modalId === 'recordModal') closeRecordModal();
+                if (modalId === 'deleteModal') closeDeleteModal();
+            }
         }
     </script>
 </body>
