@@ -355,7 +355,7 @@
                 <div>
                     <span class="px-2.5 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full font-semibold border border-amber-500/30">Admin Panel</span>
                     <h2 class="text-xl font-bold mt-1">จัดการข้อมูลการประเมิน (สำหรับเจ้าหน้าที่)</h2>
-                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ อัปเดตสถานะ และอัปโหลดไฟล์เอกสาร</p>
+                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ อัปเดตสถานะ และดาวน์โหลดไฟล์เอกสาร</p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button onclick="exportToCSV()" class="inline-flex items-center px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-xl transition shadow">
@@ -428,7 +428,7 @@
                                 <th class="py-3 px-4">ID</th>
                                 <th class="py-3 px-4">ผู้เขียน / ชื่อเรื่อง</th>
                                 <th class="py-3 px-4">สถานะประเมิน</th>
-                                <th class="py-3 px-4">ไฟล์แนบ</th>
+                                <th class="py-3 px-4">ไฟล์ดาวน์โหลด</th>
                                 <th class="py-3 px-4">หมายเหตุ</th>
                                 <th class="py-3 px-4 text-center">จัดการ</th>
                             </tr>
@@ -646,7 +646,7 @@
                     <input type="text" id="formIsbn" placeholder="เช่น 978-616-338-228-3 หรือ -" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                 </div>
 
-                <!-- DIRECT FILE UPLOAD FOR GOOGLE DRIVE (Hidden Raw URL Inputs) -->
+                <!-- DIRECT FILE UPLOAD FOR GOOGLE DRIVE -->
                 <div class="border-t border-slate-200 pt-4 space-y-4">
                     <div class="flex items-center justify-between">
                         <label class="block font-bold text-slate-800 text-xs flex items-center">
@@ -1512,6 +1512,11 @@
                 const globalIdx = allData.indexOf(row);
                 const statusBadge = renderStatusBadge(row[7]);
                 
+                // Retrieve file URLs (Column 16: หนังสือต้นฉบับ, Column 17: ปกหนังสือ, Column 18: เอกสารผลการประเมิน)
+                const origLink = row[16] || DEFAULT_DRIVE_ORIGINAL;
+                const coverLink = row[17] || DEFAULT_DRIVE_COVER;
+                const evalLink = row[18] || DEFAULT_DRIVE_EVAL;
+
                 html += `
                     <tr class="hover:bg-slate-50 transition">
                         <td class="py-3 px-4 font-mono font-bold text-sky-700">${row[0]}</td>
@@ -1521,7 +1526,18 @@
                         </td>
                         <td class="py-3 px-4">${statusBadge}</td>
                         <td class="py-3 px-4">
-                            <span class="text-[11px] text-slate-400 italic">ไฟล์ถูกซ่อนในระบบ</span>
+                            <!-- Direct Download / View File Icons for Staff -->
+                            <div class="flex items-center space-x-1.5">
+                                <a href="${origLink}" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white flex items-center justify-center transition border border-sky-200 shadow-sm" title="ดาวน์โหลด/เปิด หนังสือต้นฉบับ">
+                                    <i class="fa-solid fa-file-pdf text-sm"></i>
+                                </a>
+                                <a href="${coverLink}" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white flex items-center justify-center transition border border-purple-200 shadow-sm" title="ดาวน์โหลด/เปิด ปกหนังสือ">
+                                    <i class="fa-solid fa-image text-sm"></i>
+                                </a>
+                                <a href="${evalLink}" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white flex items-center justify-center transition border border-emerald-200 shadow-sm" title="ดาวน์โหลด/เปิด เอกสารผลการประเมิน">
+                                    <i class="fa-solid fa-clipboard-check text-sm"></i>
+                                </a>
+                            </div>
                         </td>
                         <td class="py-3 px-4 max-w-xs truncate text-[11px] text-slate-500">${row[15] || '-'}</td>
                         <td class="py-3 px-4 text-center space-x-1">
@@ -1756,53 +1772,74 @@
 
         function exportToCSV() {
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "ID,Year,Position,Author,Title,Department,Status,ISBN,Email,Remark\n";
-            
-            allData.forEach(r => {
-                const rowStr = [r[0], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[13], r[15]]
-                    .map(v => `"${(v || '').replace(/"/g, '""')}"`)
-                    .join(",");
-                csvContent += rowStr + "\n";
+            csvContent += "ID,Year,Position,Author,Title,Department,Status,ISBN,Email,Remark,OriginalURL,CoverURL,EvalURL\n";
+            allData.forEach(row => {
+                const line = [
+                    `"${row[0] || ''}"`,
+                    `"${row[2] || ''}"`,
+                    `"${row[3] || ''}"`,
+                    `"${row[4] || ''}"`,
+                    `"${(row[5] || '').replace(/"/g, '""')}"`,
+                    `"${row[6] || ''}"`,
+                    `"${row[7] || ''}"`,
+                    `"${row[8] || ''}"`,
+                    `"${row[13] || ''}"`,
+                    `"${(row[15] || '').replace(/"/g, '""')}"`,
+                    `"${row[16] || ''}"`,
+                    `"${row[17] || ''}"`,
+                    `"${row[18] || ''}"`
+                ].join(",");
+                csvContent += line + "\n";
             });
-
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `evaluation_tracking_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `evaluation_data_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            showToast("ส่งออกไฟล์ CSV เรียบร้อยแล้ว");
         }
 
-        function copyToClipboard(text) {
-            if (!text || text === '-') return;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
-            });
-        }
-
-        function showToast(msg, type = "success") {
+        function showToast(message, type = "success") {
             const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
             const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
 
-            toastMsg.innerText = msg;
+            if (!toast || !toastMsg) return;
+
+            toastMsg.innerText = message;
             if (type === "error") {
-                icon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
             } else {
-                icon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
             setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
         }
 
         function closeModalOnBackdrop(e, modalId) {
             if (e.target.id === modalId) {
-                document.getElementById(modalId).classList.add('hidden');
+                if (modalId === 'detailModal') closeDetailModal();
+                if (modalId === 'loginModal') closeLoginModal();
+                if (modalId === 'recordModal') closeRecordModal();
+                if (modalId === 'deleteModal') closeDeleteModal();
             }
+        }
+
+        function copyToClipboard(text) {
+            if (!text || text === '-') return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("คัดลอกลงคลิปบอร์ดเรียบร้อยแล้ว");
+            }).catch(err => {
+                console.error("Copy failed", err);
+            });
         }
     </script>
 </body>
