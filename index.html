@@ -295,13 +295,20 @@
 
             <!-- Public Data Table -->
             <div id="tableScrollTarget" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden space-y-4 p-6">
-                <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left border-b border-slate-100 pb-4 gap-2">
+                <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left border-b border-slate-100 pb-4 gap-3">
                     <div>
                         <h2 class="font-bold text-slate-800 text-base">ตารางสถานะการประเมิน</h2>
                         <p class="text-xs text-slate-400">แสดงผลรายการหนังสือ/ตำราเรียน</p>
                     </div>
-                    <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl font-medium border border-slate-200/60">
-                        พบข้อมูล <span id="filteredCountText" class="font-bold text-sky-600">0</span> จาก <span id="totalCountText">0</span> รายการ
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- CSV Download Button in front of record count -->
+                        <button onclick="exportToCSV()" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-xl transition shadow-sm hover:shadow active:scale-95 cursor-pointer">
+                            <i class="fa-solid fa-file-csv mr-1.5 text-sm text-emerald-200"></i>
+                            <span>ดาวน์โหลด CSV สรุปทั้งระบบ</span>
+                        </button>
+                        <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl font-medium border border-slate-200/60">
+                            พบข้อมูล <span id="filteredCountText" class="font-bold text-sky-600">0</span> จาก <span id="totalCountText">0</span> รายการ
+                        </div>
                     </div>
                 </div>
 
@@ -355,9 +362,14 @@
                     <h2 class="text-xl font-bold mt-1">จัดการข้อมูลการประเมิน (สำหรับเจ้าหน้าที่)</h2>
                     <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา พร้อมอัปโหลดไฟล์ในระบบ</p>
                 </div>
-                <button onclick="openAddModal()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow">
-                    <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มผลงานใหม่ / อัปโหลดไฟล์
-                </button>
+                <div class="flex items-center space-x-2">
+                    <button onclick="exportToCSV()" class="inline-flex items-center px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-xl transition shadow">
+                        <i class="fa-solid fa-file-csv mr-1.5 text-emerald-200"></i> ส่งออก CSV
+                    </button>
+                    <button onclick="openAddModal()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow">
+                        <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มผลงานใหม่
+                    </button>
+                </div>
             </div>
 
             <!-- Admin Search & Filter Bar -->
@@ -1054,7 +1066,7 @@
                 return { stepIndex: 6, percent: 100, isFailed: false, isPassed: true };
             }
 
-            let step = 1; percent = 15;
+            let step = 1, percent = 15;
             switch (evalStatus) {
                 case 'รับเอกสารการประเมิน': step = 1; percent = 15; break;
                 case 'สรรหาผู้ทรงคุณวุฒิ':
@@ -1708,147 +1720,19 @@
             });
         }
 
-        function openAddModal() {
-            document.getElementById('recordModalTitle').innerText = "เพิ่มรายการผลงานใหม่และอัปโหลดไฟล์";
-            document.getElementById('editRowId').value = "";
-            document.getElementById('formId').value = `Text-0${allData.length + 1}`;
-            document.getElementById('formYear').value = new Date().getFullYear() + 543;
-            document.getElementById('formPosition').value = "ผศ.ดร.";
-            document.getElementById('formAuthor').value = "";
-            document.getElementById('formBookTitle').value = "";
-            document.getElementById('formEmail').value = "";
-            document.getElementById('formDept').value = "คอมพิวเตอร์";
-            document.getElementById('formEvalStatus').value = "รับเอกสารการประเมิน";
-            document.getElementById('formIsbn').value = "-";
-            document.getElementById('formRemark').value = "";
-
-            resetFileModalInputs();
-
-            document.getElementById('formOriginalBookUrl').value = "";
-            document.getElementById('formCoverUrl').value = "";
-            document.getElementById('formEvalResultUrl').value = "";
-
-            document.getElementById('recordModal').classList.remove('hidden');
-        }
-
-        function openEditModal(globalIdx) {
-            const row = allData[globalIdx];
-            if (!row) return;
-
-            document.getElementById('recordModalTitle').innerText = "แก้ไขรายการผลงานและอัปโหลดไฟล์";
-            document.getElementById('editRowId').value = globalIdx;
-            document.getElementById('formId').value = row[0] || '';
-            document.getElementById('formYear').value = row[2] || '';
-            document.getElementById('formPosition').value = row[3] || '';
-            document.getElementById('formAuthor').value = row[4] || '';
-            document.getElementById('formBookTitle').value = row[5] || '';
-            document.getElementById('formEmail').value = row[13] || '';
-            document.getElementById('formDept').value = row[6] || '';
-            document.getElementById('formEvalStatus').value = row[7] || 'รับเอกสารการประเมิน';
-            document.getElementById('formIsbn').value = row[8] || '-';
-            document.getElementById('formRemark').value = row[15] || '';
-
-            resetFileModalInputs();
-
-            document.getElementById('formOriginalBookUrl').value = (row[16] && row[16] !== '#') ? row[16] : '';
-            document.getElementById('formCoverUrl').value = (row[17] && row[17] !== '#') ? row[17] : '';
-            document.getElementById('formEvalResultUrl').value = (row[18] && row[18] !== '#') ? row[18] : '';
-
-            document.getElementById('recordModal').classList.remove('hidden');
-        }
-
-        function closeRecordModal() {
-            document.getElementById('recordModal').classList.add('hidden');
-        }
-
-        function handleSaveRecord(e) {
-            e.preventDefault();
-            const editIdx = document.getElementById('editRowId').value;
-            
-            // Create local object URLs for newly uploaded files or fallback to entered URLs
-            let origUrl = selectedFiles.original ? URL.createObjectURL(selectedFiles.original) : (document.getElementById('formOriginalBookUrl').value.trim() || DEFAULT_DRIVE_ORIGINAL);
-            let coverUrl = selectedFiles.cover ? URL.createObjectURL(selectedFiles.cover) : (document.getElementById('formCoverUrl').value.trim() || DEFAULT_DRIVE_COVER);
-            let evalUrl = selectedFiles.eval ? URL.createObjectURL(selectedFiles.eval) : (document.getElementById('formEvalResultUrl').value.trim() || DEFAULT_DRIVE_EVAL);
-
-            const newRow = [
-                document.getElementById('formId').value,
-                new Date().toISOString().slice(0, 10),
-                document.getElementById('formYear').value,
-                document.getElementById('formPosition').value,
-                document.getElementById('formAuthor').value,
-                document.getElementById('formBookTitle').value,
-                document.getElementById('formDept').value,
-                document.getElementById('formEvalStatus').value,
-                document.getElementById('formIsbn').value,
-                "ปกติ",
-                document.getElementById('formEvalStatus').value === 'ไม่ผ่านการประเมิน' ? 'ไม่อนุญาตให้จัดพิมพ์' : (document.getElementById('formEvalStatus').value === 'ผ่านการประเมิน' ? 'นำไปจัดพิมพ์ได้' : 'รอจัดพิมพ์'),
-                "",
-                "",
-                document.getElementById('formEmail').value,
-                currentUser ? currentUser.email : "admin@kmitl.ac.th",
-                document.getElementById('formRemark').value,
-                origUrl, 
-                coverUrl, 
-                evalUrl
-            ];
-
-            if (editIdx !== "") {
-                allData[parseInt(editIdx)] = newRow;
-                showToast("อัปเดตข้อมูลรายการและอัปโหลดไฟล์เรียบร้อย", "success");
-            } else {
-                allData.unshift(newRow);
-                showToast("บันทึกข้อมูลและอัปโหลดไฟล์สำเร็จ", "success");
-            }
-
-            closeRecordModal();
-            filteredData = [...allData];
-            initFilters();
-            updateDashboard();
-        }
-
-        function openDeleteModal(id) {
-            targetDeleteId = id;
-            document.getElementById('deleteTargetId').innerText = id;
-            document.getElementById('deleteModal').classList.remove('hidden');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.add('hidden');
-            targetDeleteId = null;
-        }
-
-        function confirmDeleteRecord() {
-            if (!targetDeleteId) return;
-            allData = allData.filter(r => r[0] !== targetDeleteId);
-            closeDeleteModal();
-            filteredData = [...allData];
-            initFilters();
-            updateDashboard();
-            showToast("ลบรายการข้อมูลเรียบร้อยแล้ว", "success");
-        }
-
         function closeModalOnBackdrop(event, modalId) {
             if (event.target.id === modalId) {
                 document.getElementById(modalId).classList.add('hidden');
             }
         }
 
-        function copyToClipboard(text) {
-            if (!text || text === '-') return;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast(`คัดลอก "${text}" เรียบร้อย`, "success");
-            }).catch(() => {
-                showToast("ไม่สามารถคัดลอกได้", "error");
-            });
-        }
-
-        function showToast(message, type = 'success') {
+        function showToast(message, type = "success") {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toastMsg');
             const toastIcon = document.getElementById('toastIcon');
 
             toastMsg.innerText = message;
-            if (type === 'error') {
+            if (type === "error") {
                 toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
             } else {
                 toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
@@ -1861,6 +1745,55 @@
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
+        }
+
+        function copyToClipboard(text) {
+            if (!text || text === '-') return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("คัดลอกข้อความเรียบร้อยแล้ว", "success");
+            });
+        }
+
+        // Export system data to CSV with UTF-8 BOM
+        function exportToCSV() {
+            if (!allData || allData.length === 0) {
+                showToast("ไม่มีข้อมูลในระบบสำหรับส่งออก", "error");
+                return;
+            }
+
+            const headers = [
+                "ID", "วันที่บันทึก", "ปีประเมิน", "ตำแหน่งทางวิชาการ", "ผู้ขอประเมิน", 
+                "ชื่อเรื่องหนังสือ/ตำรา", "ภาควิชา", "สถานะการประเมิน", "ISBN", 
+                "สถานะทั่วไป", "สถานะจัดพิมพ์", "หมายเหตุ 1", "หมายเหตุ 2", 
+                "อีเมลอาจารย์", "อีเมลเจ้าหน้าที่", "หมายเหตุแจ้งเตือน", 
+                "ลิงก์ต้นฉบับ", "ลิงก์ปกหนังสือ", "ลิงก์ผลประเมิน"
+            ];
+
+            // Add UTF-8 BOM so Thai text renders properly in Excel
+            let csvContent = "\uFEFF"; 
+            csvContent += headers.map(h => `"${h.replace(/"/g, '""')}"`).join(",") + "\n";
+
+            allData.forEach(row => {
+                const rowData = row.map(cell => {
+                    const str = cell !== undefined && cell !== null ? String(cell) : "";
+                    return `"${str.replace(/"/g, '""')}"`;
+                });
+                csvContent += rowData.join(",") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            const dateStr = new Date().toISOString().slice(0, 10);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `สรุปข้อมูลการประเมินทั้งหมด_${dateStr}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast("ดาวน์โหลดไฟล์ CSV สรุปทั้งระบบเรียบร้อยแล้ว", "success");
         }
     </script>
 </body>
