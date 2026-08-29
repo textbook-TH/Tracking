@@ -641,6 +641,24 @@
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">สถานะการจัดพิมพ์</label>
+                        <select id="formPrintStatus" class="w-full p-2.5 border rounded-xl bg-white text-xs focus:ring-2 focus:ring-sky-500 outline-none">
+                            <option value="อยู่ระหว่างการประเมิน">อยู่ระหว่างการประเมิน</option>
+                            <option value="รอจัดพิมพ์">รอจัดพิมพ์</option>
+                            <option value="กำลังจัดพิมพ์">กำลังจัดพิมพ์</option>
+                            <option value="นำไปจัดพิมพ์ได้">นำไปจัดพิมพ์ได้</option>
+                            <option value="นำไปจัดพิมพ์ไม่ได้">นำไปจัดพิมพ์ไม่ได้</option>
+                            <option value="จัดพิมพ์เอง">จัดพิมพ์เอง</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">รหัส: วศ.สจล.</label>
+                        <input type="text" id="formKmitlCode" placeholder="เช่น วศ.สจล. 69-001 หรือ -" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
+                    </div>
+                </div>
+
                 <div>
                     <label class="block font-semibold text-slate-700 mb-1">รหัส ISBN</label>
                     <input type="text" id="formIsbn" placeholder="เช่น 978-616-338-228-3 หรือ -" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
@@ -833,14 +851,14 @@
 
         // Mock reference dataset with default Google Drive links at columns 16, 17, 18
         const INITIAL_REFERENCE_DATA = [
-            ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "-", "ปกติ", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-003", "2569-08-27", "2569", "รศ.ดร.", "วิบูลย์ ปิยวัฒนเมธา", "กระบวนการผลิตและการประยุกต์ใช้ระบบไมโครไฟฟ้าจุลทรรศน์", "ชีวเวชแพทย์", "ส่งเอกสารผู้ทรง รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "wibool@kmitl.ac.th", "admin@kmitl.ac.th", "อยู่ระหว่างการพิจารณา", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-004", "2569-08-27", "2569", "ผศ.ดร.", "อรรถพล ปัจจสถิตย์", "กรอบแนวคิดการภาพข้อมูลสำหรับศูนย์ปฏิบัติความมั่นคงไซเบอร์", "ไอโอทีและสารสนเทศ", "รอการแก้ไข รอบ 1", "-", "ปกติ", "รอจัดพิมพ์", "", "", "attapon@kmitl.ac.th", "admin@kmitl.ac.th", "กรุณาปรับปรุงแก้ไขตามข้อเสนอแนะ", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-005", "2569-08-27", "2569", "Asst. Prof.", "Woon Koun Song", "DEEP LEARNING and APPLICATIONS in INTELLIGENT CONTROL", "หุ่นยนต์และปัญญาประดิษฐ์", "ผ่านการประเมิน", "978-616-338-228-3", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "woon@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-006", "2569-08-27", "2569", "รศ.ดร.", "กิตติวัฒน์ สิริเกษมสุข", "การศึกษาการทำงานอุตสาหกรรม", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-143-9", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "kittiwat@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-007", "2569-08-27", "2569", "รศ.ดร.", "สุดาภัทร ขวัญเสมาบึง", "การออกแบบชิ้นส่วนเครื่องกล", "เครื่องกล", "ไม่ผ่านการประเมิน", "-", "ปกติ", "ไม่อนุญาตให้จัดพิมพ์", "", "", "sudapat@kmitl.ac.th", "admin@kmitl.ac.th", "ไม่ผ่านการประเมินเนื่องจากผลการประเมินไม่ผ่านเกณฑ์", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL]
+            ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "-", "วศ.สจล. 69-001", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "-", "วศ.สจล. 69-002", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-003", "2569-08-27", "2569", "รศ.ดร.", "วิบูลย์ ปิยวัฒนเมธา", "กระบวนการผลิตและการประยุกต์ใช้ระบบไมโครไฟฟ้าจุลทรรศน์", "ชีวเวชแพทย์", "ส่งเอกสารผู้ทรง รอบ 1", "-", "วศ.สจล. 69-003", "รอจัดพิมพ์", "", "", "wibool@kmitl.ac.th", "admin@kmitl.ac.th", "อยู่ระหว่างการพิจารณา", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-004", "2569-08-27", "2569", "ผศ.ดร.", "อรรถพล ปัจจสถิตย์", "กรอบแนวคิดการภาพข้อมูลสำหรับศูนย์ปฏิบัติความมั่นคงไซเบอร์", "ไอโอทีและสารสนเทศ", "รอการแก้ไข รอบ 1", "-", "วศ.สจล. 69-004", "รอจัดพิมพ์", "", "", "attapon@kmitl.ac.th", "admin@kmitl.ac.th", "กรุณาปรับปรุงแก้ไขตามข้อเสนอแนะ", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-005", "2569-08-27", "2569", "Asst. Prof.", "Woon Koun Song", "DEEP LEARNING and APPLICATIONS in INTELLIGENT CONTROL", "หุ่นยนต์และปัญญาประดิษฐ์", "ผ่านการประเมิน", "978-616-338-228-3", "วศ.สจล. 69-005", "นำไปจัดพิมพ์ได้", "", "", "woon@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-006", "2569-08-27", "2569", "รศ.ดร.", "กิตติวัฒน์ สิริเกษมสุข", "การศึกษาการทำงานอุตสาหกรรม", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-143-9", "วศ.สจล. 69-006", "นำไปจัดพิมพ์ได้", "", "", "kittiwat@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-007", "2569-08-27", "2569", "รศ.ดร.", "สุดาภัทร ขวัญเสมาบึง", "การออกแบบชิ้นส่วนเครื่องกล", "เครื่องกล", "ไม่ผ่านการประเมิน", "-", "วศ.สจล. 69-007", "นำไปจัดพิมพ์ไม่ได้", "", "", "sudapat@kmitl.ac.th", "admin@kmitl.ac.th", "ไม่ผ่านการประเมินเนื่องจากผลการประเมินไม่ผ่านเกณฑ์", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
+            ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "วศ.สจล. 68-012", "นำไปจัดพิมพ์ได้", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL]
         ];
 
         window.onload = function() {
@@ -1025,7 +1043,7 @@
 
         function calculateStepProgress(evalStatus, printStatus) {
             const isFailed = (evalStatus === 'ไม่ผ่านการประเมิน');
-            const isPassed = (evalStatus === 'ผ่านการประเมิน' || printStatus === 'นำไปจัดพิมพ์ได้' || printStatus === 'จัดพิมพ์เสร็จ');
+            const isPassed = (evalStatus === 'ผ่านการประเมิน' || printStatus === 'นำไปจัดพิมพ์ได้' || printStatus === 'จัดพิมพ์เสร็จ' || printStatus === 'จัดพิมพ์เอง');
 
             if (isFailed) {
                 return { stepIndex: 6, percent: 100, isFailed: true, isPassed: false };
@@ -1673,6 +1691,8 @@
             document.getElementById('formEmail').value = "";
             document.getElementById('formDept').value = "";
             document.getElementById('formEvalStatus').value = "รับเอกสารการประเมิน";
+            document.getElementById('formPrintStatus').value = "อยู่ระหว่างการประเมิน";
+            document.getElementById('formKmitlCode').value = "-";
             document.getElementById('formIsbn').value = "-";
             document.getElementById('formRemark').value = "";
 
@@ -1697,6 +1717,8 @@
             document.getElementById('formDept').value = row[6] || '';
             document.getElementById('formEvalStatus').value = row[7] || 'รับเอกสารการประเมิน';
             document.getElementById('formIsbn').value = row[8] || '-';
+            document.getElementById('formKmitlCode').value = row[9] || '-';
+            document.getElementById('formPrintStatus').value = row[10] || 'อยู่ระหว่างการประเมิน';
             document.getElementById('formEmail').value = row[13] || '';
             document.getElementById('formRemark').value = row[15] || '';
 
@@ -1724,8 +1746,8 @@
                 document.getElementById('formDept').value,
                 document.getElementById('formEvalStatus').value,
                 document.getElementById('formIsbn').value,
-                "ปกติ",
-                "รอจัดพิมพ์",
+                document.getElementById('formKmitlCode').value,
+                document.getElementById('formPrintStatus').value,
                 "", "",
                 document.getElementById('formEmail').value,
                 currentUser ? currentUser.email : "admin@kmitl.ac.th",
@@ -1735,18 +1757,20 @@
                 DEFAULT_DRIVE_EVAL
             ];
 
-            if (editIdx !== "") {
-                allData[parseInt(editIdx)] = newRow;
-                showToast("อัปเดตข้อมูลสำเร็จ");
+            if (editIdx !== "" && editIdx !== null && editIdx !== undefined) {
+                allData[editIdx] = newRow;
+                showToast("แก้ไขข้อมูลเรียบร้อยแล้ว");
             } else {
                 allData.unshift(newRow);
-                showToast("เพิ่มผลงานใหม่สำเร็จ");
+                showToast("เพิ่มผลงานใหม่เรียบร้อยแล้ว");
             }
 
             closeRecordModal();
             filteredData = [...allData];
             initFilters();
             updateDashboard();
+            if (currentActiveView === 'admin') renderAdminPortal();
+            if (currentActiveView === 'lecturer') renderLecturerPortal();
         }
 
         function openDeleteModal(id) {
@@ -1763,52 +1787,31 @@
         function confirmDeleteRecord() {
             if (!targetDeleteId) return;
             allData = allData.filter(r => r[0] !== targetDeleteId);
+            showToast(`ลบรายการ ${targetDeleteId} เรียบร้อยแล้ว`);
             closeDeleteModal();
-            showToast("ลบข้อมูลรายการเรียบร้อยแล้ว");
             filteredData = [...allData];
             initFilters();
             updateDashboard();
+            if (currentActiveView === 'admin') renderAdminPortal();
         }
 
-        function exportToCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "ID,Year,Position,Author,Title,Department,Status,ISBN,Email,Remark,OriginalURL,CoverURL,EvalURL\n";
-            allData.forEach(row => {
-                const line = [
-                    `"${row[0] || ''}"`,
-                    `"${row[2] || ''}"`,
-                    `"${row[3] || ''}"`,
-                    `"${row[4] || ''}"`,
-                    `"${(row[5] || '').replace(/"/g, '""')}"`,
-                    `"${row[6] || ''}"`,
-                    `"${row[7] || ''}"`,
-                    `"${row[8] || ''}"`,
-                    `"${row[13] || ''}"`,
-                    `"${(row[15] || '').replace(/"/g, '""')}"`,
-                    `"${row[16] || ''}"`,
-                    `"${row[17] || ''}"`,
-                    `"${row[18] || ''}"`
-                ].join(",");
-                csvContent += line + "\n";
+        function copyToClipboard(text) {
+            if (!text || text === '-') return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
+            }).catch(() => {
+                showToast("ไม่สามารถคัดลอกข้อมูลได้", "error");
             });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `evaluation_data_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast("ส่งออกไฟล์ CSV เรียบร้อยแล้ว");
         }
 
-        function showToast(message, type = "success") {
+        function showToast(msg, type = "success") {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toastMsg');
             const toastIcon = document.getElementById('toastIcon');
 
             if (!toast || !toastMsg) return;
 
-            toastMsg.innerText = message;
+            toastMsg.innerText = msg;
             if (type === "error") {
                 toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
             } else {
@@ -1824,22 +1827,34 @@
             }, 3000);
         }
 
-        function closeModalOnBackdrop(e, modalId) {
-            if (e.target.id === modalId) {
-                if (modalId === 'detailModal') closeDetailModal();
-                if (modalId === 'loginModal') closeLoginModal();
-                if (modalId === 'recordModal') closeRecordModal();
-                if (modalId === 'deleteModal') closeDeleteModal();
+        function closeModalOnBackdrop(event, modalId) {
+            if (event.target.id === modalId) {
+                document.getElementById(modalId).classList.add('hidden');
             }
         }
 
-        function copyToClipboard(text) {
-            if (!text || text === '-') return;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("คัดลอกลงคลิปบอร์ดเรียบร้อยแล้ว");
-            }).catch(err => {
-                console.error("Copy failed", err);
+        function exportToCSV() {
+            if (allData.length === 0) {
+                showToast("ไม่มีข้อมูลสำหรับส่งออก", "error");
+                return;
+            }
+            const headers = ["ID", "วันที่", "ปีประเมิน", "ตำแหน่ง", "ชื่อ-นามสกุล", "ชื่อเรื่อง", "ภาควิชา", "สถานะการประเมิน", "ISBN", "รหัส วศ.สจล.", "สถานะจัดพิมพ์", "", "", "อีเมลอาจารย์", "อีเมลเจ้าหน้าที่", "หมายเหตุ"];
+            let csvContent = "\uFEFF" + headers.join(",") + "\n";
+
+            allData.forEach(row => {
+                const escapedRow = row.slice(0, 16).map(val => `"${String(val || '').replace(/"/g, '""')}"`);
+                csvContent += escapedRow.join(",") + "\n";
             });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `evaluation_data_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("ส่งออกไฟล์ CSV เรียบร้อยแล้ว");
         }
     </script>
 </body>
