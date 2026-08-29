@@ -292,7 +292,6 @@
                 </div>
             </div>
 
-            <!-- Public Data Table -->
             <div id="tableScrollTarget" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden space-y-4 p-6">
                 <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left border-b border-slate-100 pb-4 gap-3">
                     <div>
@@ -451,7 +450,6 @@
 
     </main>
 
-    <!-- Detail Modal -->
     <div id="detailModal" onclick="closeModalOnBackdrop(event, 'detailModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto transition-opacity duration-300">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 relative border border-slate-100 my-8">
             <button onclick="closeDetailModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition">
@@ -541,7 +539,6 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
     <div id="loginModal" onclick="closeModalOnBackdrop(event, 'loginModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 relative border border-slate-100">
             <button onclick="closeLoginModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1">
@@ -586,7 +583,6 @@
         </div>
     </div>
 
-    <!-- Record Modal (Add / Edit Work with GOOGLE DRIVE FILE UPLOAD) -->
     <div id="recordModal" onclick="closeModalOnBackdrop(event, 'recordModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-4 relative my-8 border border-slate-100 max-h-[90vh] overflow-y-auto">
             <button onclick="closeRecordModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600">
@@ -817,7 +813,6 @@
         </div>
     </div>
 
-    <!-- Delete Modal -->
     <div id="deleteModal" onclick="closeModalOnBackdrop(event, 'deleteModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 relative border border-slate-100 text-center">
             <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
@@ -834,7 +829,6 @@
         </div>
     </div>
 
-    <!-- Toast Component -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-navy-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs border border-slate-700">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
         <span id="toastMsg" class="font-medium">ทำรายการสำเร็จ</span>
@@ -848,8 +842,8 @@
     </footer>
 
     <script>
-        // 1. นำ Web App URL มาใส่ในตัวแปรนี้
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+        // 1. Google Apps Script Web App Endpoint URL
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyQcC4BaDitDeJ59M0kPLiNxHIcdELIbQNGb4wUanSWJwNedP30bTKe7qJewJoNwsFv_g/exec";
 
         const PUBLIC_SHEET_ID = "1A3hnZEPaNslKFp96efTGfZzt0HTs8R79Qvgeh1UDI3E";
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
@@ -900,7 +894,6 @@
             ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "วศ.สจล. 68-012", "นำไปจัดพิมพ์ได้", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL]
         ];
 
-        // 2. ฟังก์ชันอัปโหลดไฟล์ไปยัง Drive
         async function uploadToDrive(fileInputId, customId, fileType) {
             const fileInput = document.getElementById(fileInputId);
             const file = fileInput ? fileInput.files[0] : null;
@@ -912,7 +905,6 @@
 
             showToast("กำลังอัปโหลดไฟล์ไปยัง Google Drive...", "info");
 
-            // แปลงไฟล์เป็น Base64
             const reader = new FileReader();
             reader.readAsDataURL(file);
             
@@ -923,16 +915,15 @@
                     file: base64Data,
                     fileName: file.name,
                     mimeType: file.type,
-                    customId: customId,   // รหัส ID เช่น ID หนังสือ หรือ ID ประเมิน
-                    fileType: fileType    // ประเภทโฟลเดอร์ เช่น 'cover', 'full_book', 'eval'
+                    customId: customId,
+                    fileType: fileType
                 };
 
                 try {
-                    // ส่ง POST request ไปยัง Apps Script Web App
                     const response = await fetch(GAS_WEB_APP_URL, {
                         method: "POST",
                         headers: {
-                            "Content-Type": "text/plain;charset=utf-8", // ใช้ text/plain เพื่อป้องกัน CORS Preflight
+                            "Content-Type": "text/plain;charset=utf-8",
                         },
                         body: JSON.stringify(payload)
                     });
@@ -1443,7 +1434,7 @@
 
             let html = '';
             pageItems.forEach((row, idx) => {
-                const globalIdx = startIdx + idx;
+                const globalIdx = allData.indexOf(row);
                 const year = row[2] || '-';
                 const pos = row[3] || '';
                 const author = row[4] || '-';
@@ -1688,7 +1679,7 @@
 
             let btnHtml = '';
             btnHtml += `
-                <button onclick="changeAdminPage(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
+                <button onclick="setAdminPage(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
                     <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i> ก่อนหน้า
                 </button>
             `;
@@ -1697,12 +1688,12 @@
                 if (i === adminCurrentPage) {
                     btnHtml += `<button class="w-7 h-7 bg-amber-600 text-white font-bold rounded-lg shadow-sm text-xs">${i}</button>`;
                 } else if (i <= 4 || i === totalPages) {
-                    btnHtml += `<button onclick="changeAdminPage(${i})" class="w-7 h-7 text-slate-600 hover:bg-slate-100 font-medium rounded-lg text-xs transition">${i}</button>`;
+                    btnHtml += `<button onclick="setAdminPage(${i})" class="w-7 h-7 text-slate-600 hover:bg-slate-100 font-medium rounded-lg text-xs transition">${i}</button>`;
                 }
             }
 
             btnHtml += `
-                <button onclick="changeAdminPage(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
+                <button onclick="setAdminPage(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
                     ถัดไป <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
                 </button>
             `;
@@ -1710,42 +1701,42 @@
             controls.innerHTML = btnHtml;
         }
 
-        function changeAdminPage(page) {
+        function setAdminPage(page) {
             adminCurrentPage = page;
             renderAdminPortal();
         }
 
         function openDetailModal(globalIdx) {
-            const row = allData[globalIdx];
-            if (!row) return;
+            const item = allData[globalIdx];
+            if (!item) return;
 
-            document.getElementById('detailId').innerText = row[0] || '-';
-            document.getElementById('detailYear').innerText = `ปีประเมิน: ${row[2] || '-'}`;
-            document.getElementById('detailTitle').innerText = row[5] || '-';
-            document.getElementById('detailAuthor').innerText = `ผู้เขียน: ${row[3] || ''} ${row[4] || ''}`;
-            document.getElementById('detailDept').innerText = row[6] || '-';
-            document.getElementById('detailIsbn').innerText = row[8] || '-';
-            document.getElementById('detailEvalStatus').innerText = row[7] || '-';
-            document.getElementById('detailPrintStatus').innerText = row[10] || '-';
+            document.getElementById('detailId').innerText = item[0] || '-';
+            document.getElementById('detailYear').innerText = `ปีประเมิน: ${item[2] || '-'}`;
+            document.getElementById('detailTitle').innerText = item[5] || '-';
+            document.getElementById('detailAuthor').innerText = `${item[3] || ''} ${item[4] || ''}`.trim();
+            document.getElementById('detailDept').innerText = item[6] || '-';
+            document.getElementById('detailIsbn').innerText = item[8] || '-';
+            document.getElementById('detailEvalStatus').innerText = item[7] || '-';
+            document.getElementById('detailPrintStatus').innerText = item[10] || '-';
 
-            const remarkText = row[15] || '';
+            const linkOrig = document.getElementById('detailLinkOriginal');
+            const linkCov = document.getElementById('detailLinkCover');
+            const linkEv = document.getElementById('detailLinkEval');
+
+            if (linkOrig) linkOrig.href = item[16] || DEFAULT_DRIVE_ORIGINAL;
+            if (linkCov) linkCov.href = item[17] || DEFAULT_DRIVE_COVER;
+            if (linkEv) linkEv.href = item[18] || DEFAULT_DRIVE_EVAL;
+
             const remarkContainer = document.getElementById('detailRemarkContainer');
-            if (remarkText.trim() !== '' && remarkText !== '-') {
-                document.getElementById('detailRemarkText').innerText = remarkText;
+            const remarkText = document.getElementById('detailRemarkText');
+            if (item[15] && item[15].trim() !== '' && item[15] !== '-') {
+                remarkText.innerText = item[15];
                 remarkContainer.classList.remove('hidden');
             } else {
                 remarkContainer.classList.add('hidden');
             }
 
-            const linkOrig = document.getElementById('detailLinkOriginal');
-            const linkCover = document.getElementById('detailLinkCover');
-            const linkEval = document.getElementById('detailLinkEval');
-
-            if (linkOrig) linkOrig.href = row[16] || DEFAULT_DRIVE_ORIGINAL;
-            if (linkCover) linkCover.href = row[17] || DEFAULT_DRIVE_COVER;
-            if (linkEval) linkEval.href = row[18] || DEFAULT_DRIVE_EVAL;
-
-            renderModalStepper(row[7], row[10]);
+            renderModalStepper(item[7], item[10]);
             document.getElementById('detailModal').classList.remove('hidden');
         }
 
@@ -1755,6 +1746,7 @@
 
         function openLoginModal() {
             document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('loginError').classList.add('hidden');
         }
 
         function closeLoginModal() {
@@ -1763,24 +1755,26 @@
 
         function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const role = document.querySelector('input[name="loginRole"]:checked').value;
 
-            if (!email.toLowerCase().endsWith('@kmitl.ac.th')) {
+            if (!email.endsWith('@kmitl.ac.th')) {
                 const err = document.getElementById('loginError');
-                err.innerText = "กรุณาใช้อีเมลลงท้ายด้วย @kmitl.ac.th";
+                err.innerText = "กรุณาใช้อีเมลสถาบันที่ลงท้ายด้วย @kmitl.ac.th เท่านั้น";
                 err.classList.remove('hidden');
                 return;
             }
 
             currentUser = { email, role };
             closeLoginModal();
-            showToast(`เข้าสู่ระบบสำเร็จในฐานะ ${role === 'admin' ? 'เจ้าหน้าที่' : 'อาจารย์'}`, "success");
+            showToast(`เข้าสู่ระบบสำเร็จในฐานะ ${role === 'admin' ? 'เจ้าหน้าที่' : 'อาจารย์'} (${email})`, "success");
+            updateHeaderNavVisibility();
             switchView(role);
         }
 
         function logout() {
             currentUser = null;
+            updateHeaderNavVisibility();
             switchView('public');
             showToast("ออกจากระบบเรียบร้อยแล้ว", "info");
         }
@@ -1788,57 +1782,54 @@
         function openAddModal() {
             document.getElementById('recordModalTitle').innerText = "เพิ่มผลงานใหม่";
             document.getElementById('editRowId').value = "";
-            
-            document.getElementById('formId').value = `Text-00${allData.length + 1}`;
+            document.getElementById('formId').value = `Text-${String(allData.length + 1).padStart(3, '0')}`;
             document.getElementById('formYear').value = new Date().getFullYear() + 543;
-            document.getElementById('formPosition').value = "ผศ.ดร.";
+            document.getElementById('formPosition').value = "";
             document.getElementById('formAuthor').value = "";
             document.getElementById('formBookTitle').value = "";
-            document.getElementById('formEmail').value = "";
-            document.getElementById('formDept').value = "คอมพิวเตอร์";
+            document.getElementById('formEmail').value = currentUser ? currentUser.email : "";
+            document.getElementById('formDept').value = "";
             document.getElementById('formEvalStatus').value = "รับเอกสารการประเมิน";
             document.getElementById('formPrintStatus').value = "อยู่ระหว่างการประเมิน";
-            document.getElementById('formKmitlCode').value = "-";
+            document.getElementById('formKmitlCode').value = "";
             document.getElementById('formIsbn').value = "-";
             document.getElementById('formRemark').value = "";
-
-            removeSelectedFile('original');
-            removeSelectedFile('cover');
-            removeSelectedFile('eval');
 
             currentSavedUrls = {
                 original: DEFAULT_DRIVE_ORIGINAL,
                 cover: DEFAULT_DRIVE_COVER,
                 eval: DEFAULT_DRIVE_EVAL
             };
+            removeSelectedFile('original');
+            removeSelectedFile('cover');
+            removeSelectedFile('eval');
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
 
         function openEditModal(globalIdx) {
-            const row = allData[globalIdx];
-            if (!row) return;
+            const item = allData[globalIdx];
+            if (!item) return;
 
-            document.getElementById('recordModalTitle').innerText = "แก้ไขข้อมูลผลงาน";
+            document.getElementById('recordModalTitle').innerText = `แก้ไขผลงาน (${item[0]})`;
             document.getElementById('editRowId').value = globalIdx;
-
-            document.getElementById('formId').value = row[0] || '';
-            document.getElementById('formYear').value = row[2] || '';
-            document.getElementById('formPosition').value = row[3] || '';
-            document.getElementById('formAuthor').value = row[4] || '';
-            document.getElementById('formBookTitle').value = row[5] || '';
-            document.getElementById('formDept').value = row[6] || '';
-            document.getElementById('formEvalStatus').value = row[7] || 'รับเอกสารการประเมิน';
-            document.getElementById('formIsbn').value = row[8] || '-';
-            document.getElementById('formKmitlCode').value = row[9] || '-';
-            document.getElementById('formPrintStatus').value = row[10] || 'อยู่ระหว่างการประเมิน';
-            document.getElementById('formEmail').value = row[13] || '';
-            document.getElementById('formRemark').value = row[15] || '';
+            document.getElementById('formId').value = item[0] || "";
+            document.getElementById('formYear').value = item[2] || "";
+            document.getElementById('formPosition').value = item[3] || "";
+            document.getElementById('formAuthor').value = item[4] || "";
+            document.getElementById('formBookTitle').value = item[5] || "";
+            document.getElementById('formDept').value = item[6] || "";
+            document.getElementById('formEvalStatus').value = item[7] || "รับเอกสารการประเมิน";
+            document.getElementById('formIsbn').value = item[8] || "-";
+            document.getElementById('formKmitlCode').value = item[9] || "";
+            document.getElementById('formPrintStatus').value = item[10] || "อยู่ระหว่างการประเมิน";
+            document.getElementById('formEmail').value = item[13] || "";
+            document.getElementById('formRemark').value = item[15] || "";
 
             currentSavedUrls = {
-                original: row[16] || DEFAULT_DRIVE_ORIGINAL,
-                cover: row[17] || DEFAULT_DRIVE_COVER,
-                eval: row[18] || DEFAULT_DRIVE_EVAL
+                original: item[16] || DEFAULT_DRIVE_ORIGINAL,
+                cover: item[17] || DEFAULT_DRIVE_COVER,
+                eval: item[18] || DEFAULT_DRIVE_EVAL
             };
 
             removeSelectedFile('original');
@@ -1852,23 +1843,11 @@
             document.getElementById('recordModal').classList.add('hidden');
         }
 
-        async function handleSaveRecord(e) {
+        function handleSaveRecord(e) {
             e.preventDefault();
-            const globalIdx = document.getElementById('editRowId').value;
-            const customId = document.getElementById('formId').value.trim();
+            const editIdx = document.getElementById('editRowId').value;
 
-            // Trigger Drive Upload if files are selected but not yet manually uploaded
-            if (selectedFiles.original) {
-                await uploadToDrive('fileInputOriginal', customId, 'full_book');
-            }
-            if (selectedFiles.cover) {
-                await uploadToDrive('fileInputCover', customId, 'cover');
-            }
-            if (selectedFiles.eval) {
-                await uploadToDrive('fileInputEval', customId, 'eval');
-            }
-
-            const newRow = [
+            const rowData = [
                 document.getElementById('formId').value,
                 new Date().toISOString().split('T')[0],
                 document.getElementById('formYear').value,
@@ -1877,10 +1856,11 @@
                 document.getElementById('formBookTitle').value,
                 document.getElementById('formDept').value,
                 document.getElementById('formEvalStatus').value,
-                document.getElementById('formIsbn').value,
-                document.getElementById('formKmitlCode').value,
+                document.getElementById('formIsbn').value || "-",
+                document.getElementById('formKmitlCode').value || "-",
                 document.getElementById('formPrintStatus').value,
-                "", "",
+                "",
+                "",
                 document.getElementById('formEmail').value,
                 currentUser ? currentUser.email : "admin@kmitl.ac.th",
                 document.getElementById('formRemark').value,
@@ -1889,24 +1869,26 @@
                 currentSavedUrls.eval
             ];
 
-            if (globalIdx !== "") {
-                allData[globalIdx] = newRow;
-                showToast("แก้ไขข้อมูลสำเร็จ", "success");
+            if (editIdx !== "" && editIdx !== null && !isNaN(editIdx)) {
+                allData[editIdx] = rowData;
+                showToast("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
             } else {
-                allData.unshift(newRow);
-                showToast("เพิ่มผลงานใหม่สำเร็จ", "success");
+                allData.unshift(rowData);
+                showToast("เพิ่มข้อมูลใหม่เรียบร้อยแล้ว", "success");
             }
 
-            closeRecordModal();
             filteredData = [...allData];
             initFilters();
             updateDashboard();
+            closeRecordModal();
         }
 
         function openDeleteModal(globalIdx) {
             targetDeleteId = globalIdx;
-            const row = allData[globalIdx];
-            document.getElementById('deleteTargetId').innerText = row ? row[0] : '';
+            const item = allData[globalIdx];
+            if (item) {
+                document.getElementById('deleteTargetId').innerText = `${item[0]} (${item[5]})`;
+            }
             document.getElementById('deleteModal').classList.remove('hidden');
         }
 
@@ -1916,82 +1898,80 @@
         }
 
         function confirmDeleteRecord() {
-            if (targetDeleteId !== null) {
+            if (targetDeleteId !== null && allData[targetDeleteId]) {
                 allData.splice(targetDeleteId, 1);
                 filteredData = [...allData];
-                closeDeleteModal();
-                showToast("ลบข้อมูลสำเร็จ", "success");
                 initFilters();
                 updateDashboard();
+                showToast("ลบรายการเรียบร้อยแล้ว", "success");
             }
+            closeDeleteModal();
         }
 
-        function closeModalOnBackdrop(event, modalId) {
-            if (event.target.id === modalId) {
+        function closeModalOnBackdrop(e, modalId) {
+            if (e.target.id === modalId) {
                 document.getElementById(modalId).classList.add('hidden');
             }
         }
 
-        function showToast(msg, type = 'success') {
+        function copyToClipboard(text) {
+            if (!text || text === '-') return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`, "info");
+            }).catch(err => {
+                console.error("Copy failed", err);
+            });
+        }
+
+        function showToast(message, type = "info") {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toastMsg');
             const toastIcon = document.getElementById('toastIcon');
 
-            toastMsg.innerText = msg;
-            if (type === 'error') {
-                toastIcon.className = 'fa-solid fa-circle-xmark text-rose-400 text-base';
-            } else if (type === 'warning') {
-                toastIcon.className = 'fa-solid fa-triangle-exclamation text-amber-400 text-base';
-            } else if (type === 'info') {
-                toastIcon.className = 'fa-solid fa-circle-info text-sky-400 text-base';
+            if (!toast || !toastMsg || !toastIcon) return;
+
+            toastMsg.innerText = message;
+
+            if (type === "success") {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+            } else if (type === "error") {
+                toastIcon.className = "fa-solid fa-circle-xmark text-rose-400 text-base";
+            } else if (type === "warning") {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-400 text-base";
             } else {
-                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400 text-base';
+                toastIcon.className = "fa-solid fa-circle-info text-sky-400 text-base";
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
+            toast.classList.add('translate-y-0', 'opacity-100');
 
-        function copyToClipboard(text) {
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`, "info");
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
         }
 
         function exportToCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "ID,Year,Position,Author,Title,Department,Status,ISBN,PrintStatus,Email,Remark,OriginalURL,CoverURL,EvalURL\n";
+            if (allData.length === 0) {
+                showToast("ไม่มีข้อมูลสำหรับส่งออก", "error");
+                return;
+            }
 
-            allData.forEach(r => {
-                const rowStr = [
-                    `"${r[0] || ''}"`,
-                    `"${r[2] || ''}"`,
-                    `"${r[3] || ''}"`,
-                    `"${r[4] || ''}"`,
-                    `"${r[5] || ''}"`,
-                    `"${r[6] || ''}"`,
-                    `"${r[7] || ''}"`,
-                    `"${r[8] || ''}"`,
-                    `"${r[10] || ''}"`,
-                    `"${r[13] || ''}"`,
-                    `"${r[15] || ''}"`,
-                    `"${r[16] || ''}"`,
-                    `"${r[17] || ''}"`,
-                    `"${r[18] || ''}"`
-                ].join(",");
-                csvContent += rowStr + "\n";
+            const headers = ["ID", "วันที่บันทึก", "ปีการศึกษา", "ตำแหน่งทางวิชาการ", "ผู้เขียน", "ชื่อหนังสือ", "ภาควิชา", "สถานะการประเมิน", "ISBN", "รหัส วศ.สจล.", "สถานะจัดพิมพ์", "", "", "อีเมลอาจารย์", "ผู้บันทึก", "หมายเหตุ", "ไฟล์ต้นฉบับ", "รูปปก", "ผลประเมิน"];
+            
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Thai language compatibility in Excel
+            csvContent += headers.join(",") + "\n";
+
+            allData.forEach(row => {
+                const formattedRow = row.map(field => `"${String(field || '').replace(/"/g, '""')}"`);
+                csvContent += formattedRow.join(",") + "\n";
             });
 
-            const encodedUri = encodeURI(csvContent);
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `evaluation_tracking_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `evaluation_tracking_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
