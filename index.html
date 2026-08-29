@@ -76,6 +76,12 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
         }
 
+        /* Drag & Drop Upload Zone Hover Style */
+        .drop-zone--over {
+            border-color: #0284c7 !important;
+            background-color: #f0f9ff !important;
+        }
+
         /* Custom scrollbars */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
@@ -143,7 +149,6 @@
             
             <!-- Summary Stats Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                
                 <div onclick="filterByStatCard('')" class="stat-card bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between cursor-pointer group hover:border-slate-300">
                     <div class="space-y-1">
                         <p class="text-xs font-semibold text-slate-500 group-hover:text-slate-800 transition">ผู้ขอประเมินทั้งหมด</p>
@@ -348,10 +353,10 @@
                 <div>
                     <span class="px-2.5 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full font-semibold border border-amber-500/30">Admin Panel</span>
                     <h2 class="text-xl font-bold mt-1">จัดการข้อมูลการประเมิน (สำหรับเจ้าหน้าที่)</h2>
-                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา พร้อมอัปโหลดไฟล์</p>
+                    <p class="text-slate-400 text-xs">เพิ่ม แก้ไข ลบ และอัปเดตสถานะหนังสือ/ตำรา พร้อมอัปโหลดไฟล์ในระบบ</p>
                 </div>
                 <button onclick="openAddModal()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs rounded-xl transition shadow">
-                    <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มผลงานใหม่
+                    <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มผลงานใหม่ / อัปโหลดไฟล์
                 </button>
             </div>
 
@@ -416,7 +421,7 @@
                                 <th class="py-3 px-4">ID</th>
                                 <th class="py-3 px-4">ผู้เขียน / ชื่อเรื่อง</th>
                                 <th class="py-3 px-4">สถานะประเมิน</th>
-                                <th class="py-3 px-4">ไฟล์แนบ</th>
+                                <th class="py-3 px-4">ไฟล์แนบ / เอกสาร</th>
                                 <th class="py-3 px-4">หมายเหตุ</th>
                                 <th class="py-3 px-4 text-center">จัดการ</th>
                             </tr>
@@ -500,20 +505,20 @@
                 </div>
             </div>
 
-            <!-- Modal Document Links Section -->
+            <!-- Modal Document Links & Uploaded Files Section -->
             <div class="space-y-2 pt-1 border-t border-slate-100">
-                <h4 class="text-xs font-bold text-slate-700 flex items-center"><i class="fa-solid fa-folder-open text-amber-500 mr-1.5"></i> เอกสารและไฟล์แนบ</h4>
+                <h4 class="text-xs font-bold text-slate-700 flex items-center"><i class="fa-solid fa-folder-open text-amber-500 mr-1.5"></i> เอกสารและไฟล์แนบที่เกี่ยวข้อง</h4>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                     <a id="detailLinkOriginal" target="_blank" class="p-2.5 bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 rounded-xl flex items-center justify-between font-medium transition">
-                        <span class="truncate"><i class="fa-solid fa-file-lines text-blue-500 mr-1.5"></i> หนังสือต้นฉบับ</span>
+                        <span class="truncate"><i class="fa-solid fa-file-pdf text-rose-500 mr-1.5"></i> 1. หนังสือต้นฉบับ</span>
                         <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                     </a>
                     <a id="detailLinkCover" target="_blank" class="p-2.5 bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100 rounded-xl flex items-center justify-between font-medium transition">
-                        <span class="truncate"><i class="fa-solid fa-image text-purple-500 mr-1.5"></i> ปกหนังสือ</span>
+                        <span class="truncate"><i class="fa-solid fa-image text-purple-500 mr-1.5"></i> 2. ปกหนังสือ</span>
                         <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                     </a>
                     <a id="detailLinkEval" target="_blank" class="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 rounded-xl flex items-center justify-between font-medium transition">
-                        <span class="truncate"><i class="fa-solid fa-square-poll-vertical text-emerald-500 mr-1.5"></i> ผลประเมิน</span>
+                        <span class="truncate"><i class="fa-solid fa-clipboard-check text-emerald-600 mr-1.5"></i> 3. ผลประเมิน</span>
                         <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                     </a>
                 </div>
@@ -575,13 +580,13 @@
         </div>
     </div>
 
-    <!-- Record Modal (Add / Edit Work) -->
+    <!-- Record Modal (Add / Edit Work with DIRECT FILE UPLOAD) -->
     <div id="recordModal" onclick="closeModalOnBackdrop(event, 'recordModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-4 relative my-8 border border-slate-100 max-h-[90vh] overflow-y-auto">
             <button onclick="closeRecordModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
-            <h3 id="recordModalTitle" class="text-lg font-bold text-slate-900">เพิ่มรายการผลงานใหม่</h3>
+            <h3 id="recordModalTitle" class="text-lg font-bold text-slate-900">เพิ่มรายการผลงานและอัปโหลดเอกสาร</h3>
 
             <form onsubmit="handleSaveRecord(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="editRowId">
@@ -653,58 +658,121 @@
                     <input type="text" id="formIsbn" placeholder="เช่น 978-616-338-228-3 หรือ -" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none">
                 </div>
 
-                <!-- NEW SECTION: File Upload & Google Drive Links -->
-                <div class="border-t border-slate-200 pt-4 space-y-3">
+                <!-- NEW COMPONENT: DIRECT FILE UPLOAD & DRAG DROP ZONES -->
+                <div class="border-t border-slate-200 pt-4 space-y-4">
                     <div class="flex items-center justify-between">
                         <label class="block font-bold text-slate-800 text-xs flex items-center">
-                            <i class="fa-brands fa-google-drive text-emerald-600 mr-1.5 text-sm"></i> 
-                            อัปโหลดและแนบไฟล์ Google Drive
+                            <i class="fa-solid fa-cloud-arrow-up text-sky-600 mr-1.5 text-sm"></i> 
+                            ช่องอัปโหลดไฟล์ในระบบ (Direct Upload)
                         </label>
-                        <span class="text-[10px] text-slate-400">ระบุ URL หรือกดเปิดเพื่ออัปโหลดลง Drive</span>
+                        <span class="text-[10px] text-slate-400">อัปโหลดไฟล์จากเครื่อง หรือระบุลิงก์ Drive ได้</span>
                     </div>
 
-                    <!-- 1. หนังสือต้นฉบับ -->
-                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-1.5">
+                    <!-- 1. อัปโหลดหนังสือต้นฉบับ -->
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="font-semibold text-slate-700 text-[11px] flex items-center">
-                                <i class="fa-solid fa-file-pdf text-rose-500 mr-1"></i> 1. หนังสือต้นฉบับ
+                                <i class="fa-solid fa-file-pdf text-rose-500 mr-1.5"></i> 1. หนังสือต้นฉบับ (PDF / Word)
                             </span>
-                            <a href="https://drive.google.com/drive/folders/1w7NmxarGzwPjmylxV95c7zFNTAPnOcLh?usp=sharing" target="_blank" class="px-2 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium rounded-md text-[10px] transition inline-flex items-center">
-                                <i class="fa-brands fa-google-drive mr-1"></i> เปิดโฟลเดอร์ Google Drive
-                            </a>
+                            <span class="text-[10px] text-slate-400">รองรับ PDF, DOCX</span>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="url" id="formOriginalBookUrl" placeholder="ระบุ ลิงก์หนังสือต้นฉบับ (เช่น https://drive.google.com/...)" class="w-full p-2 border rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 outline-none">
+                        
+                        <!-- Drag & Drop Zone -->
+                        <div id="dropZoneOriginal" onclick="document.getElementById('fileInputOriginal').click()" class="border-2 border-dashed border-slate-300 hover:border-sky-400 bg-white p-3 rounded-xl text-center cursor-pointer transition flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-solid fa-cloud-arrow-up text-sky-500 text-lg"></i>
+                            <p class="text-[11px] font-medium text-slate-600">ลากไฟล์มาวางที่นี่ หรือ <span class="text-sky-600 font-bold underline">คลิกเพื่อเลือกไฟล์</span></p>
+                            <input type="file" id="fileInputOriginal" accept=".pdf,.doc,.docx" class="hidden" onchange="handleFileSelect(event, 'original')">
+                        </div>
+
+                        <!-- Preview File Selected Card -->
+                        <div id="filePreviewOriginal" class="hidden bg-sky-50 border border-sky-200 p-2.5 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center space-x-2 truncate">
+                                <i class="fa-solid fa-file-pdf text-rose-500 text-base"></i>
+                                <div class="truncate">
+                                    <p id="fileNameOriginal" class="text-xs font-bold text-slate-800 truncate">filename.pdf</p>
+                                    <p id="fileSizeOriginal" class="text-[10px] text-slate-500">0 KB</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="removeSelectedFile('original')" class="text-rose-500 hover:text-rose-700 p-1.5 hover:bg-rose-100 rounded-lg transition" title="ลบไฟล์ออก">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- Optional Direct Link Backup -->
+                        <div class="pt-1">
+                            <input type="url" id="formOriginalBookUrl" placeholder="หรือแปะลิงก์ Google Drive สำรอง..." class="w-full px-3 py-1.5 border rounded-xl text-[11px] bg-white focus:ring-1 focus:ring-sky-500 outline-none text-slate-600">
                         </div>
                     </div>
 
-                    <!-- 2. ปกหนังสือ -->
-                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-1.5">
+                    <!-- 2. อัปโหลดรูปปกหนังสือ -->
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="font-semibold text-slate-700 text-[11px] flex items-center">
-                                <i class="fa-solid fa-image text-purple-500 mr-1"></i> 2. ปกหนังสือ
+                                <i class="fa-solid fa-image text-purple-500 mr-1.5"></i> 2. ปกหนังสือ (Image File)
                             </span>
-                            <a href="https://drive.google.com/drive/folders/1JeOY6u-Oyja3U4zYfvDI_0L8SmUuBNZl?usp=sharing" target="_blank" class="px-2 py-0.5 bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium rounded-md text-[10px] transition inline-flex items-center">
-                                <i class="fa-brands fa-google-drive mr-1"></i> เปิดโฟลเดอร์ Google Drive
-                            </a>
+                            <span class="text-[10px] text-slate-400">รองรับ PNG, JPG, JPEG</span>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="url" id="formCoverUrl" placeholder="ระบุ ลิงก์รูปภาพปกหนังสือ (เช่น https://drive.google.com/...)" class="w-full p-2 border rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 outline-none">
+
+                        <!-- Drag & Drop Zone -->
+                        <div id="dropZoneCover" onclick="document.getElementById('fileInputCover').click()" class="border-2 border-dashed border-slate-300 hover:border-purple-400 bg-white p-3 rounded-xl text-center cursor-pointer transition flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-solid fa-file-image text-purple-500 text-lg"></i>
+                            <p class="text-[11px] font-medium text-slate-600">ลากภาพปกมาวางที่นี่ หรือ <span class="text-purple-600 font-bold underline">คลิกเพื่อเลือกไฟล์</span></p>
+                            <input type="file" id="fileInputCover" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'cover')">
+                        </div>
+
+                        <!-- Preview File Selected Card -->
+                        <div id="filePreviewCover" class="hidden bg-purple-50 border border-purple-200 p-2.5 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center space-x-2 truncate">
+                                <img id="imgThumbCover" class="w-8 h-8 object-cover rounded-md border border-purple-300" src="" alt="cover">
+                                <div class="truncate">
+                                    <p id="fileNameCover" class="text-xs font-bold text-slate-800 truncate">cover.png</p>
+                                    <p id="fileSizeCover" class="text-[10px] text-slate-500">0 KB</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="removeSelectedFile('cover')" class="text-rose-500 hover:text-rose-700 p-1.5 hover:bg-rose-100 rounded-lg transition" title="ลบไฟล์ออก">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- Optional Direct Link Backup -->
+                        <div class="pt-1">
+                            <input type="url" id="formCoverUrl" placeholder="หรือแปะลิงก์ รูปภาพปก Google Drive..." class="w-full px-3 py-1.5 border rounded-xl text-[11px] bg-white focus:ring-1 focus:ring-sky-500 outline-none text-slate-600">
                         </div>
                     </div>
 
-                    <!-- 3. ผลประเมิน -->
-                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-1.5">
+                    <!-- 3. อัปโหลดผลการประเมิน -->
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="font-semibold text-slate-700 text-[11px] flex items-center">
-                                <i class="fa-solid fa-clipboard-check text-emerald-600 mr-1"></i> 3. ผลประเมิน
+                                <i class="fa-solid fa-clipboard-check text-emerald-600 mr-1.5"></i> 3. เอกสารผลการประเมิน
                             </span>
-                            <a href="https://drive.google.com/drive/folders/1A4lYd76DuomliSBmGorAAFoUlywGnCmH?usp=drive_link" target="_blank" class="px-2 py-0.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-medium rounded-md text-[10px] transition inline-flex items-center">
-                                <i class="fa-brands fa-google-drive mr-1"></i> เปิดโฟลเดอร์ Google Drive
-                            </a>
+                            <span class="text-[10px] text-slate-400">รองรับ PDF, DOCX</span>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="url" id="formEvalResultUrl" placeholder="ระบุ ลิงก์เอกสารผลการประเมิน (เช่น https://drive.google.com/...)" class="w-full p-2 border rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 outline-none">
+
+                        <!-- Drag & Drop Zone -->
+                        <div id="dropZoneEval" onclick="document.getElementById('fileInputEval').click()" class="border-2 border-dashed border-slate-300 hover:border-emerald-400 bg-white p-3 rounded-xl text-center cursor-pointer transition flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-solid fa-file-circle-check text-emerald-500 text-lg"></i>
+                            <p class="text-[11px] font-medium text-slate-600">ลากไฟล์ผลการประเมินมาวาง หรือ <span class="text-emerald-600 font-bold underline">คลิกเพื่อเลือกไฟล์</span></p>
+                            <input type="file" id="fileInputEval" accept=".pdf,.doc,.docx" class="hidden" onchange="handleFileSelect(event, 'eval')">
+                        </div>
+
+                        <!-- Preview File Selected Card -->
+                        <div id="filePreviewEval" class="hidden bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center space-x-2 truncate">
+                                <i class="fa-solid fa-file-contract text-emerald-600 text-base"></i>
+                                <div class="truncate">
+                                    <p id="fileNameEval" class="text-xs font-bold text-slate-800 truncate">result.pdf</p>
+                                    <p id="fileSizeEval" class="text-[10px] text-slate-500">0 KB</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="removeSelectedFile('eval')" class="text-rose-500 hover:text-rose-700 p-1.5 hover:bg-rose-100 rounded-lg transition" title="ลบไฟล์ออก">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- Optional Direct Link Backup -->
+                        <div class="pt-1">
+                            <input type="url" id="formEvalResultUrl" placeholder="หรือแปะลิงก์ เอกสารผลประเมิน Google Drive..." class="w-full px-3 py-1.5 border rounded-xl text-[11px] bg-white focus:ring-1 focus:ring-sky-500 outline-none text-slate-600">
                         </div>
                     </div>
                 </div>
@@ -716,7 +784,7 @@
 
                 <div class="pt-2 flex justify-end space-x-2 border-t border-slate-100">
                     <button type="button" onclick="closeRecordModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl text-xs transition">ยกเลิก</button>
-                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition">บันทึกข้อมูล</button>
+                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition">บันทึกข้อมูลและไฟล์</button>
                 </div>
             </form>
         </div>
@@ -767,6 +835,13 @@
         let currentActiveView = 'public';
         let targetDeleteId = null;
         
+        // Uploaded files state in current modal session
+        let selectedFiles = {
+            original: null,
+            cover: null,
+            eval: null
+        };
+
         // Public View Pagination state
         let currentPage = 1;
         const itemsPerPage = 8;
@@ -785,16 +860,14 @@
             ["Text-005", "2569-08-27", "2569", "Asst. Prof.", "Woon Koun Song", "DEEP LEARNING and APPLICATIONS in INTELLIGENT CONTROL", "หุ่นยนต์และปัญญาประดิษฐ์", "ผ่านการประเมิน", "978-616-338-228-3", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "woon@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
             ["Text-006", "2569-08-27", "2569", "รศ.ดร.", "กิตติวัฒน์ สิริเกษมสุข", "การศึกษาการทำงานอุตสาหกรรม", "อุตสาหการ", "ผ่านการประเมิน", "978-616-338-143-9", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "kittiwat@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
             ["Text-007", "2569-08-27", "2569", "รศ.ดร.", "สุดาภัทร ขวัญเสมาบึง", "การออกแบบชิ้นส่วนเครื่องกล", "เครื่องกล", "ไม่ผ่านการประเมิน", "-", "ปกติ", "ไม่อนุญาตให้จัดพิมพ์", "", "", "sudapat@kmitl.ac.th", "admin@kmitl.ac.th", "ไม่ผ่านการประเมินเนื่องจากผลการประเมินไม่ผ่านเกณฑ์", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-009", "2568-05-10", "2568", "ผศ.ดร.", "สมเกียรติ พรหมรักษา", "วิศวกรรมความต้านทานและวัสดุ", "โยธา", "ผ่านการประเมิน", "978-616-338-200-1", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "somkiat@kmitl.ac.th", "admin@kmitl.ac.th", "", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
-            ["Text-010", "2568-06-15", "2568", "รศ.ดร.", "ภาณุพงศ์ มีชัย", "ระบบเครือข่ายเซนเซอร์ไร้สาย", "คอมพิวเตอร์", "ผ่านการประเมิน", "978-616-338-201-2", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "panupong@kmitl.ac.th", "admin@kmitl.ac.th", "", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL]
+            ["Text-008", "2569-08-27", "2568", "ผศ.ดร.", "นิรุธ จิรสุวรรณกุล", "การผลิตไฟฟ้า: เทคโนโลยีและระบบ", "ไฟฟ้า", "ผ่านการประเมิน", "978-616-338-219-1", "ปกติ", "นำไปจัดพิมพ์ได้", "", "", "nirut@kmitl.ac.th", "admin@kmitl.ac.th", "ผ่านการประเมินแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL]
         ];
 
         window.onload = function() {
             updateHeaderNavVisibility();
             fetchSheetsData();
+            setupDragAndDrop();
             
-            // ESC Key listener to close modal
             document.addEventListener('keydown', function(event) {
                 if (event.key === 'Escape') {
                     closeDetailModal();
@@ -805,10 +878,92 @@
             });
         };
 
+        function setupDragAndDrop() {
+            const types = ['Original', 'Cover', 'Eval'];
+            types.forEach(t => {
+                const zone = document.getElementById(`dropZone${t}`);
+                if (!zone) return;
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    zone.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        zone.classList.add('drop-zone--over');
+                    }, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    zone.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        zone.classList.remove('drop-zone--over');
+                    }, false);
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    if (files.length > 0) {
+                        const fileInput = document.getElementById(`fileInput${t}`);
+                        fileInput.files = files;
+                        handleFileSelect({ target: fileInput }, t.toLowerCase());
+                    }
+                }, false);
+            });
+        }
+
+        function handleFileSelect(event, fileType) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            selectedFiles[fileType] = file;
+
+            const previewEl = document.getElementById(`filePreview${capitalize(fileType)}`);
+            const dropZoneEl = document.getElementById(`dropZone${capitalize(fileType)}`);
+            const nameEl = document.getElementById(`fileName${capitalize(fileType)}`);
+            const sizeEl = document.getElementById(`fileSize${capitalize(fileType)}`);
+
+            if (nameEl) nameEl.innerText = file.name;
+            if (sizeEl) sizeEl.innerText = formatBytes(file.size);
+
+            if (fileType === 'cover') {
+                const thumbEl = document.getElementById('imgThumbCover');
+                if (thumbEl) thumbEl.src = URL.createObjectURL(file);
+            }
+
+            if (previewEl) previewEl.classList.remove('hidden');
+            if (dropZoneEl) dropZoneEl.classList.add('hidden');
+        }
+
+        function removeSelectedFile(fileType) {
+            selectedFiles[fileType] = null;
+
+            const fileInput = document.getElementById(`fileInput${capitalize(fileType)}`);
+            if (fileInput) fileInput.value = "";
+
+            const previewEl = document.getElementById(`filePreview${capitalize(fileType)}`);
+            const dropZoneEl = document.getElementById(`dropZone${capitalize(fileType)}`);
+
+            if (previewEl) previewEl.classList.add('hidden');
+            if (dropZoneEl) dropZoneEl.classList.remove('hidden');
+        }
+
+        function formatBytes(bytes, decimals = 1) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
         function updateHeaderNavVisibility() {
             const loginBtn = document.getElementById('loginBtn');
             const loggedInGroup = document.getElementById('loggedInGroup');
-            const navPublicBtn = document.getElementById('navPublicBtn');
             const navLecturerBtn = document.getElementById('navLecturerBtn');
             const navAdminBtn = document.getElementById('navAdminBtn');
 
@@ -843,26 +998,18 @@
             const activeAmber = `${baseStyle} bg-amber-600 text-white shadow-md font-bold`;
             const inactiveStyle = `${baseStyle} text-slate-300 hover:text-white hover:bg-slate-800/80`;
 
-            if (navPublicBtn) {
-                navPublicBtn.className = (currentActiveView === 'public' ? activePublic : inactiveStyle);
-            }
+            if (navPublicBtn) navPublicBtn.className = (currentActiveView === 'public' ? activePublic : inactiveStyle);
 
             if (navLecturerBtn) {
                 const isLecturerRole = currentUser && currentUser.role === 'lecturer';
-                if (!isLecturerRole) {
-                    navLecturerBtn.classList.add('hidden');
-                } else {
-                    navLecturerBtn.className = (currentActiveView === 'lecturer' ? activeSky : inactiveStyle);
-                }
+                if (!isLecturerRole) navLecturerBtn.classList.add('hidden');
+                else navLecturerBtn.className = (currentActiveView === 'lecturer' ? activeSky : inactiveStyle);
             }
 
             if (navAdminBtn) {
                 const isAdminRole = currentUser && currentUser.role === 'admin';
-                if (!isAdminRole) {
-                    navAdminBtn.classList.add('hidden');
-                } else {
-                    navAdminBtn.className = (currentActiveView === 'admin' ? activeAmber : inactiveStyle);
-                }
+                if (!isAdminRole) navAdminBtn.classList.add('hidden');
+                else navAdminBtn.className = (currentActiveView === 'admin' ? activeAmber : inactiveStyle);
             }
         }
 
@@ -901,36 +1048,17 @@
             const isPassed = (evalStatus === 'ผ่านการประเมิน' || printStatus === 'นำไปจัดพิมพ์ได้' || printStatus === 'จัดพิมพ์เสร็จ');
 
             if (isFailed) {
-                return {
-                    stepIndex: 6,
-                    percent: 100,
-                    isFailed: true,
-                    isPassed: false,
-                    statusText: 'ไม่ผ่านการประเมิน',
-                    badgeClass: 'bg-rose-100 text-rose-700 border-rose-300 shadow-sm'
-                };
+                return { stepIndex: 6, percent: 100, isFailed: true, isPassed: false };
             }
-
             if (isPassed) {
-                return {
-                    stepIndex: 6,
-                    percent: 100,
-                    isFailed: false,
-                    isPassed: true,
-                    statusText: 'ดำเนินการเสร็จสิ้น',
-                    badgeClass: 'bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm'
-                };
+                return { stepIndex: 6, percent: 100, isFailed: false, isPassed: true };
             }
 
-            let step = 1;
-            let percent = 15;
-
+            let step = 1; percent = 15;
             switch (evalStatus) {
-                case 'รับเอกสารการประเมิน':
-                    step = 1; percent = 15; break;
+                case 'รับเอกสารการประเมิน': step = 1; percent = 15; break;
                 case 'สรรหาผู้ทรงคุณวุฒิ':
-                case 'เข้ากรรมการคณะ':
-                    step = 2; percent = 30; break;
+                case 'เข้ากรรมการคณะ': step = 2; percent = 30; break;
                 case 'ส่งเอกสารผู้ทรง รอบ 1':
                 case 'ติดตามผล รอบ 1':
                 case 'รับเอกสารผู้ทรง รอบ 1':
@@ -938,31 +1066,19 @@
                 case 'ส่งเอกสารผู้ทรง รอบ 2':
                 case 'ติดตามผล รอบ 2':
                 case 'รับเอกสารผู้ทรง รอบ 2':
-                case 'ส่งเอกสารผู้ประเมิน รอบ 2':
-                    step = 3; percent = 50; break;
+                case 'ส่งเอกสารผู้ประเมิน รอบ 2': step = 3; percent = 50; break;
                 case 'รอการแก้ไข รอบ 1':
-                case 'รอการแก้ไข รอบ 2':
-                    step = 4; percent = 70; break;
+                case 'รอการแก้ไข รอบ 2': step = 4; percent = 70; break;
                 case 'สรุปผลการประเมิน':
-                case 'เข้ากรรมการคณะสรุปผล':
-                    step = 5; percent = 85; break;
-                default:
-                    step = 1; percent = 15; break;
+                case 'เข้ากรรมการคณะสรุปผล': step = 5; percent = 85; break;
+                default: step = 1; percent = 15; break;
             }
 
-            return {
-                stepIndex: step,
-                percent: percent,
-                isFailed: false,
-                isPassed: false,
-                statusText: 'กำลังดำเนินการ',
-                badgeClass: 'bg-sky-100 text-sky-700 border-sky-300 shadow-sm'
-            };
+            return { stepIndex: step, percent, isFailed: false, isPassed: false };
         }
 
         function renderModalStepper(evalStatus, printStatus) {
             const progress = calculateStepProgress(evalStatus, printStatus);
-
             const percentEl = document.getElementById('detailStepPercentage');
 
             if (percentEl) {
@@ -1051,7 +1167,6 @@
                     allData = rows.map(r => {
                         const cells = r.c || [];
                         const mapped = cells.map(cell => cell ? (cell.v !== null ? String(cell.v) : "") : "");
-                        // Ensure columns 16, 17, 18 have drive folder fallbacks if missing or '#'
                         if (!mapped[16] || mapped[16] === "#") mapped[16] = DEFAULT_DRIVE_ORIGINAL;
                         if (!mapped[17] || mapped[17] === "#") mapped[17] = DEFAULT_DRIVE_COVER;
                         if (!mapped[18] || mapped[18] === "#") mapped[18] = DEFAULT_DRIVE_EVAL;
@@ -1096,11 +1211,9 @@
                 `;
             } else {
                 let iconClass = "fa-hourglass-half";
-                if (statusStr.includes('ส่งเอกสาร')) {
-                    iconClass = "fa-paper-plane";
-                } else if (statusStr.includes('แก้ไข')) {
-                    iconClass = "fa-pen-to-square";
-                }
+                if (statusStr.includes('ส่งเอกสาร')) iconClass = "fa-paper-plane";
+                else if (statusStr.includes('แก้ไข')) iconClass = "fa-pen-to-square";
+
                 return `
                     <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold pill-pending">
                         <i class="fa-solid ${iconClass} mr-1.5 text-[11px] text-amber-600"></i> ${statusStr}
@@ -1201,13 +1314,6 @@
                 return matchSearch && matchDept && matchStatus && matchYear;
             });
 
-            const activeSummary = document.getElementById('activeFilterSummary');
-            if (search || dept || status || year) {
-                activeSummary.innerText = `กำลังคัดกรอง: ${status || 'ทุกสถานะ'} | ${dept || 'ทุกภาควิชา'} | ${year ? 'ปี ' + year : 'ทุกปี'}`;
-            } else {
-                activeSummary.innerText = "กำลังแสดงผลลัพธ์ทั้งหมด";
-            }
-
             currentPage = 1;
             updateDashboard();
         }
@@ -1300,7 +1406,6 @@
             pageInfo.innerText = `แสดงหน้าที่ ${currentPage} จากทั้งหมด ${totalPages} หน้า`;
 
             let btnHtml = '';
-            
             btnHtml += `
                 <button onclick="renderPage(${Math.max(1, currentPage - 1)})" ${currentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 text-slate-400 bg-slate-100 rounded-lg"' : 'class="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition"'}>
                     <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i> ก่อนหน้า
@@ -1462,7 +1567,7 @@
                             <button onclick="openDetailModal(${globalIdx})" class="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition" title="ดูรายละเอียด">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
-                            <button onclick="openEditModal(${globalIdx})" class="p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition" title="แก้ไขข้อมูล">
+                            <button onclick="openEditModal(${globalIdx})" class="p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition" title="แก้ไขข้อมูล/อัปโหลดไฟล์">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
                             <button onclick="openDeleteModal('${row[0]}')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="ลบข้อมูล">
@@ -1533,7 +1638,7 @@
             document.getElementById('detailEvalStatus').innerText = row[7] || '-';
             document.getElementById('detailPrintStatus').innerText = row[10] || '-';
 
-            // Set Document Attachment links
+            // Links handling
             document.getElementById('detailLinkOriginal').href = (row[16] && row[16] !== '#') ? row[16] : DEFAULT_DRIVE_ORIGINAL;
             document.getElementById('detailLinkCover').href = (row[17] && row[17] !== '#') ? row[17] : DEFAULT_DRIVE_COVER;
             document.getElementById('detailLinkEval').href = (row[18] && row[18] !== '#') ? row[18] : DEFAULT_DRIVE_EVAL;
@@ -1597,8 +1702,14 @@
             showToast("ออกจากระบบเรียบร้อยแล้ว", "success");
         }
 
+        function resetFileModalInputs() {
+            ['original', 'cover', 'eval'].forEach(type => {
+                removeSelectedFile(type);
+            });
+        }
+
         function openAddModal() {
-            document.getElementById('recordModalTitle').innerText = "เพิ่มรายการผลงานใหม่";
+            document.getElementById('recordModalTitle').innerText = "เพิ่มรายการผลงานใหม่และอัปโหลดไฟล์";
             document.getElementById('editRowId').value = "";
             document.getElementById('formId').value = `Text-0${allData.length + 1}`;
             document.getElementById('formYear').value = new Date().getFullYear() + 543;
@@ -1611,10 +1722,11 @@
             document.getElementById('formIsbn').value = "-";
             document.getElementById('formRemark').value = "";
 
-            // Reset File Links to default drive folders
-            document.getElementById('formOriginalBookUrl').value = DEFAULT_DRIVE_ORIGINAL;
-            document.getElementById('formCoverUrl').value = DEFAULT_DRIVE_COVER;
-            document.getElementById('formEvalResultUrl').value = DEFAULT_DRIVE_EVAL;
+            resetFileModalInputs();
+
+            document.getElementById('formOriginalBookUrl').value = "";
+            document.getElementById('formCoverUrl').value = "";
+            document.getElementById('formEvalResultUrl').value = "";
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -1623,7 +1735,7 @@
             const row = allData[globalIdx];
             if (!row) return;
 
-            document.getElementById('recordModalTitle').innerText = "แก้ไขรายการผลงาน";
+            document.getElementById('recordModalTitle').innerText = "แก้ไขรายการผลงานและอัปโหลดไฟล์";
             document.getElementById('editRowId').value = globalIdx;
             document.getElementById('formId').value = row[0] || '';
             document.getElementById('formYear').value = row[2] || '';
@@ -1636,10 +1748,11 @@
             document.getElementById('formIsbn').value = row[8] || '-';
             document.getElementById('formRemark').value = row[15] || '';
 
-            // Populate File Links
-            document.getElementById('formOriginalBookUrl').value = (row[16] && row[16] !== '#') ? row[16] : DEFAULT_DRIVE_ORIGINAL;
-            document.getElementById('formCoverUrl').value = (row[17] && row[17] !== '#') ? row[17] : DEFAULT_DRIVE_COVER;
-            document.getElementById('formEvalResultUrl').value = (row[18] && row[18] !== '#') ? row[18] : DEFAULT_DRIVE_EVAL;
+            resetFileModalInputs();
+
+            document.getElementById('formOriginalBookUrl').value = (row[16] && row[16] !== '#') ? row[16] : '';
+            document.getElementById('formCoverUrl').value = (row[17] && row[17] !== '#') ? row[17] : '';
+            document.getElementById('formEvalResultUrl').value = (row[18] && row[18] !== '#') ? row[18] : '';
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -1652,9 +1765,10 @@
             e.preventDefault();
             const editIdx = document.getElementById('editRowId').value;
             
-            const originalUrl = document.getElementById('formOriginalBookUrl').value.trim() || DEFAULT_DRIVE_ORIGINAL;
-            const coverUrl = document.getElementById('formCoverUrl').value.trim() || DEFAULT_DRIVE_COVER;
-            const evalUrl = document.getElementById('formEvalResultUrl').value.trim() || DEFAULT_DRIVE_EVAL;
+            // Create local object URLs for newly uploaded files or fallback to entered URLs
+            let origUrl = selectedFiles.original ? URL.createObjectURL(selectedFiles.original) : (document.getElementById('formOriginalBookUrl').value.trim() || DEFAULT_DRIVE_ORIGINAL);
+            let coverUrl = selectedFiles.cover ? URL.createObjectURL(selectedFiles.cover) : (document.getElementById('formCoverUrl').value.trim() || DEFAULT_DRIVE_COVER);
+            let evalUrl = selectedFiles.eval ? URL.createObjectURL(selectedFiles.eval) : (document.getElementById('formEvalResultUrl').value.trim() || DEFAULT_DRIVE_EVAL);
 
             const newRow = [
                 document.getElementById('formId').value,
@@ -1673,17 +1787,17 @@
                 document.getElementById('formEmail').value,
                 currentUser ? currentUser.email : "admin@kmitl.ac.th",
                 document.getElementById('formRemark').value,
-                originalUrl, 
+                origUrl, 
                 coverUrl, 
                 evalUrl
             ];
 
             if (editIdx !== "") {
                 allData[parseInt(editIdx)] = newRow;
-                showToast("อัปเดตข้อมูลรายการและแนบไฟล์เรียบร้อย", "success");
+                showToast("อัปเดตข้อมูลรายการและอัปโหลดไฟล์เรียบร้อย", "success");
             } else {
                 allData.unshift(newRow);
-                showToast("บันทึกข้อมูลรายการใหม่พร้อมไฟล์เรียบร้อย", "success");
+                showToast("บันทึกข้อมูลและอัปโหลดไฟล์สำเร็จ", "success");
             }
 
             closeRecordModal();
@@ -1721,25 +1835,23 @@
 
         function copyToClipboard(text) {
             if (!text || text === '-') return;
-            const tempInput = document.createElement('input');
-            tempInput.value = text;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`, "success");
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`คัดลอก "${text}" เรียบร้อย`, "success");
+            }).catch(() => {
+                showToast("ไม่สามารถคัดลอกได้", "error");
+            });
         }
 
-        function showToast(msg, type = 'success') {
+        function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
             const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
 
-            toastMsg.innerText = msg;
+            toastMsg.innerText = message;
             if (type === 'error') {
-                icon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
             } else {
-                icon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
