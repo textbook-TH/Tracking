@@ -109,7 +109,7 @@
                         <span>เข้าสู่ระบบ</span>
                     </button>
 
-                    <!-- Logged In State: Combined Action Pills (ไอคอนบนมือถือ + ข้อความบนจอใหญ่) -->
+                    <!-- Logged In State: Combined Action Pills -->
                     <div id="loggedInGroup" class="hidden flex items-center bg-navy-950/90 p-1 sm:p-1.5 rounded-2xl border border-slate-700/80 shadow-inner space-x-1">
                         <button id="navPublicBtn" onclick="switchView('public')" title="หน้าหลัก" class="px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-800/80">
                             <i class="fa-solid fa-house text-xs sm:text-[11px]"></i>
@@ -126,7 +126,7 @@
                             <span class="hidden sm:inline">หน้าเจ้าหน้าที่</span>
                         </button>
 
-                        <!-- Logout Button integrated into the group -->
+                        <!-- Logout Button -->
                         <button id="logoutBtn" onclick="logout()" title="ออกจากระบบ" class="px-2.5 sm:px-4 py-1.5 bg-rose-950/80 hover:bg-rose-900 border border-rose-800/70 text-rose-200 font-semibold text-xs rounded-xl transition shadow-sm flex items-center space-x-1.5">
                             <i class="fa-solid fa-power-off text-xs sm:text-[11px]"></i>
                             <span class="hidden sm:inline">ออกจากระบบ</span>
@@ -198,7 +198,6 @@
                 </div>
             </div>
 
-            <!-- Charts and Filter Panel -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Donut Chart Card -->
                 <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
@@ -465,9 +464,11 @@
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-2">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500"><i class="fa-solid fa-route mr-1 text-sky-500"></i> ขั้นตอนการดำเนินงาน</h4>
-                        <span id="detailStepBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold"></span>
                     </div>
-                    <span id="detailStepPercentage" class="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">0%</span>
+                    <!-- Right Percentage Badge: With percentage and live indicator icon -->
+                    <div id="detailStepPercentage" class="inline-flex items-center text-xs font-extrabold text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-200 shadow-sm">
+                        <!-- Dynamic Icon + % -->
+                    </div>
                 </div>
                 <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200/80">
                     <div id="timelineSteps" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center">
@@ -732,12 +733,10 @@
             const navLecturerBtn = document.getElementById('navLecturerBtn');
             const navAdminBtn = document.getElementById('navAdminBtn');
 
-            // 1. Not logged in: Show Login button, hide loggedInGroup
             if (!currentUser) {
                 if (loginBtn) loginBtn.classList.remove('hidden');
                 if (loggedInGroup) loggedInGroup.classList.add('hidden');
             } 
-            // 2. Logged in: Hide Login button, show loggedInGroup
             else {
                 if (loginBtn) loginBtn.classList.add('hidden');
                 if (loggedInGroup) loggedInGroup.classList.remove('hidden');
@@ -765,12 +764,10 @@
             const activeAmber = `${baseStyle} bg-amber-600 text-white shadow-md font-bold`;
             const inactiveStyle = `${baseStyle} text-slate-300 hover:text-white hover:bg-slate-800/80`;
 
-            // Public Tab Style
             if (navPublicBtn) {
                 navPublicBtn.className = (currentActiveView === 'public' ? activePublic : inactiveStyle);
             }
 
-            // Lecturer Tab Style
             if (navLecturerBtn) {
                 const isLecturerRole = currentUser && currentUser.role === 'lecturer';
                 if (!isLecturerRole) {
@@ -780,7 +777,6 @@
                 }
             }
 
-            // Admin Tab Style
             if (navAdminBtn) {
                 const isAdminRole = currentUser && currentUser.role === 'admin';
                 if (!isAdminRole) {
@@ -792,14 +788,12 @@
         }
 
         function switchView(viewName) {
-            // If trying to access protected views without login, prompt login modal
             if ((viewName === 'lecturer' || viewName === 'admin') && !currentUser) {
                 openLoginModal();
                 showToast("กรุณาเข้าสู่ระบบก่อนสลับไปยังหน้านี้", "error");
                 return;
             }
 
-            // Security check: restrict access to non-assigned role views
             if (currentUser) {
                 if (viewName === 'lecturer' && currentUser.role !== 'lecturer') return;
                 if (viewName === 'admin' && currentUser.role !== 'admin') return;
@@ -833,7 +827,7 @@
                     percent: 100,
                     isFailed: true,
                     isPassed: false,
-                    statusText: '100% สิ้นสุด (ไม่ผ่านการประเมิน)',
+                    statusText: 'ไม่ผ่านการประเมิน',
                     badgeClass: 'bg-rose-100 text-rose-700 border-rose-300 shadow-sm'
                 };
             }
@@ -844,7 +838,7 @@
                     percent: 100,
                     isFailed: false,
                     isPassed: true,
-                    statusText: '100% ดำเนินการเสร็จสิ้น',
+                    statusText: 'ดำเนินการเสร็จสิ้น',
                     badgeClass: 'bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm'
                 };
             }
@@ -882,7 +876,7 @@
                 percent: percent,
                 isFailed: false,
                 isPassed: false,
-                statusText: `${percent}% กำลังดำเนินการ`,
+                statusText: 'กำลังดำเนินการ',
                 badgeClass: 'bg-sky-100 text-sky-700 border-sky-300 shadow-sm'
             };
         }
@@ -890,19 +884,22 @@
         function renderModalStepper(evalStatus, printStatus) {
             const progress = calculateStepProgress(evalStatus, printStatus);
 
-            const badgeEl = document.getElementById('detailStepBadge');
             const percentEl = document.getElementById('detailStepPercentage');
-            if (badgeEl) {
-                badgeEl.textContent = progress.statusText;
-                badgeEl.className = `px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${progress.badgeClass}`;
-            }
+
+            // Update Right Percentage Badge: Add appropriate status icon next to %
             if (percentEl) {
-                percentEl.textContent = `${progress.percent}%`;
-                percentEl.className = `text-xs font-bold px-2.5 py-0.5 rounded-full border ${
-                    progress.isFailed ? 'text-rose-600 bg-rose-50 border-rose-200' :
-                    progress.isPassed ? 'text-emerald-600 bg-emerald-50 border-emerald-200' :
-                    'text-sky-600 bg-sky-50 border-sky-200'
-                }`;
+                let iconHtml = '';
+                if (progress.isFailed) {
+                    iconHtml = '<i class="fa-solid fa-circle-xmark text-rose-500 mr-1.5"></i>';
+                    percentEl.className = 'inline-flex items-center text-xs font-extrabold text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200 shadow-sm';
+                } else if (progress.isPassed) {
+                    iconHtml = '<i class="fa-solid fa-circle-check text-emerald-500 mr-1.5"></i>';
+                    percentEl.className = 'inline-flex items-center text-xs font-extrabold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 shadow-sm';
+                } else {
+                    iconHtml = '<i class="fa-solid fa-chart-line text-sky-500 mr-1.5 animate-pulse"></i>';
+                    percentEl.className = 'inline-flex items-center text-xs font-extrabold text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-200 shadow-sm';
+                }
+                percentEl.innerHTML = `${iconHtml}<span>${progress.percent}%</span>`;
             }
 
             const steps = [
