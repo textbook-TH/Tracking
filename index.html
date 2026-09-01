@@ -967,7 +967,7 @@
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
-        // Helper function: Convert File object to Base64 dataURL format for Google Apps Script
+        // Helper function: Convert File object to Base64 data format for Google Apps Script
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 if (!file) {
@@ -976,7 +976,7 @@
                 }
                 const reader = new FileReader();
                 reader.onload = () => resolve({
-                    data: reader.result.split(',')[1], // Send base64 content only
+                    data: reader.result.split(',')[1], // Send base64 content string
                     mimeType: file.type || 'application/octet-stream',
                     fileName: file.name
                 });
@@ -1722,15 +1722,15 @@
             document.getElementById('formIsbn').value = "";
             document.getElementById('formRemark').value = "";
 
-            removeSelectedFile('original');
-            removeSelectedFile('cover');
-            removeSelectedFile('eval');
-
             currentSavedUrls = {
                 original: DEFAULT_DRIVE_ORIGINAL,
                 cover: DEFAULT_DRIVE_COVER,
                 eval: DEFAULT_DRIVE_EVAL
             };
+
+            removeSelectedFile('original');
+            removeSelectedFile('cover');
+            removeSelectedFile('eval');
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -1739,7 +1739,7 @@
             const row = allData[idx];
             if (!row) return;
 
-            document.getElementById('recordModalTitle').innerText = "แก้ไขข้อมูลผลงาน";
+            document.getElementById('recordModalTitle').innerText = `แก้ไขข้อมูลรายการ (${row[0]})`;
             document.getElementById('editRowId').value = idx;
             document.getElementById('formId').value = row[0] || '';
             document.getElementById('formYear').value = row[2] || '';
@@ -1754,15 +1754,15 @@
             document.getElementById('formEmail').value = row[13] || '';
             document.getElementById('formRemark').value = row[15] || '';
 
-            removeSelectedFile('original');
-            removeSelectedFile('cover');
-            removeSelectedFile('eval');
-
             currentSavedUrls = {
                 original: row[16] || DEFAULT_DRIVE_ORIGINAL,
                 cover: row[17] || DEFAULT_DRIVE_COVER,
                 eval: row[18] || DEFAULT_DRIVE_EVAL
             };
+
+            removeSelectedFile('original');
+            removeSelectedFile('cover');
+            removeSelectedFile('eval');
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -1771,103 +1771,102 @@
             document.getElementById('recordModal').classList.add('hidden');
         }
 
+        // Processing Upload and Save Record Function (Fixed CORS & Async Payload)
         async function handleSaveRecord(e) {
             e.preventDefault();
-
             const submitBtn = document.getElementById('submitRecordBtn');
             const originalBtnHtml = submitBtn.innerHTML;
+
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i> กำลังบันทึกและอัปโหลดไฟล์...`;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>กำลังอัปโหลดไปยัง Google Drive...</span>`;
 
             try {
-                const id = document.getElementById('formId').value.trim();
-                const year = document.getElementById('formYear').value.trim();
-                const position = document.getElementById('formPosition').value.trim();
-                const author = document.getElementById('formAuthor').value.trim();
-                const title = document.getElementById('formBookTitle').value.trim();
-                const email = document.getElementById('formEmail').value.trim();
-                const dept = document.getElementById('formDept').value.trim();
-                const evalStatus = document.getElementById('formEvalStatus').value;
-                const printStatus = document.getElementById('formPrintStatus').value;
-                const kmitlCode = document.getElementById('formKmitlCode').value.trim();
-                const isbn = document.getElementById('formIsbn').value.trim();
-                const remark = document.getElementById('formRemark').value.trim();
+                // Convert attached files to Base64 format asynchronously
+                const fileOrigBase64 = selectedFiles.original ? await fileToBase64(selectedFiles.original) : null;
+                const fileCoverBase64 = selectedFiles.cover ? await fileToBase64(selectedFiles.cover) : null;
+                const fileEvalBase64 = selectedFiles.eval ? await fileToBase64(selectedFiles.eval) : null;
 
-                // Convert files to Base64
-                const fileOriginal = await fileToBase64(selectedFiles.original);
-                const fileCover = await fileToBase64(selectedFiles.cover);
-                const fileEval = await fileToBase64(selectedFiles.eval);
+                const todayStr = new Date().toISOString().split('T')[0];
 
                 const payload = {
                     action: 'saveRecord',
-                    rowId: document.getElementById('editRowId').value,
-                    data: {
-                        id, year, position, author, title, email, dept,
-                        evalStatus, printStatus, kmitlCode, isbn, remark
-                    },
-                    files: {
-                        original: fileOriginal,
-                        cover: fileCover,
-                        eval: fileEval
-                    }
+                    id: document.getElementById('formId').value.trim(),
+                    date: todayStr,
+                    year: document.getElementById('formYear').value.trim(),
+                    position: document.getElementById('formPosition').value.trim(),
+                    author: document.getElementById('formAuthor').value.trim(),
+                    title: document.getElementById('formBookTitle').value.trim(),
+                    dept: document.getElementById('formDept').value.trim(),
+                    evalStatus: document.getElementById('formEvalStatus').value,
+                    isbn: document.getElementById('formIsbn').value.trim(),
+                    kmitlCode: document.getElementById('formKmitlCode').value.trim(),
+                    printStatus: document.getElementById('formPrintStatus').value,
+                    email: document.getElementById('formEmail').value.trim(),
+                    remark: document.getElementById('formRemark').value.trim(),
+                    fileOriginal: fileOrigBase64,
+                    fileCover: fileCoverBase64,
+                    fileEval: fileEvalBase64
                 };
 
-                let responseUrls = { ...currentSavedUrls };
-
-                if (WEB_APP_URL && WEB_APP_URL.startsWith('http')) {
-                    try {
-                        const res = await fetch(WEB_APP_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify(payload)
-                        });
-                        const result = await res.json();
-                        if (result && result.status === 'success' && result.urls) {
-                            if (result.urls.original) responseUrls.original = result.urls.original;
-                            if (result.urls.cover) responseUrls.cover = result.urls.cover;
-                            if (result.urls.eval) responseUrls.eval = result.urls.eval;
+                // Send request using text/plain content type to avoid CORS Preflight OPTIONS issue in Google Apps Script
+                let driveUrls = { ...currentSavedUrls };
+                
+                try {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response.ok) {
+                        const resData = await response.json();
+                        if (resData.status === 'success') {
+                            if (resData.urlOriginal) driveUrls.original = resData.urlOriginal;
+                            if (resData.urlCover) driveUrls.cover = resData.urlCover;
+                            if (resData.urlEval) driveUrls.eval = resData.urlEval;
                         }
-                    } catch (fetchErr) {
-                        console.warn("API Upload warning:", fetchErr);
                     }
+                } catch (fetchErr) {
+                    console.warn("GAS Endpoint response warning. Local state updated:", fetchErr);
                 }
 
-                const editRowIdx = document.getElementById('editRowId').value;
-                const nowStr = new Date().toISOString().split('T')[0];
-
+                // Update internal dataset
+                const editIdx = document.getElementById('editRowId').value;
                 const recordArray = [
-                    id,
-                    nowStr,
-                    year,
-                    position,
-                    author,
-                    title,
-                    dept,
-                    evalStatus,
-                    isbn,
-                    kmitlCode,
-                    printStatus,
+                    payload.id,
+                    payload.date,
+                    payload.year,
+                    payload.position,
+                    payload.author,
+                    payload.title,
+                    payload.dept,
+                    payload.evalStatus,
+                    payload.isbn,
+                    payload.kmitlCode,
+                    payload.printStatus,
                     "", "",
-                    email,
+                    payload.email,
                     currentUser ? currentUser.email : "admin@kmitl.ac.th",
-                    remark,
-                    responseUrls.original,
-                    responseUrls.cover,
-                    responseUrls.eval
+                    payload.remark,
+                    driveUrls.original,
+                    driveUrls.cover,
+                    driveUrls.eval
                 ];
 
-                if (editRowIdx !== "" && editRowIdx !== null) {
-                    allData[parseInt(editRowIdx)] = recordArray;
-                    showToast("อัปเดตข้อมูลและอัปโหลดไฟล์สำเร็จแล้ว");
+                if (editIdx !== "" && editIdx !== null) {
+                    allData[parseInt(editIdx)] = recordArray;
+                    showToast("อัปเดตข้อมูลและไฟล์สำเร็จแล้ว");
                 } else {
                     allData.unshift(recordArray);
-                    showToast("เพิ่มผลงานใหม่และอัปโหลดไฟล์เข้า Google Drive เรียบร้อย");
+                    showToast("บันทึกข้อมูลและอัปโหลดไฟล์สำเร็จ");
                 }
 
-                filterData();
+                filteredData = [...allData];
+                initFilters();
+                updateDashboard();
                 closeRecordModal();
             } catch (err) {
-                console.error("Save Record Error:", err);
+                console.error("Save error:", err);
                 showToast("เกิดข้อผิดพลาดในการบันทึกข้อมูล", "error");
             } finally {
                 submitBtn.disabled = false;
@@ -1888,10 +1887,23 @@
 
         function confirmDeleteRecord() {
             if (!targetDeleteId) return;
+
             allData = allData.filter(r => r[0] !== targetDeleteId);
-            filterData();
+            filteredData = [...allData];
+
             closeDeleteModal();
-            showToast(`ลบรายการ ${targetDeleteId} เรียบร้อยแล้ว`);
+            initFilters();
+            updateDashboard();
+            showToast(`ลบรายการ ${targetDeleteId} สำเร็จ`);
+        }
+
+        function copyToClipboard(text) {
+            if (!text || text === '-') return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
+            }).catch(() => {
+                showToast("ไม่สามารถคัดลอกได้", "error");
+            });
         }
 
         function exportToCSV() {
@@ -1899,13 +1911,35 @@
                 showToast("ไม่มีข้อมูลสำหรับส่งออก", "error");
                 return;
             }
-            const headers = ["ID", "วันที่ยื่น", "ปีการศึกษา", "คำนำหน้า", "ผู้เขียน", "ชื่อเรื่อง", "ภาควิชา", "สถานะการประเมิน", "ISBN", "รหัส วศ.สจล.", "สถานะจัดพิมพ์", "อีเมลอาจารย์", "ผู้บันทึก", "หมายเหตุ", "ลิงก์ต้นฉบับ", "ลิงก์ปก", "ลิงก์ผลการประเมิน"];
-            const rows = allData.map(r => [
-                r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[13], r[14], r[15], r[16], r[17], r[18]
-            ]);
 
-            let csvContent = "\uFEFF" + [headers, ...rows].map(e => e.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(",")).join("\n");
+            const headers = ["ID", "วันที่บันทึก", "ปีประเมิน", "คำนำหน้า", "ชื่อผู้เขียน", "ชื่อเรื่อง", "ภาควิชา", "สถานะการประเมิน", "ISBN", "รหัส วศ.สจล.", "สถานะจัดพิมพ์", "อีเมลผู้ขอประเมิน", "หมายเหตุ", "ลิงก์ต้นฉบับ", "ลิงก์ปก", "ลิงก์ผลประเมิน"];
             
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+            csvContent += headers.join(",") + "\n";
+
+            allData.forEach(row => {
+                const rowData = [
+                    row[0] || "",
+                    row[1] || "",
+                    row[2] || "",
+                    row[3] || "",
+                    row[4] || "",
+                    row[5] || "",
+                    row[6] || "",
+                    row[7] || "",
+                    row[8] || "",
+                    row[9] || "",
+                    row[10] || "",
+                    row[13] || "",
+                    row[15] || "",
+                    row[16] || "",
+                    row[17] || "",
+                    row[18] || ""
+                ].map(field => `"${String(field).replace(/"/g, '""')}"`);
+
+                csvContent += rowData.join(",") + "\n";
+            });
+
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
@@ -1914,26 +1948,19 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast("ส่งออกข้อมูล CSV เรียบร้อยแล้ว");
+            showToast("ส่งออกไฟล์ CSV สำเร็จ");
         }
 
-        function copyToClipboard(text) {
-            if (!text || text === '-') return;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("คัดลอกลงคลิปบอร์ดแล้ว");
-            });
-        }
-
-        function showToast(message, type = "success") {
+        function showToast(msg, type = "success") {
             const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
-            const msg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMsg = document.getElementById('toastMsg');
 
-            msg.innerText = message;
+            toastMsg.innerText = msg;
             if (type === "error") {
-                icon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
+                toastIcon.className = "fa-solid fa-circle-xmark text-rose-400 text-base";
             } else {
-                icon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
@@ -1945,8 +1972,8 @@
             }, 3000);
         }
 
-        function closeModalOnBackdrop(event, modalId) {
-            if (event.target.id === modalId) {
+        function closeModalOnBackdrop(e, modalId) {
+            if (e.target.id === modalId) {
                 document.getElementById(modalId).classList.add('hidden');
             }
         }
