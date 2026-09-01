@@ -821,7 +821,7 @@
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
 
         // Google Apps Script Web App Endpoint for File Upload & Data Append
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJwHlVa6T9dmCcGNAA46UylSq26ugTdUB3JNe8s9S5D3mlIpwkp4jgNrK36ACO0a4/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxRlvVLLWkZpX6sGz-ubA63mniYSyz3Cx50eqeFX8KNgzyQTjBfkQ3Beq2CjE8y6Mcn/exec";
 
         // Default Drive Folders for fallback
         const DEFAULT_DRIVE_ORIGINAL = "https://drive.google.com/drive/folders/1w7NmxarGzwPjmylxV95c7zFNTAPnOcLh?usp=sharing";
@@ -967,7 +967,7 @@
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
-        // Helper function: Convert File object to Base64 data format for Google Apps Script
+        // Convert File object to Base64 format for Google Apps Script
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 if (!file) {
@@ -976,7 +976,7 @@
                 }
                 const reader = new FileReader();
                 reader.onload = () => resolve({
-                    data: reader.result.split(',')[1], // Send base64 content string
+                    data: reader.result.split(',')[1],
                     mimeType: file.type || 'application/octet-stream',
                     fileName: file.name
                 });
@@ -1556,7 +1556,6 @@
                 const globalIdx = allData.indexOf(row);
                 const statusBadge = renderStatusBadge(row[7]);
                 
-                // Retrieve file URLs (Column 16: หนังสือต้นฉบับ, Column 17: ปกหนังสือ, Column 18: เอกสารผลการประเมิน)
                 const origLink = row[16] || DEFAULT_DRIVE_ORIGINAL;
                 const coverLink = row[17] || DEFAULT_DRIVE_COVER;
                 const evalLink = row[18] || DEFAULT_DRIVE_EVAL;
@@ -1570,7 +1569,6 @@
                         </td>
                         <td class="py-3 px-4">${statusBadge}</td>
                         <td class="py-3 px-4">
-                            <!-- Direct Download / View File Icons for Staff -->
                             <div class="flex items-center space-x-1.5">
                                 <a href="${origLink}" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white flex items-center justify-center transition border border-sky-200 shadow-sm" title="ดาวน์โหลด/เปิด หนังสือต้นฉบับ">
                                     <i class="fa-solid fa-file-pdf text-sm"></i>
@@ -1707,30 +1705,31 @@
         }
 
         function openAddModal() {
+            document.getElementById('editRowId').value = '';
             document.getElementById('recordModalTitle').innerText = "เพิ่มผลงานใหม่";
-            document.getElementById('editRowId').value = "";
-            document.getElementById('formId').value = `Text-0${allData.length + 1}`;
+            
+            document.getElementById('formId').value = 'Text-' + String(allData.length + 1).padStart(3, '0');
             document.getElementById('formYear').value = new Date().getFullYear() + 543;
-            document.getElementById('formPosition').value = "";
-            document.getElementById('formAuthor').value = "";
-            document.getElementById('formBookTitle').value = "";
-            document.getElementById('formEmail').value = "";
-            document.getElementById('formDept').value = "";
-            document.getElementById('formEvalStatus').value = "";
-            document.getElementById('formPrintStatus').value = "";
-            document.getElementById('formKmitlCode').value = "";
-            document.getElementById('formIsbn').value = "";
-            document.getElementById('formRemark').value = "";
+            document.getElementById('formPosition').value = '';
+            document.getElementById('formAuthor').value = '';
+            document.getElementById('formBookTitle').value = '';
+            document.getElementById('formEmail').value = '';
+            document.getElementById('formDept').value = '';
+            document.getElementById('formEvalStatus').value = '';
+            document.getElementById('formPrintStatus').value = '';
+            document.getElementById('formKmitlCode').value = '';
+            document.getElementById('formIsbn').value = '';
+            document.getElementById('formRemark').value = '';
+
+            removeSelectedFile('original');
+            removeSelectedFile('cover');
+            removeSelectedFile('eval');
 
             currentSavedUrls = {
                 original: DEFAULT_DRIVE_ORIGINAL,
                 cover: DEFAULT_DRIVE_COVER,
                 eval: DEFAULT_DRIVE_EVAL
             };
-
-            removeSelectedFile('original');
-            removeSelectedFile('cover');
-            removeSelectedFile('eval');
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -1739,8 +1738,9 @@
             const row = allData[idx];
             if (!row) return;
 
-            document.getElementById('recordModalTitle').innerText = `แก้ไขข้อมูลรายการ (${row[0]})`;
             document.getElementById('editRowId').value = idx;
+            document.getElementById('recordModalTitle').innerText = "แก้ไขข้อมูลผลงาน";
+
             document.getElementById('formId').value = row[0] || '';
             document.getElementById('formYear').value = row[2] || '';
             document.getElementById('formPosition').value = row[3] || '';
@@ -1771,109 +1771,6 @@
             document.getElementById('recordModal').classList.add('hidden');
         }
 
-        // Processing Upload and Save Record Function (Fixed CORS & Async Payload)
-        async function handleSaveRecord(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitRecordBtn');
-            const originalBtnHtml = submitBtn.innerHTML;
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>กำลังอัปโหลดไปยัง Google Drive...</span>`;
-
-            try {
-                // Convert attached files to Base64 format asynchronously
-                const fileOrigBase64 = selectedFiles.original ? await fileToBase64(selectedFiles.original) : null;
-                const fileCoverBase64 = selectedFiles.cover ? await fileToBase64(selectedFiles.cover) : null;
-                const fileEvalBase64 = selectedFiles.eval ? await fileToBase64(selectedFiles.eval) : null;
-
-                const todayStr = new Date().toISOString().split('T')[0];
-
-                const payload = {
-                    action: 'saveRecord',
-                    id: document.getElementById('formId').value.trim(),
-                    date: todayStr,
-                    year: document.getElementById('formYear').value.trim(),
-                    position: document.getElementById('formPosition').value.trim(),
-                    author: document.getElementById('formAuthor').value.trim(),
-                    title: document.getElementById('formBookTitle').value.trim(),
-                    dept: document.getElementById('formDept').value.trim(),
-                    evalStatus: document.getElementById('formEvalStatus').value,
-                    isbn: document.getElementById('formIsbn').value.trim(),
-                    kmitlCode: document.getElementById('formKmitlCode').value.trim(),
-                    printStatus: document.getElementById('formPrintStatus').value,
-                    email: document.getElementById('formEmail').value.trim(),
-                    remark: document.getElementById('formRemark').value.trim(),
-                    fileOriginal: fileOrigBase64,
-                    fileCover: fileCoverBase64,
-                    fileEval: fileEvalBase64
-                };
-
-                // Send request using text/plain content type to avoid CORS Preflight OPTIONS issue in Google Apps Script
-                let driveUrls = { ...currentSavedUrls };
-                
-                try {
-                    const response = await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    if (response.ok) {
-                        const resData = await response.json();
-                        if (resData.status === 'success') {
-                            if (resData.urlOriginal) driveUrls.original = resData.urlOriginal;
-                            if (resData.urlCover) driveUrls.cover = resData.urlCover;
-                            if (resData.urlEval) driveUrls.eval = resData.urlEval;
-                        }
-                    }
-                } catch (fetchErr) {
-                    console.warn("GAS Endpoint response warning. Local state updated:", fetchErr);
-                }
-
-                // Update internal dataset
-                const editIdx = document.getElementById('editRowId').value;
-                const recordArray = [
-                    payload.id,
-                    payload.date,
-                    payload.year,
-                    payload.position,
-                    payload.author,
-                    payload.title,
-                    payload.dept,
-                    payload.evalStatus,
-                    payload.isbn,
-                    payload.kmitlCode,
-                    payload.printStatus,
-                    "", "",
-                    payload.email,
-                    currentUser ? currentUser.email : "admin@kmitl.ac.th",
-                    payload.remark,
-                    driveUrls.original,
-                    driveUrls.cover,
-                    driveUrls.eval
-                ];
-
-                if (editIdx !== "" && editIdx !== null) {
-                    allData[parseInt(editIdx)] = recordArray;
-                    showToast("อัปเดตข้อมูลและไฟล์สำเร็จแล้ว");
-                } else {
-                    allData.unshift(recordArray);
-                    showToast("บันทึกข้อมูลและอัปโหลดไฟล์สำเร็จ");
-                }
-
-                filteredData = [...allData];
-                initFilters();
-                updateDashboard();
-                closeRecordModal();
-            } catch (err) {
-                console.error("Save error:", err);
-                showToast("เกิดข้อผิดพลาดในการบันทึกข้อมูล", "error");
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnHtml;
-            }
-        }
-
         function openDeleteModal(id) {
             targetDeleteId = id;
             document.getElementById('deleteTargetId').innerText = id;
@@ -1881,86 +1778,150 @@
         }
 
         function closeDeleteModal() {
-            targetDeleteId = null;
             document.getElementById('deleteModal').classList.add('hidden');
+            targetDeleteId = null;
         }
 
         function confirmDeleteRecord() {
             if (!targetDeleteId) return;
-
             allData = allData.filter(r => r[0] !== targetDeleteId);
-            filteredData = [...allData];
-
+            filterData();
             closeDeleteModal();
-            initFilters();
-            updateDashboard();
-            showToast(`ลบรายการ ${targetDeleteId} สำเร็จ`);
+            showToast(`ลบรายการ ${targetDeleteId} เรียบร้อยแล้ว`);
+        }
+
+        // Complete handler for file conversion & Google Drive upload
+        async function handleSaveRecord(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitRecordBtn');
+            const originalBtnText = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>กำลังอัปโหลดและบันทึก...</span>`;
+
+            try {
+                // Convert selected files to Base64
+                const fileOriginalData = selectedFiles.original ? await fileToBase64(selectedFiles.original) : null;
+                const fileCoverData = selectedFiles.cover ? await fileToBase64(selectedFiles.cover) : null;
+                const fileEvalData = selectedFiles.eval ? await fileToBase64(selectedFiles.eval) : null;
+
+                const editIdx = document.getElementById('editRowId').value;
+                const isEdit = editIdx !== '';
+
+                const recordData = {
+                    action: isEdit ? 'update' : 'create',
+                    id: document.getElementById('formId').value,
+                    date: new Date().toISOString().split('T')[0],
+                    year: document.getElementById('formYear').value,
+                    position: document.getElementById('formPosition').value,
+                    author: document.getElementById('formAuthor').value,
+                    title: document.getElementById('formBookTitle').value,
+                    dept: document.getElementById('formDept').value,
+                    evalStatus: document.getElementById('formEvalStatus').value,
+                    isbn: document.getElementById('formIsbn').value,
+                    kmitlCode: document.getElementById('formKmitlCode').value,
+                    printStatus: document.getElementById('formPrintStatus').value,
+                    email: document.getElementById('formEmail').value,
+                    adminEmail: currentUser ? currentUser.email : '',
+                    remark: document.getElementById('formRemark').value,
+                    existingUrls: currentSavedUrls,
+                    fileOriginal: fileOriginalData,
+                    fileCover: fileCoverData,
+                    fileEval: fileEvalData
+                };
+
+                // Send data to Web App
+                if (WEB_APP_URL && WEB_APP_URL.startsWith('https://script.google.com')) {
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(recordData)
+                    });
+                    const result = await response.json().catch(() => null);
+                    if (result && result.urls) {
+                        if (result.urls.original) currentSavedUrls.original = result.urls.original;
+                        if (result.urls.cover) currentSavedUrls.cover = result.urls.cover;
+                        if (result.urls.eval) currentSavedUrls.eval = result.urls.eval;
+                    }
+                }
+
+                // Update UI state
+                const newRow = [
+                    recordData.id,
+                    recordData.date,
+                    recordData.year,
+                    recordData.position,
+                    recordData.author,
+                    recordData.title,
+                    recordData.dept,
+                    recordData.evalStatus,
+                    recordData.isbn,
+                    recordData.kmitlCode,
+                    recordData.printStatus,
+                    "", "",
+                    recordData.email,
+                    recordData.adminEmail,
+                    recordData.remark,
+                    currentSavedUrls.original,
+                    currentSavedUrls.cover,
+                    currentSavedUrls.eval
+                ];
+
+                if (isEdit) {
+                    allData[parseInt(editIdx)] = newRow;
+                } else {
+                    allData.unshift(newRow);
+                }
+
+                initFilters();
+                filterData();
+                closeRecordModal();
+                showToast(isEdit ? "อัปเดตข้อมูลสำเร็จ" : "บันทึกข้อมูลและอัปโหลดไฟล์สำเร็จ");
+            } catch (err) {
+                console.error("Save Record Error:", err);
+                showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาตรวจสอบการตั้งค่า Web App", "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "ID,วันที่,ปี,ตำแหน่ง,ผู้เขียน,ชื่อเรื่อง,ภาควิชา,สถานะการประเมิน,ISBN,รหัสสถาบัน,สถานะการจัดพิมพ์,อีเมลอาจารย์,หมายเหตุ,ไฟล์ต้นฉบับ,ไฟล์ปก,ไฟล์ผลการประเมิน\n";
+            allData.forEach(row => {
+                const line = [
+                    row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[13], row[15], row[16], row[17], row[18]
+                ].map(v => `"${(v || '').replace(/"/g, '""')}"`).join(",");
+                csvContent += line + "\n";
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `evaluation_tracking_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function copyToClipboard(text) {
             if (!text || text === '-') return;
             navigator.clipboard.writeText(text).then(() => {
-                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
-            }).catch(() => {
-                showToast("ไม่สามารถคัดลอกได้", "error");
+                showToast(`คัดลอก "${text}" แล้ว`);
             });
         }
 
-        function exportToCSV() {
-            if (allData.length === 0) {
-                showToast("ไม่มีข้อมูลสำหรับส่งออก", "error");
-                return;
-            }
-
-            const headers = ["ID", "วันที่บันทึก", "ปีประเมิน", "คำนำหน้า", "ชื่อผู้เขียน", "ชื่อเรื่อง", "ภาควิชา", "สถานะการประเมิน", "ISBN", "รหัส วศ.สจล.", "สถานะจัดพิมพ์", "อีเมลผู้ขอประเมิน", "หมายเหตุ", "ลิงก์ต้นฉบับ", "ลิงก์ปก", "ลิงก์ผลประเมิน"];
-            
-            let csvContent = "\uFEFF"; // UTF-8 BOM
-            csvContent += headers.join(",") + "\n";
-
-            allData.forEach(row => {
-                const rowData = [
-                    row[0] || "",
-                    row[1] || "",
-                    row[2] || "",
-                    row[3] || "",
-                    row[4] || "",
-                    row[5] || "",
-                    row[6] || "",
-                    row[7] || "",
-                    row[8] || "",
-                    row[9] || "",
-                    row[10] || "",
-                    row[13] || "",
-                    row[15] || "",
-                    row[16] || "",
-                    row[17] || "",
-                    row[18] || ""
-                ].map(field => `"${String(field).replace(/"/g, '""')}"`);
-
-                csvContent += rowData.join(",") + "\n";
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `evaluation_status_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast("ส่งออกไฟล์ CSV สำเร็จ");
-        }
-
-        function showToast(msg, type = "success") {
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
-            const toastIcon = document.getElementById('toastIcon');
             const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            if (!toast || !toastMsg) return;
 
             toastMsg.innerText = msg;
-            if (type === "error") {
-                toastIcon.className = "fa-solid fa-circle-xmark text-rose-400 text-base";
+            if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-exclamation text-rose-400 text-base';
             } else {
-                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400 text-base';
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
