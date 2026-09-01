@@ -777,7 +777,9 @@
 
                 <div class="pt-2 flex justify-end space-x-2 border-t border-slate-100">
                     <button type="button" onclick="closeRecordModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl text-xs transition">ยกเลิก</button>
-                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition">บันทึกข้อมูลและไฟล์</button>
+                    <button id="submitRecordBtn" type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition flex items-center">
+                        <span>บันทึกข้อมูลและไฟล์</span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -816,6 +818,9 @@
     <script>
         const PUBLIC_SHEET_ID = "1A3hnZEPaNslKFp96efTGfZzt0HTs8R79Qvgeh1UDI3E";
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
+
+        // Google Apps Script Web App Endpoint for File Upload & Data Append
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJwHlVa6T9dmCcGNAA46UylSq26ugTdUB3JNe8s9S5D3mlIpwkp4jgNrK36ACO0a4/exec";
 
         // Default Drive Folders for fallback
         const DEFAULT_DRIVE_ORIGINAL = "https://drive.google.com/drive/folders/1w7NmxarGzwPjmylxV95c7zFNTAPnOcLh?usp=sharing";
@@ -959,6 +964,24 @@
 
         function capitalize(str) {
             return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Helper function: Convert File object to Base64 dataURL format for Apps Script
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) {
+                    resolve(null);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => resolve({
+                    data: reader.result,
+                    mimeType: file.type || 'application/octet-stream',
+                    fileName: file.name
+                });
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
         }
 
         function updateHeaderNavVisibility() {
@@ -1698,6 +1721,10 @@
             document.getElementById('formIsbn').value = "";
             document.getElementById('formRemark').value = "";
 
+            currentSavedUrls.original = DEFAULT_DRIVE_ORIGINAL;
+            currentSavedUrls.cover = DEFAULT_DRIVE_COVER;
+            currentSavedUrls.eval = DEFAULT_DRIVE_EVAL;
+
             removeSelectedFile('original');
             removeSelectedFile('cover');
             removeSelectedFile('eval');
@@ -1719,16 +1746,14 @@
             document.getElementById('formEmail').value = row[13] || "";
             document.getElementById('formDept').value = row[6] || "";
             document.getElementById('formEvalStatus').value = row[7] || "";
-            document.getElementById('formIsbn').value = row[8] || "";
-            document.getElementById('formKmitlCode').value = row[9] || "";
             document.getElementById('formPrintStatus').value = row[10] || "";
+            document.getElementById('formKmitlCode').value = row[9] || "";
+            document.getElementById('formIsbn').value = row[8] || "";
             document.getElementById('formRemark').value = row[15] || "";
 
-            currentSavedUrls = {
-                original: row[16] || DEFAULT_DRIVE_ORIGINAL,
-                cover: row[17] || DEFAULT_DRIVE_COVER,
-                eval: row[18] || DEFAULT_DRIVE_EVAL
-            };
+            currentSavedUrls.original = row[16] || DEFAULT_DRIVE_ORIGINAL;
+            currentSavedUrls.cover = row[17] || DEFAULT_DRIVE_COVER;
+            currentSavedUrls.eval = row[18] || DEFAULT_DRIVE_EVAL;
 
             removeSelectedFile('original');
             removeSelectedFile('cover');
@@ -1741,42 +1766,99 @@
             document.getElementById('recordModal').classList.add('hidden');
         }
 
-        function handleSaveRecord(e) {
+        // Updated function to handle file upload directly to Google Apps Script Web App
+        async function handleSaveRecord(e) {
             e.preventDefault();
-            const editId = document.getElementById('editRowId').value;
-            
-            const newRecord = [
-                document.getElementById('formId').value,
-                new Date().toISOString().split('T')[0],
-                document.getElementById('formYear').value,
-                document.getElementById('formPosition').value,
-                document.getElementById('formAuthor').value,
-                document.getElementById('formBookTitle').value,
-                document.getElementById('formDept').value,
-                document.getElementById('formEvalStatus').value,
-                document.getElementById('formIsbn').value,
-                document.getElementById('formKmitlCode').value,
-                document.getElementById('formPrintStatus').value,
-                "",
-                "",
-                document.getElementById('formEmail').value,
-                currentUser ? currentUser.email : "admin@kmitl.ac.th",
-                document.getElementById('formRemark').value,
-                currentSavedUrls.original,
-                currentSavedUrls.cover,
-                currentSavedUrls.eval
-            ];
+            const submitBtn = document.getElementById('submitRecordBtn');
+            const originalBtnText = submitBtn.innerHTML;
 
-            if (editId !== "") {
-                allData[parseInt(editId)] = newRecord;
-                showToast("แก้ไขข้อมูลเรียบร้อยแล้ว");
-            } else {
-                allData.unshift(newRecord);
-                showToast("เพิ่มผลงานใหม่เรียบร้อยแล้ว");
+            // Update UI to loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> กำลังอัปโหลดและบันทึก...`;
+
+            try {
+                // Convert selected files to Base64 objects matching Google Apps Script payload requirements
+                const fileTextMaster = selectedFiles.original ? await fileToBase64(selectedFiles.original) : null;
+                const fileEvaluation = selectedFiles.eval ? await fileToBase64(selectedFiles.eval) : null;
+                const fileBookCover = selectedFiles.cover ? await fileToBase64(selectedFiles.cover) : null;
+
+                const payload = {
+                    id: document.getElementById('formId').value,
+                    year: document.getElementById('formYear').value,
+                    position: document.getElementById('formPosition').value,
+                    author: document.getElementById('formAuthor').value,
+                    bookTitle: document.getElementById('formBookTitle').value,
+                    department: document.getElementById('formDept').value,
+                    status: document.getElementById('formEvalStatus').value,
+                    isbn: document.getElementById('formIsbn').value,
+                    kmitlNo: document.getElementById('formKmitlCode').value,
+                    printStatus: document.getElementById('formPrintStatus').value,
+                    printDate: "",
+                    publisher: "",
+                    requesterEmail: document.getElementById('formEmail').value,
+                    deptEmail: currentUser ? currentUser.email : "admin@kmitl.ac.th",
+                    note: document.getElementById('formRemark').value,
+                    fileTextMaster: fileTextMaster,
+                    fileEvaluation: fileEvaluation,
+                    fileBookCover: fileBookCover
+                };
+
+                // Send request to Google Apps Script Web App
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const editIdx = document.getElementById('editRowId').value;
+                    const rowData = [
+                        payload.id,
+                        new Date().toISOString().split('T')[0],
+                        payload.year,
+                        payload.position,
+                        payload.author,
+                        payload.bookTitle,
+                        payload.department,
+                        payload.status,
+                        payload.isbn,
+                        payload.kmitlNo,
+                        payload.printStatus,
+                        "",
+                        "",
+                        payload.requesterEmail,
+                        payload.deptEmail,
+                        payload.note,
+                        currentSavedUrls.original,
+                        currentSavedUrls.cover,
+                        currentSavedUrls.eval
+                    ];
+
+                    if (editIdx !== "") {
+                        allData[parseInt(editIdx)] = rowData;
+                    } else {
+                        allData.unshift(rowData);
+                    }
+
+                    closeRecordModal();
+                    filterData();
+                    filterAdminData();
+                    showToast("บันทึกข้อมูลและอัปโหลดไฟล์เข้า Google Drive เรียบร้อยแล้ว");
+                } else {
+                    showToast("เกิดข้อผิดพลาดในการบันทึก: " + result.message, "error");
+                }
+
+            } catch (err) {
+                console.error("Upload error:", err);
+                showToast("ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่อ", "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
             }
-
-            closeRecordModal();
-            filterData();
         }
 
         function openDeleteModal(id) {
@@ -1786,63 +1868,44 @@
         }
 
         function closeDeleteModal() {
-            targetDeleteId = null;
             document.getElementById('deleteModal').classList.add('hidden');
+            targetDeleteId = null;
         }
 
         function confirmDeleteRecord() {
             if (!targetDeleteId) return;
-            allData = allData.filter(r => r[0] !== targetDeleteId);
+            allData = allData.filter(row => row[0] !== targetDeleteId);
             closeDeleteModal();
-            showToast("ลบข้อมูลเรียบร้อยแล้ว");
             filterData();
+            filterAdminData();
+            showToast("ลบรายการข้อมูลเรียบร้อยแล้ว");
         }
 
-        function exportToCSV() {
-            if (allData.length === 0) {
-                showToast("ไม่มีข้อมูลสำหรับส่งออก", "error");
-                return;
+        function closeModalOnBackdrop(event, modalId) {
+            if (event.target.id === modalId) {
+                document.getElementById(modalId).classList.add('hidden');
             }
-            const headers = ["ID", "วันที่บันทึก", "ปีการศึกษา", "คำนำหน้า", "ผู้เขียน", "ชื่อเรื่อง", "ภาควิชา", "สถานะการประเมิน", "ISBN", "รหัสวศ", "สถานะจัดพิมพ์", "", "", "อีเมลอาจารย์", "ผู้บันทึก", "หมายเหตุ", "ไฟล์ต้นฉบับ", "ไฟล์ปก", "ไฟล์ผลประเมิน"];
-            
-            let csvContent = "\uFEFF" + headers.join(",") + "\n";
-            allData.forEach(row => {
-                const rowStr = row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(",");
-                csvContent += rowStr + "\n";
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `evaluation_tracking_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast("ส่งออกไฟล์ CSV เรียบร้อยแล้ว");
         }
 
         function copyToClipboard(text) {
             if (!text || text === '-') return;
             navigator.clipboard.writeText(text).then(() => {
-                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`);
-            }).catch(() => {
-                showToast("ไม่สามารถคัดลอกได้", "error");
+                showToast("คัดลอกข้อมูลเรียบร้อยแล้ว");
+            }).catch(err => {
+                console.error("Copy failed", err);
             });
         }
 
-        function showToast(msg, type = "success") {
+        function showToast(message, type = "success") {
             const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
-            const msgEl = document.getElementById('toastMsg');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
 
-            if (!toast || !msgEl || !icon) return;
-
-            msgEl.innerText = msg;
+            toastMsg.innerText = message;
             if (type === "error") {
-                icon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
             } else {
-                icon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
@@ -1854,10 +1917,23 @@
             }, 3000);
         }
 
-        function closeModalOnBackdrop(event, modalId) {
-            if (event.target.id === modalId) {
-                document.getElementById(modalId).classList.add('hidden');
-            }
+        function exportToCSV() {
+            const headers = ["ID", "Date", "Year", "Position", "Author", "Title", "Department", "EvalStatus", "ISBN", "KmitlCode", "PrintStatus", "Extra1", "Extra2", "Email", "Editor", "Remark", "OriginalLink", "CoverLink", "EvalLink"];
+            const csvRows = [headers.join(",")];
+
+            allData.forEach(row => {
+                const escaped = row.map(val => `"${String(val).replace(/"/g, '""')}"`);
+                csvRows.push(escaped.join(","));
+            });
+
+            const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `evaluation_records_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("ส่งออกไฟล์ CSV เรียบร้อยแล้ว");
         }
     </script>
 </body>
