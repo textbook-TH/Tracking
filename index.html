@@ -969,21 +969,79 @@
         }
 
         // Convert File object to Base64 format for Google Apps Script
+        // Upload-specific code only: keep the existing payload format intact.
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 if (!file) {
                     resolve(null);
                     return;
                 }
+
                 const reader = new FileReader();
-                reader.onload = () => resolve({
-                    data: reader.result.split(',')[1],
-                    mimeType: file.type || 'application/octet-stream',
-                    fileName: file.name
-                });
-                reader.onerror = error => reject(error);
+
+                reader.onload = () => {
+                    try {
+                        const result = String(reader.result || '');
+                        const commaIndex = result.indexOf(',');
+
+                        if (commaIndex === -1) {
+                            reject(new Error(`ไม่สามารถอ่านไฟล์ \"${file.name}\" ได้`));
+                            return;
+                        }
+
+                        const base64Data = result.slice(commaIndex + 1);
+                        if (!base64Data) {
+                            reject(new Error(`ไฟล์ \"${file.name}\" ไม่มีข้อมูล`));
+                            return;
+                        }
+
+                        resolve({
+                            data: base64Data,
+                            mimeType: file.type || 'application/octet-stream',
+                            fileName: file.name,
+                            fileSize: file.size
+                        });
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+
+                reader.onerror = () => {
+                    reject(new Error(`เกิดข้อผิดพลาดขณะอ่านไฟล์ \"${file.name}\"`));
+                };
+
                 reader.readAsDataURL(file);
             });
+        }
+
+        // Safely read Google Apps Script response without hiding server errors.
+        async function readUploadResponse(response) {
+            const responseText = await response.text();
+            let data = null;
+
+            try {
+                data = responseText ? JSON.parse(responseText) : null;
+            } catch (parseErr) {
+                throw new Error(
+                    `Google Apps Script ส่งข้อมูลตอบกลับไม่ถูกต้อง (HTTP ${response.status})`
+                );
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    (data && (data.error || data.message)) ||
+                    `การอัปโหลดล้มเหลว (HTTP ${response.status})`
+                );
+            }
+
+            if (!data || data.success === false) {
+                throw new Error(
+                    (data && (data.error || data.message)) ||
+                    'Google Drive ไม่ยืนยันการอัปโหลดไฟล์'
+                );
+            }
+
+            return data;
         }
 
         function updateHeaderNavVisibility() {
@@ -1816,20 +1874,60 @@
                 };
 
                 // Post data to Google Apps Script Web App Endpoint
+                // Upload-specific changes only: the existing endpoint and payload contract remain unchanged.
                 let responseUrls = { ...currentSavedUrls };
-                try {
-                    const res = await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(payload),
-                        redirect: 'follow'
-                    });
-                    const resJson = await res.json();
-                    if (resJson && resJson.urls) {
-                        responseUrls = resJson.urls;
+
+                // Do not send an empty upload request when no new file is selected.
+                const hasNewFiles = !!(
+                    payload.fileOriginal ||
+                    payload.fileCover ||
+                    payload.fileEval
+                );
+
+                if (hasNewFiles) {
+                    const requestBody = JSON.stringify(payload);
+
+                    try {
+                        const res = await fetch(SCRIPT_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'text/plain;charset=utf-8',
+                                'Accept': 'application/json'
+                            },
+                            body: requestBody,
+                            redirect: 'follow',
+                            cache: 'no-store'
+                        });
+
+                        const resJson = await readUploadResponse(res);
+
+                        if (resJson.urls && typeof resJson.urls === 'object') {
+                            responseUrls = {
+                                ...responseUrls,
+                                ...resJson.urls
+                            };
+                        }
+
+                        // A successful response must contain at least one returned URL
+                        // for every file that was actually selected.
+                        const missingUrls = [];
+                        if (payload.fileOriginal && !responseUrls.original) missingUrls.push('หนังสือต้นฉบับ');
+                        if (payload.fileCover && !responseUrls.cover) missingUrls.push('ปกหนังสือ');
+                        if (payload.fileEval && !responseUrls.eval) missingUrls.push('ผลการประเมิน');
+
+                        if (missingUrls.length > 0) {
+                            throw new Error(
+                                `Google Drive อัปโหลดไม่ครบ: ${missingUrls.join(', ')}`
+                            );
+                        }
+                    } catch (fetchErr) {
+                        console.error('Google Drive upload failed:', fetchErr);
+                        const message = fetchErr && fetchErr.message
+                            ? fetchErr.message
+                            : 'ไม่สามารถอัปโหลดไฟล์เข้า Google Drive ได้';
+                        showToast(`อัปโหลด Google Drive ไม่สำเร็จ: ${message}`, 'error');
+                        return;
                     }
-                } catch (fetchErr) {
-                    console.warn("Direct Script endpoint notification:", fetchErr);
                 }
 
                 const rowData = [
