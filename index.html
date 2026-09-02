@@ -818,7 +818,10 @@
                 const result = await response.json();
                 
                 if (result.status === "success") {
-                    allData = result.data.slice(1); 
+                    // กรองเฉพาะแถวที่มีข้อมูลจริง (ตัดแถวว่างใน Google Sheets ออก)
+                    allData = result.data.slice(1).filter(row => 
+                        row && row.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== "")
+                    ); 
                     populateFilterDropdowns();
                     filterData();
                     showToast("โหลดข้อมูลล่าสุดสำเร็จ", "success");
@@ -1058,8 +1061,8 @@
             const depts = new Set();
 
             allData.forEach(row => {
-                if (row[2]) years.add(row[2]);
-                if (row[6]) depts.add(row[6]);
+                if (row[2] && String(row[2]).trim()) years.add(String(row[2]).trim());
+                if (row[6] && String(row[6]).trim()) depts.add(String(row[6]).trim());
             });
 
             const renderOptions = (selectEl, setObj, defaultLabel) => {
