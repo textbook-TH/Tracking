@@ -294,7 +294,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left border-b border-slate-100 pb-4 gap-3">
                     <div>
                         <h2 class="font-bold text-slate-800 text-base">ตารางสถานะการประเมิน</h2>
-                        <p class="text-xs text-slate-400">แสดงผลรายการหนังสือ/ตำราเรียน</p>
+                        <p class="text-xs text-slate-400">แสดงผลรายการหนังสือ/ตำราเรียน (เรียงลำดับ ID จากมากไปน้อย)</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <button onclick="fetchSheetsData()" title="รีเฟรชข้อมูลจาก Sheets" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs rounded-xl font-medium transition flex items-center gap-1.5">
@@ -763,7 +763,7 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeDeleteModal()" class="w-1/2 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">ยกเลิก</button>
-                <button onclick="confirmDeleteRecord()" class="w-1/2 py-2 bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs rounded-xl shadow transition">ลบเฉพาะรายการนี้</button>
+                <button id="confirmDeleteBtn" onclick="confirmDeleteRecord()" class="w-1/2 py-2 bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs rounded-xl shadow transition">ลบเฉพาะรายการนี้</button>
             </div>
         </div>
     </div>
@@ -804,7 +804,16 @@
         let adminCurrentPage = 1;
         const adminItemsPerPage = 10;
 
-        // ดึงข้อมูลมาแสดงผลตอนโหลดหน้าเว็บ
+        // ฟังก์ชันช่วยเรียงลำดับข้อมูลตาม ID (Text-xxx) จากมากไปหาน้อย (Max to Min)
+        function sortDataByIdDescending(dataArray) {
+            return dataArray.sort((a, b) => {
+                const idA = String((a && a[0]) ? a[0] : '');
+                const idB = String((b && b[0]) ? b[0] : '');
+                return idB.localeCompare(idA, undefined, { numeric: true, sensitivity: 'base' });
+            });
+        }
+
+        // ดึงข้อมูลมาแสดงผลตอนโหลดหน้าเว็บ (Optimized for fast rendering)
         async function fetchSheetsData() {
             showToast("กำลังโหลดข้อมูลจาก Google Sheets...", "info");
             try {
@@ -814,14 +823,18 @@
                     return;
                 }
 
-                const response = await fetch(GAS_WEB_APP_URL);
+                const response = await fetch(GAS_WEB_APP_URL, { cache: "no-cache" });
                 const result = await response.json();
                 
                 if (result.status === "success") {
-                    // กรองเฉพาะแถวที่มีข้อมูลจริง (ตัดแถวว่างใน Google Sheets ออก)
-                    allData = result.data.slice(1).filter(row => 
+                    // กรองเฉพาะแถวที่มีข้อมูลจริง
+                    let rawData = result.data.slice(1).filter(row => 
                         row && row.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== "")
                     ); 
+                    
+                    // เรียงลำดับ ID (Text-...) จากมากไปหาน้อยทันที
+                    allData = sortDataByIdDescending(rawData);
+
                     populateFilterDropdowns();
                     filterData();
                     showToast("โหลดข้อมูลล่าสุดสำเร็จ", "success");
@@ -911,7 +924,6 @@
             const id = editIdx >= 0 ? allData[editIdx][0] : "Text-" + Date.now();
             const inputDateVal = document.getElementById("inputDate").value || new Date().toISOString().split('T')[0];
 
-            // ตรวจสอบ URL ไฟล์เดิม ถ้าสั่งลบเฉพาะไฟล์ให้ส่งค่าว่าง
             let origUrlVal = editIdx >= 0 ? (allData[editIdx][16] || "") : "";
             let coverUrlVal = editIdx >= 0 ? (allData[editIdx][17] || "") : "";
             let evalUrlVal = editIdx >= 0 ? (allData[editIdx][18] || "") : "";
@@ -969,7 +981,16 @@
 
                 if (resData.status === "success") {
                     showToast("บันทึกข้อมูลและอัปเดตไฟล์เรียบร้อยแล้ว!", "success");
-                    await fetchSheetsData();
+                    
+                    // อัปเดตในหน่วยความจำทันที ไม่ต้องดึงข้อมูลใหม่ทั้งหมด เพื่อเพิ่มความเร็ว
+                    if (editIdx >= 0) {
+                        allData[editIdx] = record;
+                    } else {
+                        allData.unshift(record);
+                    }
+                    sortDataByIdDescending(allData);
+                    populateFilterDropdowns();
+                    filterData();
                     closeRecordModal();
                 } else {
                     showToast("เกิดข้อผิดพลาด: " + resData.message, "error");
@@ -983,11 +1004,14 @@
             }
         }
 
-        // ลบเฉพาะรายการที่เลือก (1 รายการ)
+        // ลบเฉพาะรายการที่เลือก (ปรับปรุงให้ทำงานได้เร็วด้วยการทำ In-memory update)
         async function confirmDeleteRecord() {
             if (!targetDeleteRecordId) return;
 
-            showToast("กำลังลบรายการออกจาก Google Sheets...", "info");
+            const deleteBtn = document.getElementById("confirmDeleteBtn");
+            const originalBtnText = deleteBtn.innerHTML;
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังลบ...';
 
             try {
                 const response = await fetch(GAS_WEB_APP_URL, {
@@ -1002,15 +1026,20 @@
                 const resData = await response.json();
 
                 if (resData.status === "success") {
-                    showToast("ลบรายการที่เลือกเรียบร้อยแล้ว", "success");
-                    await fetchSheetsData();
+                    // ตัดรายการที่ลบออกจาก allData ทันที โดยไม่ต้องรอ fetch ใหม่ทั้งระบบ
+                    allData = allData.filter(row => String(row[0]) !== String(targetDeleteRecordId));
+                    filterData();
                     closeDeleteModal();
+                    showToast("ลบรายการที่เลือกเรียบร้อยแล้ว", "success");
                 } else {
                     showToast("ลบไม่สำเร็จ: " + resData.message, "error");
                 }
             } catch (err) {
                 console.error("Delete error:", err);
                 showToast("เกิดข้อผิดพลาด ไม่สามารถติดต่อเซิร์ฟเวอร์ได้", "error");
+            } finally {
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = originalBtnText;
             }
         }
 
@@ -1101,6 +1130,9 @@
 
                 return matchSearch && matchYear && matchDept && matchStatus;
             });
+
+            // ตรวจสอบความถูกต้องของการเรียงลำดับ ID มากไปน้อยเสมอ
+            sortDataByIdDescending(filteredData);
 
             currentPage = 1;
             renderTable(filteredData);
@@ -1307,6 +1339,8 @@
                 return matchSearch && matchYear && matchDept && matchStatus;
             });
 
+            sortDataByIdDescending(adminFilteredData);
+
             adminCurrentPage = 1;
             renderAdminTable(adminFilteredData);
         }
@@ -1394,6 +1428,8 @@
             document.getElementById("lecturerWelcome").innerText = `สวัสดี ${currentUser.email}`;
 
             const userBooks = allData.filter(r => (r[13] || '').toLowerCase() === currentUser.email.toLowerCase());
+            sortDataByIdDescending(userBooks);
+
             document.getElementById("lecturerBookCount").innerText = userBooks.length;
 
             const grid = document.getElementById("lecturerCardsGrid");
@@ -1617,7 +1653,6 @@
             document.getElementById('fileCover').value = "";
             document.getElementById('fileEval').value = "";
 
-            // แสดงสถานะไฟล์เดิมที่เคยอัปโหลดไว้
             const origUrl = row[16];
             const coverUrl = row[17];
             const evalUrl = row[18];
@@ -1809,10 +1844,10 @@
 
                 return `
                     <div class="flex flex-col items-center space-y-1.5">
-                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm ${circleClass} transition-all">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-sm sm:text-base ${circleClass} transition">
                             <i class="fa-solid ${displayIcon}"></i>
                         </div>
-                        <span class="text-[10px] sm:text-[11px] leading-tight ${textClass}">${s.title}</span>
+                        <span class="text-[10px] sm:text-xs ${textClass} leading-tight text-center">${s.title}</span>
                     </div>
                 `;
             }).join('');
