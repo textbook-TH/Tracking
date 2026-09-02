@@ -860,7 +860,7 @@
     </footer>
 
     <script>
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzYqSxAfPBNfmb66wkSB2y88xftf5IOrxilBHL97mjyasjr_7Ee4ZGLaCWO9gi5QQNm/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbybjUKn0IxVwHzK7foLsn00rwQQill3AZOyswTHWz2lOLp0u1kl1ltSO-N403MROog/exec";
         const PUBLIC_SHEET_ID = "1A3hnZEPaNslKFp96efTGfZzt0HTs8R79Qvgeh1UDI3E";
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
 
@@ -1686,18 +1686,22 @@
                 const globalIdx = allData.indexOf(row);
                 return `
                     <div onclick="openDetailModal(${globalIdx})" class="p-4 bg-white border border-slate-200/80 rounded-2xl hover:border-sky-300 hover:shadow-md transition-all cursor-pointer flex flex-col md:grid md:grid-cols-12 gap-3 items-start md:items-center">
-                        <div class="md:col-span-1 text-center font-bold text-slate-700 text-xs bg-slate-100 px-2 py-1 rounded-lg border border-slate-200">
-                            ${row[2] || '-'}
+                        <div class="md:col-span-1 text-center font-bold text-slate-700 text-xs">
+                            <span class="md:hidden text-slate-400 font-normal">ปีการศึกษา: </span>${row[2] || '-'}
                         </div>
                         <div class="md:col-span-3">
                             ${renderStatusBadge(row[7])}
                         </div>
-                        <div class="md:col-span-8 flex justify-between items-center w-full">
-                            <div class="space-y-0.5 min-w-0 pr-2">
-                                <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate">${row[5] || 'ไม่มีชื่อเรื่อง'}</h4>
-                                <p class="text-[11px] text-slate-500 truncate"><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i>${row[3] || ''} ${row[4] || '-'} (${row[6] || '-'})</p>
+                        <div class="md:col-span-8 space-y-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-0.5 bg-slate-100 text-slate-600 font-mono text-[10px] rounded font-bold">${row[0] || '-'}</span>
+                                <span class="text-xs font-bold text-slate-800 hover:text-sky-600 transition">${row[5] || 'ไม่มีชื่อเรื่อง'}</span>
                             </div>
-                            <i class="fa-solid fa-chevron-right text-slate-300 text-xs shrink-0"></i>
+                            <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                <span><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i>${row[3] || ''} ${row[4] || '-'}</span>
+                                <span><i class="fa-solid fa-building-columns mr-1 text-slate-400"></i>${row[6] || '-'}</span>
+                                ${row[8] && row[8] !== '-' ? `<span><i class="fa-solid fa-barcode mr-1 text-slate-400"></i>ISBN: ${row[8]}</span>` : ''}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1707,75 +1711,47 @@
         }
 
         function renderPagination(totalItems) {
-            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
-            const infoText = document.getElementById('pageInfoText');
+            const pageInfo = document.getElementById('pageInfoText');
             const controls = document.getElementById('paginationControls');
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
-            if (infoText) infoText.innerText = `แสดงหน้าที่ ${currentPage} จากทั้งหมด ${totalPages} หน้า`;
+            if (pageInfo) {
+                pageInfo.innerText = `แสดงหน้าที่ ${currentPage} จากทั้งหมด ${totalPages} หน้า (รวม ${totalItems} รายการ)`;
+            }
+
             if (!controls) return;
+            controls.innerHTML = '';
 
-            let btns = '';
-            btns += `<button onclick="renderPage(${Math.max(1, currentPage - 1)})" ${currentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs disabled:opacity-40"><i class="fa-solid fa-chevron-left"></i></button>`;
+            if (totalPages <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `px-2.5 py-1 rounded-lg border text-xs font-medium transition ${currentPage === 1 ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-600 border-slate-200 hover:bg-slate-100'}`;
+            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => renderPage(currentPage - 1);
+            controls.appendChild(prevBtn);
 
             for (let i = 1; i <= totalPages; i++) {
-                if (i === currentPage) {
-                    btns += `<button class="px-3 py-1 bg-sky-600 text-white font-bold rounded-lg text-xs shadow-sm">${i}</button>`;
-                } else {
-                    btns += `<button onclick="renderPage(${i})" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs">${i}</button>`;
-                }
+                const btn = document.createElement('button');
+                btn.className = `px-3 py-1 rounded-lg border text-xs font-semibold transition ${i === currentPage ? 'bg-sky-600 text-white border-sky-600 shadow-sm' : 'text-slate-600 border-slate-200 hover:bg-slate-100'}`;
+                btn.innerText = i;
+                btn.onclick = () => renderPage(i);
+                controls.appendChild(btn);
             }
 
-            btns += `<button onclick="renderPage(${Math.min(totalPages, currentPage + 1)})" ${currentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs disabled:opacity-40"><i class="fa-solid fa-chevron-right"></i></button>`;
-            controls.innerHTML = btns;
-        }
-
-        function renderLecturerPortal() {
-            if (!currentUser) return;
-            document.getElementById('lecturerWelcome').innerText = `สวัสดี ${currentUser.email}`;
-
-            const lecturerBooks = allData.filter(r => r[13] && r[13].toLowerCase().trim() === currentUser.email.toLowerCase().trim());
-            document.getElementById('lecturerBookCount').innerText = lecturerBooks.length;
-
-            const grid = document.getElementById('lecturerCardsGrid');
-            if (!grid) return;
-
-            if (lecturerBooks.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full p-8 text-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">
-                        <i class="fa-solid fa-book-open text-4xl mb-2 text-slate-300"></i>
-                        <p class="text-xs">ไม่พบผลงานประเมินในนามอีเมล ${currentUser.email}</p>
-                    </div>`;
-                return;
-            }
-
-            grid.innerHTML = lecturerBooks.map(row => {
-                const globalIdx = allData.indexOf(row);
-                return `
-                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between">
-                        <div class="space-y-2">
-                            <div class="flex justify-between items-center">
-                                <span class="px-2 py-0.5 bg-sky-50 text-sky-700 font-mono text-[10px] font-bold rounded">${row[0] || '-'}</span>
-                                <span class="text-xs text-slate-400">ปี ${row[2] || '-'}</span>
-                            </div>
-                            <h3 class="font-bold text-slate-800 text-sm leading-snug line-clamp-2">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
-                            <p class="text-xs text-slate-500">${row[3] || ''} ${row[4] || '-'}</p>
-                        </div>
-                        <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
-                            <div>${renderStatusBadge(row[7])}</div>
-                            <button onclick="openDetailModal(${globalIdx})" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 font-medium text-xs rounded-xl transition">
-                                ดูรายละเอียด
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `px-2.5 py-1 rounded-lg border text-xs font-medium transition ${currentPage === totalPages ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-600 border-slate-200 hover:bg-slate-100'}`;
+            nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => renderPage(currentPage + 1);
+            controls.appendChild(nextBtn);
         }
 
         function filterAdminData() {
-            const search = document.getElementById('adminSearchInput').value.toLowerCase().trim();
-            const dept = document.getElementById('adminDeptFilter').value;
-            const status = document.getElementById('adminStatusFilter').value;
-            const year = document.getElementById('adminYearFilter').value;
+            const search = (document.getElementById('adminSearchInput')?.value || '').toLowerCase().trim();
+            const year = document.getElementById('adminYearFilter')?.value || '';
+            const dept = document.getElementById('adminDeptFilter')?.value || '';
+            const status = document.getElementById('adminStatusFilter')?.value || '';
 
             adminFilteredData = allData.filter(row => {
                 const matchSearch = !search || row.some(col => String(col).toLowerCase().includes(search));
@@ -1799,25 +1775,27 @@
         }
 
         function clearAdminFilters() {
-            document.getElementById('adminSearchInput').value = '';
-            document.getElementById('adminDeptFilter').value = '';
-            document.getElementById('adminStatusFilter').value = '';
-            document.getElementById('adminYearFilter').value = '';
+            if (document.getElementById('adminSearchInput')) document.getElementById('adminSearchInput').value = '';
+            if (document.getElementById('adminYearFilter')) document.getElementById('adminYearFilter').value = '';
+            if (document.getElementById('adminDeptFilter')) document.getElementById('adminDeptFilter').value = '';
+            if (document.getElementById('adminStatusFilter')) document.getElementById('adminStatusFilter').value = '';
             filterAdminData();
         }
 
         function renderAdminPage(page) {
             adminCurrentPage = page;
             const tbody = document.getElementById('adminTableBody');
-            const countEl = document.getElementById('adminRecordCount');
+            const recordCount = document.getElementById('adminRecordCount');
 
-            if (countEl) countEl.innerText = `${adminFilteredData.length} รายการ`;
+            if (recordCount) recordCount.innerText = `${adminFilteredData.length} รายการ`;
+            if (!tbody) return;
 
             if (adminFilteredData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="py-8 text-center text-slate-400 bg-slate-50">
-                            ไม่พบข้อมูลรายการในระบบ
+                        <td colspan="6" class="py-8 text-center text-slate-400">
+                            <i class="fa-solid fa-folder-open text-2xl mb-1"></i>
+                            <p>ไม่พบข้อมูลตามเงื่อนไขที่ค้นหา</p>
                         </td>
                     </tr>`;
                 renderAdminPagination(0);
@@ -1830,26 +1808,40 @@
 
             tbody.innerHTML = pageData.map(row => {
                 const globalIdx = allData.indexOf(row);
+                const origLink = row[16] || DEFAULT_DRIVE_ORIGINAL;
+                const coverLink = row[17] || DEFAULT_DRIVE_COVER;
+                const evalLink = row[18] || DEFAULT_DRIVE_EVAL;
+
                 return `
-                    <tr class="hover:bg-slate-50/80 transition">
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                         <td class="py-3 px-4 font-mono font-bold text-sky-700">${row[0] || '-'}</td>
                         <td class="py-3 px-4">
-                            <div class="font-bold text-slate-800">${row[5] || 'ไม่มีชื่อเรื่อง'}</div>
-                            <div class="text-[11px] text-slate-400">${row[3] || ''} ${row[4] || '-'} (${row[6] || '-'})</div>
+                            <div class="font-semibold text-slate-800">${row[5] || 'ไม่มีชื่อเรื่อง'}</div>
+                            <div class="text-[11px] text-slate-500">${row[3] || ''} ${row[4] || '-'} (${row[6] || '-'})</div>
                         </td>
                         <td class="py-3 px-4">${renderStatusBadge(row[7])}</td>
                         <td class="py-3 px-4">
                             <div class="flex items-center space-x-1.5">
-                                <a href="${row[16] || DEFAULT_DRIVE_ORIGINAL}" target="_blank" class="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100" title="ต้นฉบับ"><i class="fa-solid fa-file-pdf"></i></a>
-                                <a href="${row[17] || DEFAULT_DRIVE_COVER}" target="_blank" class="p-1.5 bg-purple-50 text-purple-600 rounded hover:bg-purple-100" title="ปก"><i class="fa-solid fa-image"></i></a>
-                                <a href="${row[18] || DEFAULT_DRIVE_EVAL}" target="_blank" class="p-1.5 bg-emerald-50 text-emerald-600 rounded hover:bg-emerald-100" title="ผลการประเมิน"><i class="fa-solid fa-clipboard-check"></i></a>
+                                <a href="${origLink}" target="_blank" class="p-1.5 bg-sky-50 hover:bg-sky-100 text-sky-600 rounded-lg text-xs" title="หนังสือต้นฉบับ">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </a>
+                                <a href="${coverLink}" target="_blank" class="p-1.5 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg text-xs" title="ปกหนังสือ">
+                                    <i class="fa-solid fa-image"></i>
+                                </a>
+                                <a href="${evalLink}" target="_blank" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg text-xs" title="ผลการประเมิน">
+                                    <i class="fa-solid fa-clipboard-check"></i>
+                                </a>
                             </div>
                         </td>
-                        <td class="py-3 px-4 text-slate-500 max-w-[150px] truncate">${row[15] || '-'}</td>
+                        <td class="py-3 px-4 text-[11px] text-slate-500 max-w-[150px] truncate">${row[15] || '-'}</td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex items-center justify-center space-x-1">
-                                <button onclick="openEditModal(${globalIdx})" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition" title="แก้ไข"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="openDeleteModal('${row[0]}', ${globalIdx})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบ"><i class="fa-solid fa-trash-can"></i></button>
+                                <button onclick="openEditModal(${globalIdx})" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-lg transition" title="แก้ไข">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="openDeleteModal('${row[0]}', ${globalIdx})" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition" title="ลบ">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -1860,26 +1852,94 @@
         }
 
         function renderAdminPagination(totalItems) {
-            const totalPages = Math.ceil(totalItems / adminItemsPerPage) || 1;
-            const infoText = document.getElementById('adminPageInfoText');
+            const pageInfo = document.getElementById('adminPageInfoText');
             const controls = document.getElementById('adminPaginationControls');
+            const totalPages = Math.ceil(totalItems / adminItemsPerPage) || 1;
 
-            if (infoText) infoText.innerText = `แสดงหน้าที่ ${adminCurrentPage} จากทั้งหมด ${totalPages} หน้า`;
-            if (!controls) return;
-
-            let btns = '';
-            btns += `<button onclick="renderAdminPage(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs disabled:opacity-40"><i class="fa-solid fa-chevron-left"></i></button>`;
-
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === adminCurrentPage) {
-                    btns += `<button class="px-3 py-1 bg-amber-600 text-white font-bold rounded-lg text-xs shadow-sm">${i}</button>`;
-                } else {
-                    btns += `<button onclick="renderAdminPage(${i})" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs">${i}</button>`;
-                }
+            if (pageInfo) {
+                pageInfo.innerText = `แสดงหน้าที่ ${adminCurrentPage} จากทั้งหมด ${totalPages} หน้า (รวม ${totalItems} รายการ)`;
             }
 
-            btns += `<button onclick="renderAdminPage(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs disabled:opacity-40"><i class="fa-solid fa-chevron-right"></i></button>`;
-            controls.innerHTML = btns;
+            if (!controls) return;
+            controls.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `px-2.5 py-1 rounded-lg border text-xs font-medium transition ${adminCurrentPage === 1 ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-600 border-slate-200 hover:bg-slate-100'}`;
+            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+            prevBtn.disabled = adminCurrentPage === 1;
+            prevBtn.onclick = () => renderAdminPage(adminCurrentPage - 1);
+            controls.appendChild(prevBtn);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `px-3 py-1 rounded-lg border text-xs font-semibold transition ${i === adminCurrentPage ? 'bg-amber-600 text-white border-amber-600 shadow-sm' : 'text-slate-600 border-slate-200 hover:bg-slate-100'}`;
+                btn.innerText = i;
+                btn.onclick = () => renderAdminPage(i);
+                controls.appendChild(btn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `px-2.5 py-1 rounded-lg border text-xs font-medium transition ${adminCurrentPage === totalPages ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-600 border-slate-200 hover:bg-slate-100'}`;
+            nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+            nextBtn.disabled = adminCurrentPage === totalPages;
+            nextBtn.onclick = () => renderAdminPage(adminCurrentPage + 1);
+            controls.appendChild(nextBtn);
+        }
+
+        function renderLecturerPortal() {
+            if (!currentUser) return;
+
+            const welcomeEl = document.getElementById('lecturerWelcome');
+            const countEl = document.getElementById('lecturerBookCount');
+            const cardsGrid = document.getElementById('lecturerCardsGrid');
+
+            if (welcomeEl) welcomeEl.innerText = `สวัสดี ${currentUser.email}`;
+
+            const userBooks = allData.filter(r => r[13] && r[13].toLowerCase() === currentUser.email.toLowerCase());
+            const displayList = userBooks.length > 0 ? userBooks : allData.slice(0, 4);
+
+            if (countEl) countEl.innerText = displayList.length;
+
+            if (!cardsGrid) return;
+
+            cardsGrid.innerHTML = displayList.map(row => {
+                const globalIdx = allData.indexOf(row);
+                const progress = calculateStepProgress(row[7], row[10]);
+
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4 hover:border-sky-300 hover:shadow-md transition">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="px-2.5 py-0.5 bg-slate-100 text-slate-700 font-mono text-xs font-bold rounded-md">${row[0] || '-'}</span>
+                            ${renderStatusBadge(row[7])}
+                        </div>
+
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm line-clamp-2">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
+                            <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-building-columns mr-1"></i>${row[6] || '-'}</p>
+                        </div>
+
+                        <div class="space-y-1.5 bg-slate-50 p-3 rounded-xl">
+                            <div class="flex justify-between text-xs font-semibold">
+                                <span class="text-slate-500">ความก้าวหน้า</span>
+                                <span class="text-sky-600">${progress.percent}%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-sky-500 to-indigo-600 h-2 rounded-full transition-all duration-500" style="width: ${progress.percent}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center text-xs pt-2 border-t border-slate-100">
+                            <span class="text-slate-400">ปีการศึกษา: ${row[2] || '-'}</span>
+                            <button onclick="openDetailModal(${globalIdx})" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-600 font-semibold rounded-lg transition flex items-center space-x-1">
+                                <span>ดูรายละเอียด</span>
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
     </script>
 </body>
