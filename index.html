@@ -868,7 +868,7 @@
 
     <script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzYqSxAfPBNfmb66wkSB2y88xftf5IOrxilBHL97mjyasjr_7Ee4ZGLaCWO9gi5QQNm/exec";
-        const PUBLIC_SHEET_ID = "1A3hnZEPaNslKFp96efTGfZzt0HTs8R79Qvgeh1UDI3E";
+        const PUBLIC_SHEET_ID = "13AgN5hS6dgAYYdBZK9yjdrXcRoRHjL3fo_N_rkfWeD4";
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
 
         // Target Google Drive Service Account and Folder configuration
@@ -887,19 +887,9 @@
         let targetDeleteGlobalIdx = null;
 
         // File upload tracking state
-        let uploadedFiles = {
-            original: null,
-            cover: null,
-            eval: null
-        };
+        let uploadedFiles = { original: null, cover: null, eval: null };
+        let uploadedBase64 = { original: null, cover: null, eval: null };
 
-        let uploadedBase64 = {
-            original: null,
-            cover: null,
-            eval: null
-        };
-
-        // Saved Drive Links per record session
         let currentSavedUrls = {
             original: DEFAULT_DRIVE_ORIGINAL,
             cover: DEFAULT_DRIVE_COVER,
@@ -915,7 +905,7 @@
         let adminCurrentPage = 1;
         const adminItemsPerPage = 10;
 
-        // Mock reference dataset with default Google Drive links
+        // Reference dataset fallback
         const INITIAL_REFERENCE_DATA = [
             ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "", "วศ.สจล. 69-001", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
             ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "", "วศ.สจล. 69-002", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
@@ -1051,7 +1041,6 @@
             if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>กำลังเตรียมการอัปโหลด...';
             if (linkEl) linkEl.classList.add('hidden');
 
-            // Read as base64 for GAS sending
             const reader = new FileReader();
             reader.onload = function(e) {
                 uploadedBase64[type] = {
@@ -1094,7 +1083,6 @@
             }, 300);
         }
 
-        // NEW FIX: Function to specifically remove/delete an individual uploaded file or link
         function removeSelectedFile(type) {
             uploadedFiles[type] = null;
             uploadedBase64[type] = null;
@@ -1305,7 +1293,6 @@
                 currentSavedUrls.original, currentSavedUrls.cover, currentSavedUrls.eval
             ];
 
-            // Post to GAS backend if available
             try {
                 const payload = {
                     action: editIdx >= 0 ? 'updateRecord' : 'addRecord',
@@ -1572,14 +1559,14 @@
 
                     filteredData = [...allData];
                     initFilters();
-                    updateDashboard();
+                    filterData();
                 })
                 .catch(err => {
                     console.warn("Using mock reference data fallback:", err);
                     allData = [...INITIAL_REFERENCE_DATA].reverse();
                     filteredData = [...allData];
                     initFilters();
-                    updateDashboard();
+                    filterData();
                 });
         }
 
@@ -1675,264 +1662,287 @@
 
                 document.getElementById('donutFailed').style.strokeDasharray = `${circumference * failedPercent} ${circumference}`;
                 document.getElementById('donutFailed').style.strokeDashoffset = `-${circumference * (passedPercent + processPercent)}`;
+            } else {
+                document.getElementById('donutPassed').style.strokeDasharray = `0 ${circumference}`;
+                document.getElementById('donutProcess').style.strokeDasharray = `0 ${circumference}`;
+                document.getElementById('donutFailed').style.strokeDasharray = `0 ${circumference}`;
             }
-
-            renderPage(1);
-            filterAdminData();
         }
 
         function filterData() {
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const year = document.getElementById('yearFilter').value;
             const dept = document.getElementById('deptFilter').value;
             const status = document.getElementById('statusFilter').value;
-            const year = document.getElementById('yearFilter').value;
 
             filteredData = allData.filter(row => {
-                const matchSearch = !search || row.some(col => String(col).toLowerCase().includes(search));
-                const matchDept = !dept || (row[6] && row[6].trim() === dept);
-                const matchYear = !year || (row[2] && row[2].trim() === year);
+                const id = (row[0] || '').toLowerCase();
+                const yearVal = row[2] || '';
+                const author = (row[4] || '').toLowerCase();
+                const title = (row[5] || '').toLowerCase();
+                const deptVal = row[6] || '';
+                const evalStatus = row[7] || '';
 
-                let matchStatus = true;
+                const matchesSearch = !search || id.includes(search) || author.includes(search) || title.includes(search) || deptVal.toLowerCase().includes(search);
+                const matchesYear = !year || yearVal === year;
+                const matchesDept = !dept || deptVal === dept;
+                
+                let matchesStatus = true;
                 if (status === 'ผ่านการประเมิน') {
-                    matchStatus = row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน');
-                } else if (status === 'กำลังดำเนินการ') {
-                    matchStatus = !(row[7] && row[7].includes('ผ่าน')) && !(row[7] && row[7].includes('ไม่ผ่าน'));
+                    matchesStatus = evalStatus.includes('ผ่าน') && !evalStatus.includes('ไม่ผ่าน');
                 } else if (status === 'ไม่ผ่านการประเมิน') {
-                    matchStatus = row[7] && row[7].includes('ไม่ผ่าน');
+                    matchesStatus = evalStatus.includes('ไม่ผ่าน');
+                } else if (status === 'กำลังดำเนินการ') {
+                    matchesStatus = !evalStatus.includes('ผ่าน');
+                } else if (status) {
+                    matchesStatus = evalStatus === status;
                 }
 
-                return matchSearch && matchDept && matchStatus && matchYear;
+                return matchesSearch && matchesYear && matchesDept && matchesStatus;
             });
 
             currentPage = 1;
             updateDashboard();
+            renderDataList();
+
+            const summaryEl = document.getElementById('activeFilterSummary');
+            if (summaryEl) {
+                if (search || year || dept || status) {
+                    summaryEl.innerText = `คัดกรองข้อมูล: ${[search, year, dept, status].filter(Boolean).join(', ')}`;
+                } else {
+                    summaryEl.innerText = "กำลังแสดงผลลัพธ์ทั้งหมด";
+                }
+            }
         }
 
-        function filterByStatCard(statusType) {
-            document.getElementById('statusFilter').value = statusType;
+        function filterByStatCard(statusGroup) {
+            document.getElementById('statusFilter').value = statusGroup;
             filterData();
-            document.getElementById('tableScrollTarget').scrollIntoView({ behavior: 'smooth' });
+            const scrollTarget = document.getElementById('tableScrollTarget');
+            if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth' });
         }
 
         function clearFilters() {
             document.getElementById('searchInput').value = '';
+            document.getElementById('yearFilter').value = '';
             document.getElementById('deptFilter').value = '';
             document.getElementById('statusFilter').value = '';
-            document.getElementById('yearFilter').value = '';
             filterData();
         }
 
-        function renderPage(page) {
-            currentPage = page;
+        function renderDataList() {
             const container = document.getElementById('dataListContainer');
-            
+            if (!container) return;
+
             if (filteredData.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                        <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-3 block"></i>
-                        <p class="text-slate-600 font-semibold text-sm">ไม่พบข้อมูลตรงตามเงื่อนไขที่ระบุ</p>
-                        <p class="text-slate-400 text-xs mt-1">ลองเปลี่ยนคำค้นหาหรือล้างการคัดกรอง</p>
+                    <div class="p-8 text-center text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-2">
+                        <i class="fa-solid fa-folder-open text-3xl"></i>
+                        <p class="text-xs font-semibold">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</p>
                     </div>
                 `;
-                document.getElementById('pageInfoText').innerText = "แสดง 0 จาก 0 รายการ";
-                document.getElementById('paginationControls').innerHTML = "";
+                renderPagination(0);
                 return;
             }
 
             const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
             const startIdx = (currentPage - 1) * itemsPerPage;
             const endIdx = startIdx + itemsPerPage;
             const pageItems = filteredData.slice(startIdx, endIdx);
 
             container.innerHTML = pageItems.map(row => {
-                const globalIdx = allData.findIndex(r => r[0] === row[0]);
-                const title = row[5] || 'ไม่มีชื่อเรื่อง';
-                const author = `${row[3] || ''} ${row[4] || ''}`.trim();
-                const dept = row[6] || '-';
-                const year = row[2] || '-';
-                const evalStatus = row[7] || '-';
+                const globalIdx = allData.indexOf(row);
+                const evalStatusBadge = renderStatusBadge(row[7]);
+                const progress = calculateStepProgress(row[7], row[10]);
 
                 return `
-                    <div onclick="openDetailModal(${globalIdx})" class="p-4 bg-white hover:bg-slate-50/80 rounded-2xl border border-slate-200/80 transition shadow-sm hover:shadow-md cursor-pointer grid grid-cols-1 md:grid-cols-12 gap-3 items-center group">
-                        <div class="md:col-span-1 text-center md:text-left">
-                            <span class="inline-block md:block px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold">${year}</span>
+                    <div onclick="openDetailModal(${globalIdx})" class="bg-white hover:bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 shadow-sm transition duration-200 cursor-pointer space-y-3 group hover:border-slate-300">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                            <div class="md:col-span-1 text-center font-bold text-slate-500 text-xs bg-slate-100 py-1.5 px-2 rounded-xl group-hover:bg-sky-100 group-hover:text-sky-700 transition">
+                                ${row[2] || '-'}
+                            </div>
+                            <div class="md:col-span-3 flex flex-wrap items-center gap-2">
+                                ${evalStatusBadge}
+                            </div>
+                            <div class="md:col-span-8 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-slate-800 text-sm group-hover:text-sky-600 transition truncate">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
+                                    <span class="text-[11px] font-mono text-slate-400 font-medium">${row[0] || ''}</span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-x-4 text-xs text-slate-500">
+                                    <span><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i>${row[3] || ''} ${row[4] || '-'}</span>
+                                    <span><i class="fa-solid fa-building-columns mr-1 text-slate-400"></i>${row[6] || '-'}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="md:col-span-3">
-                            ${renderStatusBadge(evalStatus)}
-                        </div>
-                        <div class="md:col-span-8 space-y-1">
-                            <h3 class="font-bold text-slate-800 text-xs sm:text-sm group-hover:text-sky-600 transition leading-snug">${title}</h3>
-                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-500">
-                                <span><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i> ${author}</span>
-                                <span><i class="fa-solid fa-building-columns mr-1 text-slate-400"></i> ภาควิชา: ${dept}</span>
+
+                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                            <div class="flex items-center space-x-2 text-slate-400">
+                                <i class="fa-solid fa-bars-progress text-sky-500"></i>
+                                <span>ความคืบหน้าการประเมิน</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 sm:w-32 bg-slate-100 h-2 rounded-full overflow-hidden">
+                                    <div class="h-full ${progress.isFailed ? 'bg-rose-500' : progress.isPassed ? 'bg-emerald-500' : 'bg-sky-500'} transition-all duration-500" style="width: ${progress.percent}%"></div>
+                                </div>
+                                <span class="font-extrabold ${progress.isFailed ? 'text-rose-600' : progress.isPassed ? 'text-emerald-600' : 'text-sky-600'}">${progress.percent}%</span>
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            document.getElementById('pageInfoText').innerText = `แสดงหน้าที่ ${currentPage} จากทั้งหมด ${totalPages} หน้า`;
+            renderPagination(totalPages);
+        }
 
-            let paginationHtml = '';
-            paginationHtml += `
-                <button onclick="renderPage(${Math.max(1, currentPage - 1)})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
+        function renderPagination(totalPages) {
+            const infoText = document.getElementById('pageInfoText');
+            const controls = document.getElementById('paginationControls');
+
+            if (!infoText || !controls) return;
+
+            if (totalPages === 0) {
+                infoText.innerText = "ไม่พบข้อมูล";
+                controls.innerHTML = '';
+                return;
+            }
+
+            infoText.innerText = `แสดงหน้าที่ ${currentPage} จากทั้งหมด ${totalPages} หน้า`;
+
+            let buttonsHtml = `
+                <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-transparent transition">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
             `;
 
             for (let i = 1; i <= totalPages; i++) {
                 if (i === currentPage) {
-                    paginationHtml += `<button class="px-3 py-1.5 rounded-lg bg-sky-600 text-white font-bold text-xs shadow-sm">${i}</button>`;
+                    buttonsHtml += `<button class="px-3 py-1.5 rounded-xl bg-sky-600 text-white text-xs font-bold shadow-sm">${i}</button>`;
                 } else {
-                    paginationHtml += `<button onclick="renderPage(${i})" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-100">${i}</button>`;
+                    buttonsHtml += `<button onclick="changePage(${i})" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">${i}</button>`;
                 }
             }
 
-            paginationHtml += `
-                <button onclick="renderPage(${Math.min(totalPages, currentPage + 1)})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
+            buttonsHtml += `
+                <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-transparent transition">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             `;
 
-            document.getElementById('paginationControls').innerHTML = paginationHtml;
+            controls.innerHTML = buttonsHtml;
         }
 
-        function renderLecturerPortal() {
-            if (!currentUser) return;
-            document.getElementById('lecturerWelcome').innerText = `สวัสดี ${currentUser.email}`;
-
-            const lecturerBooks = allData.filter(r => r[13] && r[13].toLowerCase().trim() === currentUser.email.toLowerCase().trim());
-            document.getElementById('lecturerBookCount').innerText = lecturerBooks.length;
-
-            const grid = document.getElementById('lecturerCardsGrid');
-            if (lecturerBooks.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-slate-200">
-                        <i class="fa-solid fa-book-open text-4xl text-slate-300 mb-3 block"></i>
-                        <p class="text-slate-700 font-bold text-sm">ไม่พบรายการผลงานของคุณในระบบ</p>
-                        <p class="text-slate-400 text-xs mt-1">หากเพิ่งยื่นเอกสาร กรุณาติดต่อเจ้าหน้าที่เพื่อลงทะเบียนข้อมูล</p>
-                    </div>
-                `;
-                return;
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                renderDataList();
             }
-
-            grid.innerHTML = lecturerBooks.map(row => {
-                const globalIdx = allData.findIndex(r => r[0] === row[0]);
-                return `
-                    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 space-y-4 hover:shadow-md transition">
-                        <div class="flex justify-between items-start gap-2">
-                            <span class="px-2.5 py-0.5 bg-slate-100 text-slate-700 font-mono text-xs font-bold rounded-md">${row[0]}</span>
-                            ${renderStatusBadge(row[7])}
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-sm leading-snug">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
-                            <p class="text-xs text-slate-500 mt-1">ปีประเมิน: ${row[2]} | ภาควิชา: ${row[6]}</p>
-                        </div>
-                        <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
-                            <span class="text-slate-400">ISBN: ${row[8] || '-'}</span>
-                            <button onclick="openDetailModal(${globalIdx})" class="px-3 py-1.5 bg-sky-50 text-sky-600 font-semibold rounded-xl hover:bg-sky-100 transition">
-                                ดูรายละเอียด
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
         function filterAdminData() {
-            const search = (document.getElementById('adminSearchInput') ? document.getElementById('adminSearchInput').value.toLowerCase().trim() : '');
-            const dept = (document.getElementById('adminDeptFilter') ? document.getElementById('adminDeptFilter').value : '');
-            const status = (document.getElementById('adminStatusFilter') ? document.getElementById('adminStatusFilter').value : '');
-            const year = (document.getElementById('adminYearFilter') ? document.getElementById('adminYearFilter').value : '');
+            const search = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+            const year = document.getElementById('adminYearFilter').value;
+            const dept = document.getElementById('adminDeptFilter').value;
+            const status = document.getElementById('adminStatusFilter').value;
 
             adminFilteredData = allData.filter(row => {
-                const matchSearch = !search || row.some(col => String(col).toLowerCase().includes(search));
-                const matchDept = !dept || (row[6] && row[6].trim() === dept);
-                const matchYear = !year || (row[2] && row[2].trim() === year);
+                const id = (row[0] || '').toLowerCase();
+                const yearVal = row[2] || '';
+                const author = (row[4] || '').toLowerCase();
+                const title = (row[5] || '').toLowerCase();
+                const deptVal = row[6] || '';
+                const evalStatus = row[7] || '';
 
-                let matchStatus = true;
+                const matchesSearch = !search || id.includes(search) || author.includes(search) || title.includes(search) || deptVal.toLowerCase().includes(search);
+                const matchesYear = !year || yearVal === year;
+                const matchesDept = !dept || deptVal === dept;
+
+                let matchesStatus = true;
                 if (status === 'ผ่านการประเมิน') {
-                    matchStatus = row[7] && row[7].includes('ผ่าน') && !row[7].includes('ไม่ผ่าน');
-                } else if (status === 'กำลังดำเนินการ') {
-                    matchStatus = !(row[7] && row[7].includes('ผ่าน')) && !(row[7] && row[7].includes('ไม่ผ่าน'));
+                    matchesStatus = evalStatus.includes('ผ่าน') && !evalStatus.includes('ไม่ผ่าน');
                 } else if (status === 'ไม่ผ่านการประเมิน') {
-                    matchStatus = row[7] && row[7].includes('ไม่ผ่าน');
+                    matchesStatus = evalStatus.includes('ไม่ผ่าน');
+                } else if (status === 'กำลังดำเนินการ') {
+                    matchesStatus = !evalStatus.includes('ผ่าน');
+                } else if (status) {
+                    matchesStatus = evalStatus === status;
                 }
 
-                return matchSearch && matchDept && matchStatus && matchYear;
+                return matchesSearch && matchesYear && matchesDept && matchesStatus;
             });
 
             adminCurrentPage = 1;
-            renderAdminPage(1);
+            renderAdminTable();
         }
 
         function clearAdminFilters() {
-            if (document.getElementById('adminSearchInput')) document.getElementById('adminSearchInput').value = '';
-            if (document.getElementById('adminDeptFilter')) document.getElementById('adminDeptFilter').value = '';
-            if (document.getElementById('adminStatusFilter')) document.getElementById('adminStatusFilter').value = '';
-            if (document.getElementById('adminYearFilter')) document.getElementById('adminYearFilter').value = '';
+            document.getElementById('adminSearchInput').value = '';
+            document.getElementById('adminYearFilter').value = '';
+            document.getElementById('adminDeptFilter').value = '';
+            document.getElementById('adminStatusFilter').value = '';
             filterAdminData();
         }
 
-        function renderAdminPage(page) {
-            adminCurrentPage = page;
+        function renderAdminTable() {
             const tbody = document.getElementById('adminTableBody');
-            const countEl = document.getElementById('adminRecordCount');
-            if (countEl) countEl.innerText = `${adminFilteredData.length} รายการ`;
+            const recordCountEl = document.getElementById('adminRecordCount');
+            if (!tbody) return;
+
+            if (recordCountEl) recordCountEl.innerText = `${adminFilteredData.length} รายการ`;
 
             if (adminFilteredData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="6" class="text-center py-8 text-slate-400">
-                            <i class="fa-solid fa-inbox text-2xl mb-2 block"></i>
-                            ไม่พบข้อมูลตามเงื่อนไขที่เลือก
+                            <i class="fa-solid fa-folder-open text-2xl mb-1 block"></i>
+                            ไม่พบรายการข้อมูลในระบบ
                         </td>
                     </tr>
                 `;
-                document.getElementById('adminPageInfoText').innerText = "แสดง 0 จาก 0 รายการ";
-                document.getElementById('adminPaginationControls').innerHTML = "";
+                renderAdminPagination(0);
                 return;
             }
 
             const totalPages = Math.ceil(adminFilteredData.length / adminItemsPerPage);
+            if (adminCurrentPage > totalPages) adminCurrentPage = totalPages;
+            if (adminCurrentPage < 1) adminCurrentPage = 1;
+
             const startIdx = (adminCurrentPage - 1) * adminItemsPerPage;
             const endIdx = startIdx + adminItemsPerPage;
             const pageItems = adminFilteredData.slice(startIdx, endIdx);
 
             tbody.innerHTML = pageItems.map(row => {
-                const globalIdx = allData.findIndex(r => r[0] === row[0]);
-                const origUrl = row[16] || DEFAULT_DRIVE_ORIGINAL;
+                const globalIdx = allData.indexOf(row);
+                const originalUrl = row[16] || DEFAULT_DRIVE_ORIGINAL;
                 const coverUrl = row[17] || DEFAULT_DRIVE_COVER;
                 const evalUrl = row[18] || DEFAULT_DRIVE_EVAL;
 
                 return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4 font-mono font-bold text-sky-800">${row[0]}</td>
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-sky-700">${row[0] || '-'}</td>
                         <td class="py-3 px-4">
                             <div class="font-bold text-slate-800">${row[5] || 'ไม่มีชื่อเรื่อง'}</div>
-                            <div class="text-[11px] text-slate-400">${row[3] || ''} ${row[4] || ''} | ภาควิชา: ${row[6] || '-'}</div>
+                            <div class="text-[11px] text-slate-500">${row[3] || ''} ${row[4] || '-'} (${row[6] || '-'})</div>
                         </td>
                         <td class="py-3 px-4">${renderStatusBadge(row[7])}</td>
                         <td class="py-3 px-4">
                             <div class="flex items-center space-x-1.5">
-                                <a href="${origUrl}" target="_blank" class="p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition" title="หนังสือต้นฉบับ">
-                                    <i class="fa-solid fa-file-pdf"></i>
-                                </a>
-                                <a href="${coverUrl}" target="_blank" class="p-1.5 text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition" title="ปกหนังสือ">
-                                    <i class="fa-solid fa-image"></i>
-                                </a>
-                                <a href="${evalUrl}" target="_blank" class="p-1.5 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition" title="ผลการประเมิน">
-                                    <i class="fa-solid fa-file-circle-check"></i>
-                                </a>
+                                <a href="${originalUrl}" target="_blank" title="ไฟล์หนังสือต้นฉบับ" class="p-1.5 text-cyan-600 hover:bg-cyan-50 rounded-lg transition"><i class="fa-solid fa-file-pdf"></i></a>
+                                <a href="${coverUrl}" target="_blank" title="ไฟล์ปกหนังสือ" class="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition"><i class="fa-solid fa-image"></i></a>
+                                <a href="${evalUrl}" target="_blank" title="ไฟล์ผลการประเมิน" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition"><i class="fa-solid fa-clipboard-check"></i></a>
                             </div>
                         </td>
-                        <td class="py-3 px-4 max-w-[150px] truncate text-slate-500" title="${row[15] || '-'}">${row[15] || '-'}</td>
+                        <td class="py-3 px-4 max-w-xs truncate text-slate-500">${row[15] || '-'}</td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex items-center justify-center space-x-1">
-                                <button onclick="openEditModal(${globalIdx})" class="p-1.5 text-sky-600 bg-sky-50 hover:bg-sky-100 rounded-lg transition" title="แก้ไข">
+                                <button onclick="openEditModal(${globalIdx})" title="แก้ไข" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <button onclick="openDeleteModal('${row[0]}', ${globalIdx})" class="p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition" title="ลบข้อมูล">
+                                <button onclick="openDeleteModal('${row[0]}', ${globalIdx})" title="ลบ" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
@@ -1941,30 +1951,117 @@
                 `;
             }).join('');
 
-            document.getElementById('adminPageInfoText').innerText = `แสดงหน้าที่ ${adminCurrentPage} จากทั้งหมด ${totalPages} หน้า`;
+            renderAdminPagination(totalPages);
+        }
 
-            let paginationHtml = '';
-            paginationHtml += `
-                <button onclick="renderAdminPage(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-100 disabled:opacity-40">
+        function renderAdminPagination(totalPages) {
+            const infoText = document.getElementById('adminPageInfoText');
+            const controls = document.getElementById('adminPaginationControls');
+
+            if (!infoText || !controls) return;
+
+            if (totalPages === 0) {
+                infoText.innerText = "ไม่พบข้อมูล";
+                controls.innerHTML = '';
+                return;
+            }
+
+            infoText.innerText = `แสดงหน้าที่ ${adminCurrentPage} จากทั้งหมด ${totalPages} หน้า`;
+
+            let buttonsHtml = `
+                <button onclick="changeAdminPage(${adminCurrentPage - 1})" ${adminCurrentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-transparent transition">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
             `;
 
             for (let i = 1; i <= totalPages; i++) {
                 if (i === adminCurrentPage) {
-                    paginationHtml += `<button class="px-2.5 py-1 rounded-lg bg-amber-600 text-white font-bold text-xs">${i}</button>`;
+                    buttonsHtml += `<button class="px-3 py-1.5 rounded-xl bg-amber-600 text-white text-xs font-bold shadow-sm">${i}</button>`;
                 } else {
-                    paginationHtml += `<button onclick="renderAdminPage(${i})" class="px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-100">${i}</button>`;
+                    buttonsHtml += `<button onclick="changeAdminPage(${i})" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">${i}</button>`;
                 }
             }
 
-            paginationHtml += `
-                <button onclick="renderAdminPage(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-100 disabled:opacity-40">
+            buttonsHtml += `
+                <button onclick="changeAdminPage(${adminCurrentPage + 1})" ${adminCurrentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-transparent transition">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             `;
 
-            document.getElementById('adminPaginationControls').innerHTML = paginationHtml;
+            controls.innerHTML = buttonsHtml;
+        }
+
+        function changeAdminPage(page) {
+            const totalPages = Math.ceil(adminFilteredData.length / adminItemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                adminCurrentPage = page;
+                renderAdminTable();
+            }
+        }
+
+        function renderLecturerPortal() {
+            if (!currentUser) return;
+
+            const welcomeEl = document.getElementById('lecturerWelcome');
+            const countEl = document.getElementById('lecturerBookCount');
+            const gridEl = document.getElementById('lecturerCardsGrid');
+
+            if (welcomeEl) welcomeEl.innerText = `สวัสดีอาจารย์ (${currentUser.email})`;
+
+            const myBooks = allData.filter(row => row[13] && row[13].toLowerCase() === currentUser.email.toLowerCase());
+
+            if (countEl) countEl.innerText = myBooks.length;
+
+            if (!gridEl) return;
+
+            if (myBooks.length === 0) {
+                gridEl.innerHTML = `
+                    <div class="col-span-full p-12 text-center text-slate-400 bg-white rounded-3xl border border-dashed border-slate-200 space-y-3">
+                        <i class="fa-solid fa-book-open text-4xl text-slate-300"></i>
+                        <h3 class="font-bold text-slate-700 text-base">ไม่พบผลงานของคุณในระบบ</h3>
+                        <p class="text-xs text-slate-400">เมื่อคุณยื่นเอกสารขอประเมิน ข้อมูลและสถานะการประเมินจะแสดงขึ้นที่นี่</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gridEl.innerHTML = myBooks.map(row => {
+                const globalIdx = allData.indexOf(row);
+                const progress = calculateStepProgress(row[7], row[10]);
+
+                return `
+                    <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 bg-sky-50 text-sky-700 font-mono text-xs font-bold rounded-lg">${row[0] || '-'}</span>
+                                <span class="text-xs text-slate-400">ปี ${row[2] || '-'}</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-2">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
+                                <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-building-columns mr-1"></i>${row[6] || '-'}</p>
+                            </div>
+                            <div>
+                                ${renderStatusBadge(row[7])}
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 pt-3 border-t border-slate-100">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-400">สถานะขั้นตอน</span>
+                                <span class="font-extrabold ${progress.isFailed ? 'text-rose-600' : progress.isPassed ? 'text-emerald-600' : 'text-sky-600'}">${progress.percent}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="h-full ${progress.isFailed ? 'bg-rose-500' : progress.isPassed ? 'bg-emerald-500' : 'bg-sky-500'} transition-all duration-500" style="width: ${progress.percent}%"></div>
+                            </div>
+
+                            <button onclick="openDetailModal(${globalIdx})" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-circle-info text-sky-600"></i>
+                                <span>ดูรายละเอียดขั้นตอน</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
     </script>
 </body>
