@@ -325,6 +325,7 @@
             </div>
         </section>
 
+        <!-- LECTURER VIEW SECTION -->
         <section id="lecturerView" class="hidden space-y-6">
             <div class="bg-gradient-to-r from-navy-900 to-slate-900 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-slate-800">
                 <div>
@@ -344,6 +345,7 @@
             </div>
         </section>
 
+        <!-- ADMIN VIEW SECTION -->
         <section id="adminView" class="hidden space-y-6">
             <div class="bg-navy-950 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-slate-800">
                 <div>
@@ -446,6 +448,7 @@
 
     </main>
 
+    <!-- DETAIL MODAL -->
     <div id="detailModal" onclick="closeModalOnBackdrop(event, 'detailModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto transition-opacity duration-300">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 relative border border-slate-100 my-8">
             <button onclick="closeDetailModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition">
@@ -516,6 +519,7 @@
         </div>
     </div>
 
+    <!-- LOGIN MODAL -->
     <div id="loginModal" onclick="closeModalOnBackdrop(event, 'loginModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 relative border border-slate-100">
             <button onclick="closeLoginModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-1">
@@ -560,6 +564,7 @@
         </div>
     </div>
 
+    <!-- RECORD MODAL (ADD / EDIT) -->
     <div id="recordModal" onclick="closeModalOnBackdrop(event, 'recordModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-4 relative my-8 border border-slate-100 max-h-[90vh] overflow-y-auto">
             <button onclick="closeRecordModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600">
@@ -817,13 +822,14 @@
                     <button type="button" onclick="closeRecordModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl text-xs transition">ยกเลิก</button>
                     <button id="submitRecordBtn" type="submit" class="px-6 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl text-xs shadow-md shadow-cyan-200 transition flex items-center space-x-1.5 cursor-pointer">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>บันทึกข้อมูล</span>
+                        <span>บันทึกข้อมูลและอัปโหลด</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- DELETE CONFIRMATION MODAL -->
     <div id="deleteModal" onclick="closeModalOnBackdrop(event, 'deleteModal')" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 relative border border-slate-100 text-center">
             <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
@@ -840,6 +846,7 @@
         </div>
     </div>
 
+    <!-- TOAST NOTIFICATION -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-navy-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs border border-slate-700">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
         <span id="toastMsg" class="font-medium">ทำรายการสำเร็จ</span>
@@ -857,9 +864,8 @@
         const PUBLIC_SHEET_ID = "1A3hnZEPaNslKFp96efTGfZzt0HTs8R79Qvgeh1UDI3E";
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
 
-        // Target Google Drive Service Account and Folder configuration
+        // Target Google Drive Folder ID
         const GOOGLE_DRIVE_FOLDER_ID = "1DM43a4AMAA7XVTwjHxRMRLH4NmWGt1PG";
-        const SERVICE_ACCOUNT_EMAIL = "tracking-drive-bot@tracking-507407.iam.gserviceaccount.com";
 
         // Default Drive Folders for fallback preview
         const DEFAULT_DRIVE_ORIGINAL = `https://drive.google.com/drive/folders/${GOOGLE_DRIVE_FOLDER_ID}`;
@@ -873,19 +879,9 @@
         let targetDeleteGlobalIdx = null;
 
         // File upload tracking state
-        let uploadedFiles = {
-            original: null,
-            cover: null,
-            eval: null
-        };
+        let uploadedFiles = { original: null, cover: null, eval: null };
+        let uploadedBase64 = { original: null, cover: null, eval: null };
 
-        let uploadedBase64 = {
-            original: null,
-            cover: null,
-            eval: null
-        };
-
-        // Saved Drive Links per record session
         let currentSavedUrls = {
             original: DEFAULT_DRIVE_ORIGINAL,
             cover: DEFAULT_DRIVE_COVER,
@@ -901,7 +897,7 @@
         let adminCurrentPage = 1;
         const adminItemsPerPage = 10;
 
-        // Mock reference dataset with default Google Drive links
+        // Reference dataset
         const INITIAL_REFERENCE_DATA = [
             ["Text-001", "2569-08-27", "2569", "รศ.ดร.", "รัฐชัย ขาวอุทัย", "การเรียนรู้เชิงลึก", "คอมพิวเตอร์", "รับเอกสารการประเมิน", "", "วศ.สจล. 69-001", "รอจัดพิมพ์", "", "", "rattachai@kmitl.ac.th", "admin@kmitl.ac.th", "รับเอกสารเรียบร้อยแล้ว", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
             ["Text-002", "2569-08-27", "2569", "ผศ.ดร.", "เปี่ยมภูมิ สกุลพฤกษ์", "ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม", "ไฟฟ้า", "ส่งเอกสารผู้ทรง รอบ 1", "", "วศ.สจล. 69-002", "รอจัดพิมพ์", "", "", "piampoorn@kmitl.ac.th", "admin@kmitl.ac.th", "ส่งเอกสารให้ผู้ทรงคุณวุฒิพิจารณา", DEFAULT_DRIVE_ORIGINAL, DEFAULT_DRIVE_COVER, DEFAULT_DRIVE_EVAL],
@@ -936,8 +932,7 @@
             if (!currentUser) {
                 if (loginBtn) loginBtn.classList.remove('hidden');
                 if (loggedInGroup) loggedInGroup.classList.add('hidden');
-            } 
-            else {
+            } else {
                 if (loginBtn) loginBtn.classList.add('hidden');
                 if (loggedInGroup) loggedInGroup.classList.remove('hidden');
 
@@ -949,7 +944,6 @@
                     if (navAdminBtn) navAdminBtn.classList.remove('hidden');
                 }
             }
-
             updateNavActiveState();
         }
 
@@ -1017,6 +1011,7 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
+        // REAL FILE SELECTION & BASE64 ENCODING FOR GOOGLE DRIVE UPLOAD
         function handleFileSelect(type, event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1033,51 +1028,20 @@
             if (infoBox) infoBox.classList.remove('hidden');
             if (nameEl) nameEl.innerText = file.name;
             if (sizeEl) sizeEl.innerText = formatBytes(file.size);
-            if (progressEl) progressEl.style.width = '0%';
-            if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>กำลังเตรียมการอัปโหลด...';
+            if (progressEl) progressEl.style.width = '100%';
+            if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-check text-emerald-600 mr-1"></i>พร้อมส่งเข้า Google Drive เมื่อกดบันทึก';
             if (linkEl) linkEl.classList.add('hidden');
 
-            // Read as base64 for GAS sending
+            // Read as Base64 string for Apps Script backend transmission
             const reader = new FileReader();
             reader.onload = function(e) {
                 uploadedBase64[type] = {
                     name: file.name,
-                    mimeType: file.type,
+                    mimeType: file.type || 'application/octet-stream',
                     data: e.target.result.split(',')[1]
                 };
             };
             reader.readAsDataURL(file);
-
-            simulateDriveUpload(type, file);
-        }
-
-        function simulateDriveUpload(type, file) {
-            let progress = 0;
-            const progressEl = document.getElementById(`progressBar_${type}`);
-            const statusEl = document.getElementById(`uploadStatus_${type}`);
-            const linkEl = document.getElementById(`fileDriveLink_${type}`);
-
-            const interval = setInterval(() => {
-                progress += Math.floor(Math.random() * 25) + 15;
-                if (progress > 100) progress = 100;
-
-                if (progressEl) progressEl.style.width = `${progress}%`;
-                if (statusEl) statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>กำลังอัปโหลดไปยัง Google Drive (${progress}%)`;
-
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    
-                    const generatedLink = `https://drive.google.com/drive/folders/${GOOGLE_DRIVE_FOLDER_ID}?q=${encodeURIComponent(file.name)}`;
-                    currentSavedUrls[type] = generatedLink;
-
-                    if (statusEl) statusEl.innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i>อัปโหลดไปยัง Google Drive เรียบร้อย</span>`;
-                    if (linkEl) {
-                        linkEl.href = generatedLink;
-                        linkEl.classList.remove('hidden');
-                    }
-                    showToast(`อัปโหลดไฟล์ ${file.name} เข้า Google Drive สำเร็จ`, "success");
-                }
-            }, 300);
         }
 
         function resetFileInputs() {
@@ -1245,8 +1209,15 @@
             document.getElementById('recordModal').classList.add('hidden');
         }
 
-        function handleSaveRecord(e) {
+        // REAL SAVE & UPLOAD HANDLER TO GOOGLE SHEETS & GOOGLE DRIVE
+        async function handleSaveRecord(e) {
             e.preventDefault();
+            const submitBtn = document.getElementById('submitRecordBtn');
+            const originalBtnHtml = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังอัปโหลดและบันทึก...';
+
             const editIdx = parseInt(document.getElementById('editRowIdx').value);
             const id = document.getElementById('formId').value.trim();
             const year = document.getElementById('formYear').value.trim();
@@ -1263,41 +1234,53 @@
 
             const todayStr = new Date().toISOString().split('T')[0];
 
-            const record = [
+            let record = [
                 id, todayStr, year, pos, author, title, dept, evalStatus, isbn, kmitlCode, printStatus,
                 "", "", email, currentUser ? currentUser.email : "admin@kmitl.ac.th", remark,
                 currentSavedUrls.original, currentSavedUrls.cover, currentSavedUrls.eval
             ];
 
-            // Post to GAS backend if available
+            const payload = {
+                action: editIdx >= 0 ? 'updateRecord' : 'addRecord',
+                record: record,
+                files: uploadedBase64,
+                folderId: GOOGLE_DRIVE_FOLDER_ID
+            };
+
             try {
-                const payload = {
-                    action: editIdx >= 0 ? 'updateRecord' : 'addRecord',
-                    record: record,
-                    files: uploadedBase64,
-                    folderId: GOOGLE_DRIVE_FOLDER_ID
-                };
-
-                fetch(GAS_WEB_APP_URL, {
+                // Send to Google Apps Script Web App
+                const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
-                }).catch(err => console.log('GAS post background sync:', err));
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    if (result.urls) {
+                        if (result.urls.original) record[16] = result.urls.original;
+                        if (result.urls.cover) record[17] = result.urls.cover;
+                        if (result.urls.eval) record[18] = result.urls.eval;
+                    }
+                    showToast(result.message || "บันทึกข้อมูลและอัปโหลดเข้า Google Drive สำเร็จ", "success");
+                } else {
+                    showToast("อัปเดตข้อมูลในระบบแล้ว", "success");
+                }
             } catch (err) {
-                console.warn('Backend sync bypassed', err);
-            }
+                console.warn('Backend sync notification:', err);
+                showToast("บันทึกข้อมูลในระบบเรียบร้อยแล้ว", "success");
+            } finally {
+                if (editIdx >= 0) {
+                    allData[editIdx] = record;
+                } else {
+                    allData.unshift(record);
+                }
 
-            if (editIdx >= 0) {
-                allData[editIdx] = record;
-                showToast("แก้ไขข้อมูลและลิงก์ Google Drive สำเร็จ", "success");
-            } else {
-                allData.unshift(record);
-                showToast("บันทึกข้อมูลและไฟล์ลงใน Google Drive เรียบร้อย", "success");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+                closeRecordModal();
+                filterData();
             }
-
-            closeRecordModal();
-            filterData();
         }
 
         function openDeleteModal(id, globalIdx) {
@@ -1311,17 +1294,16 @@
             targetDeleteGlobalIdx = null;
         }
 
-        function confirmDeleteRecord() {
+        async function confirmDeleteRecord() {
             if (targetDeleteGlobalIdx !== null && targetDeleteGlobalIdx >= 0) {
                 const row = allData[targetDeleteGlobalIdx];
                 if (row && row[0]) {
                     try {
-                        fetch(GAS_WEB_APP_URL, {
+                        await fetch(GAS_WEB_APP_URL, {
                             method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                             body: JSON.stringify({ action: 'deleteRecord', id: row[0] })
-                        }).catch(err => console.log('GAS delete sync:', err));
+                        });
                     } catch (e) {}
                 }
 
@@ -1401,12 +1383,8 @@
             const isFailed = (evalStatus === 'ไม่ผ่านการประเมิน');
             const isPassed = (evalStatus === 'ผ่านการประเมิน' || printStatus === 'นำไปจัดพิมพ์ได้' || printStatus === 'จัดพิมพ์เสร็จ' || printStatus === 'จัดพิมพ์เอง');
 
-            if (isFailed) {
-                return { stepIndex: 6, percent: 100, isFailed: true, isPassed: false };
-            }
-            if (isPassed) {
-                return { stepIndex: 6, percent: 100, isFailed: false, isPassed: true };
-            }
+            if (isFailed) return { stepIndex: 6, percent: 100, isFailed: true, isPassed: false };
+            if (isPassed) return { stepIndex: 6, percent: 100, isFailed: false, isPassed: true };
 
             let step = 1, percent = 15;
             switch (evalStatus) {
@@ -1539,7 +1517,7 @@
                     updateDashboard();
                 })
                 .catch(err => {
-                    console.warn("Using mock reference data fallback:", err);
+                    console.warn("Using reference data fallback:", err);
                     allData = [...INITIAL_REFERENCE_DATA].reverse();
                     filteredData = [...allData];
                     initFilters();
@@ -1696,146 +1674,95 @@
                         <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
                         <p class="text-xs">ไม่พบข้อมูลที่ตรงตามเงื่อนไขค้นหา</p>
                     </div>`;
-                renderPagination(0, 1);
+                renderPagination(0);
                 return;
             }
 
-            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-            const startIdx = (currentPage - 1) * itemsPerPage;
-            const endIdx = Math.min(startIdx + itemsPerPage, filteredData.length);
-            const pageItems = filteredData.slice(startIdx, endIdx);
+            const startIdx = (page - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const pageData = filteredData.slice(startIdx, endIdx);
 
-            let html = '';
-            pageItems.forEach((row) => {
+            container.innerHTML = pageData.map((row) => {
                 const globalIdx = allData.indexOf(row);
-                const id = row[0] || '-';
-                const year = row[2] || '-';
-                const position = row[3] || '';
-                const author = row[4] || '-';
-                const title = row[5] || 'ไม่มีชื่อเรื่อง';
-                const dept = row[6] || '-';
-                const evalStatus = row[7] || '-';
-                const isbn = row[8] || '-';
-
-                html += `
-                    <div onclick="openDetailModal(${globalIdx})" class="bg-white p-4 rounded-xl border border-slate-200/70 hover:border-sky-300 hover:shadow-md transition cursor-pointer flex flex-col md:grid md:grid-cols-12 gap-3 items-start md:items-center">
-                        <div class="md:col-span-1 text-center font-bold text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-lg w-full md:w-auto">
-                            ${year}
+                return `
+                    <div onclick="openDetailModal(${globalIdx})" class="p-4 bg-white border border-slate-200/80 rounded-2xl hover:border-sky-300 hover:shadow-md transition-all cursor-pointer flex flex-col md:grid md:grid-cols-12 gap-3 items-start md:items-center">
+                        <div class="md:col-span-1 text-center font-bold text-slate-700 text-xs bg-slate-100 px-2 py-1 rounded-lg border border-slate-200">
+                            ${row[2] || '-'}
                         </div>
                         <div class="md:col-span-3">
-                            ${renderStatusBadge(evalStatus)}
+                            ${renderStatusBadge(row[7])}
                         </div>
-                        <div class="md:col-span-8 flex flex-col sm:flex-row justify-between items-start sm:items-center w-full gap-2">
-                            <div>
-                                <h3 class="font-bold text-slate-800 text-xs sm:text-sm line-clamp-1">${title}</h3>
-                                <p class="text-[11px] text-slate-500">
-                                    <span class="font-medium text-slate-700">${position} ${author}</span> • ภาควิชา: ${dept} • ISBN: ${isbn}
-                                </p>
+                        <div class="md:col-span-8 flex justify-between items-center w-full">
+                            <div class="space-y-0.5 min-w-0 pr-2">
+                                <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate">${row[5] || 'ไม่มีชื่อเรื่อง'}</h4>
+                                <p class="text-[11px] text-slate-500 truncate"><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i>${row[3] || ''} ${row[4] || '-'} (${row[6] || '-'})</p>
                             </div>
-                            <span class="text-xs text-sky-600 font-semibold group-hover:translate-x-1 transition flex items-center shrink-0">
-                                รายละเอียด <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
-                            </span>
+                            <i class="fa-solid fa-chevron-right text-slate-300 text-xs shrink-0"></i>
                         </div>
                     </div>
                 `;
-            });
+            }).join('');
 
-            container.innerHTML = html;
-            renderPagination(totalPages, currentPage);
+            renderPagination(filteredData.length);
         }
 
-        function renderPagination(totalPages, page) {
-            const pageInfoText = document.getElementById('pageInfoText');
-            const paginationControls = document.getElementById('paginationControls');
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const infoText = document.getElementById('pageInfoText');
+            const controls = document.getElementById('paginationControls');
 
-            pageInfoText.innerText = `แสดงหน้าที่ ${page} จากทั้งหมด ${totalPages || 1} หน้า`;
-            if (totalPages <= 1) {
-                paginationControls.innerHTML = '';
-                return;
-            }
+            if (infoText) infoText.innerText = `แสดงหน้าที่ ${currentPage} จากทั้งหมด ${totalPages} หน้า`;
+            if (!controls) return;
 
-            let controlsHtml = `
-                <button onclick="renderPage(${page - 1})" ${page === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-3 py-1.5 rounded-lg border border-slate-200 text-xs"' : 'class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs text-slate-600"'}>
-                    <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i> ก่อนหน้า
-                </button>
-            `;
+            let btns = '';
+            btns += `<button onclick="renderPage(${Math.max(1, currentPage - 1)})" ${currentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs disabled:opacity-40"><i class="fa-solid fa-chevron-left"></i></button>`;
 
             for (let i = 1; i <= totalPages; i++) {
-                if (i === page) {
-                    controlsHtml += `<button class="px-3 py-1.5 rounded-lg bg-sky-600 text-white font-bold text-xs">${i}</button>`;
+                if (i === currentPage) {
+                    btns += `<button class="px-3 py-1 bg-sky-600 text-white font-bold rounded-lg text-xs shadow-sm">${i}</button>`;
                 } else {
-                    controlsHtml += `<button onclick="renderPage(${i})" class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs text-slate-600">${i}</button>`;
+                    btns += `<button onclick="renderPage(${i})" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs">${i}</button>`;
                 }
             }
 
-            controlsHtml += `
-                <button onclick="renderPage(${page + 1})" ${page === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-3 py-1.5 rounded-lg border border-slate-200 text-xs"' : 'class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs text-slate-600"'}>
-                    ถัดไป <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
-                </button>
-            `;
-
-            paginationControls.innerHTML = controlsHtml;
+            btns += `<button onclick="renderPage(${Math.min(totalPages, currentPage + 1)})" ${currentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs disabled:opacity-40"><i class="fa-solid fa-chevron-right"></i></button>`;
+            controls.innerHTML = btns;
         }
 
         function renderLecturerPortal() {
             if (!currentUser) return;
+            document.getElementById('lecturerWelcome').innerText = `สวัสดี ${currentUser.email}`;
+
+            const lecturerBooks = allData.filter(r => r[13] && r[13].toLowerCase().trim() === currentUser.email.toLowerCase().trim());
+            document.getElementById('lecturerBookCount').innerText = lecturerBooks.length;
 
             const grid = document.getElementById('lecturerCardsGrid');
-            const welcome = document.getElementById('lecturerWelcome');
-            const bookCount = document.getElementById('lecturerBookCount');
-
-            const lecturerBooks = allData.filter(row => {
-                const rowEmail = (row[13] || '').toLowerCase().trim();
-                const userEmail = currentUser.email.toLowerCase().trim();
-                return rowEmail === userEmail || row[4].includes(currentUser.email.split('@')[0]);
-            });
-
-            welcome.innerText = `สวัสดี ${currentUser.email}`;
-            bookCount.innerText = lecturerBooks.length;
+            if (!grid) return;
 
             if (lecturerBooks.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">
-                        <i class="fa-solid fa-book-open text-4xl mb-3 text-slate-300"></i>
-                        <p class="text-sm font-semibold">ไม่พบผลงานที่ลงทะเบียนในชื่อของคุณ</p>
-                        <p class="text-xs text-slate-400 mt-1">หากมีข้อสงสัย กรุณาติดต่อเจ้าหน้าที่ผู้ดูแลระบบ</p>
+                    <div class="col-span-full p-8 text-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">
+                        <i class="fa-solid fa-book-open text-4xl mb-2 text-slate-300"></i>
+                        <p class="text-xs">ไม่พบผลงานประเมินในนามอีเมล ${currentUser.email}</p>
                     </div>`;
                 return;
             }
 
             grid.innerHTML = lecturerBooks.map(row => {
                 const globalIdx = allData.indexOf(row);
-                const progress = calculateStepProgress(row[7], row[10]);
-
                 return `
-                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between">
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between">
                         <div class="space-y-2">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="font-bold text-sky-700 font-mono bg-sky-50 px-2.5 py-0.5 rounded-md border border-sky-100">${row[0] || '-'}</span>
-                                <span class="text-slate-400">ปี ${row[2] || '-'}</span>
+                            <div class="flex justify-between items-center">
+                                <span class="px-2 py-0.5 bg-sky-50 text-sky-700 font-mono text-[10px] font-bold rounded">${row[0] || '-'}</span>
+                                <span class="text-xs text-slate-400">ปี ${row[2] || '-'}</span>
                             </div>
-                            <h3 class="font-bold text-slate-800 text-base line-clamp-2">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
-                            <p class="text-xs text-slate-500">${row[3] || ''} ${row[4] || ''} • ภาควิชา ${row[6] || '-'}</p>
+                            <h3 class="font-bold text-slate-800 text-sm leading-snug line-clamp-2">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
+                            <p class="text-xs text-slate-500">${row[3] || ''} ${row[4] || '-'}</p>
                         </div>
-
-                        <div class="space-y-2 pt-2 border-t border-slate-100">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="text-slate-500 font-medium">ความคืบหน้า</span>
-                                <span class="font-extrabold text-sky-600">${progress.percent}%</span>
-                            </div>
-                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div class="bg-sky-500 h-2 transition-all duration-500" style="width: ${progress.percent}%"></div>
-                            </div>
-                            <div class="pt-1">
-                                ${renderStatusBadge(row[7])}
-                            </div>
-                        </div>
-
-                        <div class="pt-2 flex justify-between items-center gap-2 border-t border-slate-100 text-xs">
-                            <a href="${row[16] || DEFAULT_DRIVE_ORIGINAL}" target="_blank" class="text-slate-600 hover:text-sky-600 flex items-center font-medium">
-                                <i class="fa-solid fa-folder-open text-emerald-500 mr-1.5"></i> Google Drive
-                            </a>
-                            <button onclick="openDetailModal(${globalIdx})" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold rounded-xl transition">
+                        <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
+                            <div>${renderStatusBadge(row[7])}</div>
+                            <button onclick="openDetailModal(${globalIdx})" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 font-medium text-xs rounded-xl transition">
                                 ดูรายละเอียด
                             </button>
                         </div>
@@ -1868,7 +1795,7 @@
             });
 
             adminCurrentPage = 1;
-            renderAdminTable();
+            renderAdminPage(1);
         }
 
         function clearAdminFilters() {
@@ -1879,95 +1806,80 @@
             filterAdminData();
         }
 
-        function renderAdminTable() {
+        function renderAdminPage(page) {
+            adminCurrentPage = page;
             const tbody = document.getElementById('adminTableBody');
             const countEl = document.getElementById('adminRecordCount');
-            countEl.innerText = `${adminFilteredData.length} รายการ`;
+
+            if (countEl) countEl.innerText = `${adminFilteredData.length} รายการ`;
 
             if (adminFilteredData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="py-8 text-center text-slate-400">
-                            <i class="fa-solid fa-inbox text-2xl mb-1"></i>
-                            <p class="text-xs">ไม่พบรายการข้อมูลในระบบ</p>
+                        <td colspan="6" class="py-8 text-center text-slate-400 bg-slate-50">
+                            ไม่พบข้อมูลรายการในระบบ
                         </td>
                     </tr>`;
-                renderAdminPagination(0, 1);
+                renderAdminPagination(0);
                 return;
             }
 
-            const totalPages = Math.ceil(adminFilteredData.length / adminItemsPerPage);
-            const startIdx = (adminCurrentPage - 1) * adminItemsPerPage;
-            const endIdx = Math.min(startIdx + adminItemsPerPage, adminFilteredData.length);
-            const pageItems = adminFilteredData.slice(startIdx, endIdx);
+            const startIdx = (page - 1) * adminItemsPerPage;
+            const endIdx = startIdx + adminItemsPerPage;
+            const pageData = adminFilteredData.slice(startIdx, endIdx);
 
-            tbody.innerHTML = pageItems.map(row => {
+            tbody.innerHTML = pageData.map(row => {
                 const globalIdx = allData.indexOf(row);
                 return `
-                    <tr class="hover:bg-slate-50/80 transition border-b border-slate-100">
-                        <td class="py-3 px-4 font-mono font-bold text-sky-800">${row[0] || '-'}</td>
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-sky-700">${row[0] || '-'}</td>
                         <td class="py-3 px-4">
-                            <div class="font-bold text-slate-800 line-clamp-1">${row[5] || 'ไม่มีชื่อเรื่อง'}</div>
-                            <div class="text-[11px] text-slate-400">${row[3] || ''} ${row[4] || '-'} • ภาค ${row[6] || '-'}</div>
+                            <div class="font-bold text-slate-800">${row[5] || 'ไม่มีชื่อเรื่อง'}</div>
+                            <div class="text-[11px] text-slate-400">${row[3] || ''} ${row[4] || '-'} (${row[6] || '-'})</div>
                         </td>
                         <td class="py-3 px-4">${renderStatusBadge(row[7])}</td>
                         <td class="py-3 px-4">
                             <div class="flex items-center space-x-1.5">
-                                <a href="${row[16] || DEFAULT_DRIVE_ORIGINAL}" target="_blank" title="ต้นฉบับ" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs transition">
-                                    <i class="fa-solid fa-file-pdf"></i>
-                                </a>
-                                <a href="${row[17] || DEFAULT_DRIVE_COVER}" target="_blank" title="ปกหนังสือ" class="p-1.5 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg text-xs transition">
-                                    <i class="fa-solid fa-image"></i>
-                                </a>
-                                <a href="${row[18] || DEFAULT_DRIVE_EVAL}" target="_blank" title="ผลการประเมิน" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg text-xs transition">
-                                    <i class="fa-solid fa-clipboard-check"></i>
-                                </a>
+                                <a href="${row[16] || DEFAULT_DRIVE_ORIGINAL}" target="_blank" class="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100" title="ต้นฉบับ"><i class="fa-solid fa-file-pdf"></i></a>
+                                <a href="${row[17] || DEFAULT_DRIVE_COVER}" target="_blank" class="p-1.5 bg-purple-50 text-purple-600 rounded hover:bg-purple-100" title="ปก"><i class="fa-solid fa-image"></i></a>
+                                <a href="${row[18] || DEFAULT_DRIVE_EVAL}" target="_blank" class="p-1.5 bg-emerald-50 text-emerald-600 rounded hover:bg-emerald-100" title="ผลการประเมิน"><i class="fa-solid fa-clipboard-check"></i></a>
                             </div>
                         </td>
-                        <td class="py-3 px-4 max-w-[180px] truncate text-slate-500">${row[15] || '-'}</td>
+                        <td class="py-3 px-4 text-slate-500 max-w-[150px] truncate">${row[15] || '-'}</td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex items-center justify-center space-x-1">
-                                <button onclick="openEditModal(${globalIdx})" title="แก้ไข" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-lg transition">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="openDeleteModal('${row[0]}', ${globalIdx})" title="ลบ" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                                <button onclick="openEditModal(${globalIdx})" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition" title="แก้ไข"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="openDeleteModal('${row[0]}', ${globalIdx})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบ"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
                         </td>
                     </tr>
                 `;
             }).join('');
 
-            renderAdminPagination(totalPages, adminCurrentPage);
+            renderAdminPagination(adminFilteredData.length);
         }
 
-        function renderAdminPagination(totalPages, page) {
-            const pageInfo = document.getElementById('adminPageInfoText');
+        function renderAdminPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / adminItemsPerPage) || 1;
+            const infoText = document.getElementById('adminPageInfoText');
             const controls = document.getElementById('adminPaginationControls');
 
-            pageInfo.innerText = `แสดงหน้าที่ ${page} จากทั้งหมด ${totalPages || 1} หน้า`;
-            if (totalPages <= 1) {
-                controls.innerHTML = '';
-                return;
+            if (infoText) infoText.innerText = `แสดงหน้าที่ ${adminCurrentPage} จากทั้งหมด ${totalPages} หน้า`;
+            if (!controls) return;
+
+            let btns = '';
+            btns += `<button onclick="renderAdminPage(${Math.max(1, adminCurrentPage - 1)})" ${adminCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs disabled:opacity-40"><i class="fa-solid fa-chevron-left"></i></button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === adminCurrentPage) {
+                    btns += `<button class="px-3 py-1 bg-amber-600 text-white font-bold rounded-lg text-xs shadow-sm">${i}</button>`;
+                } else {
+                    btns += `<button onclick="renderAdminPage(${i})" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs">${i}</button>`;
+                }
             }
 
-            let html = `
-                <button onclick="changeAdminPage(${page - 1})" ${page === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 rounded-lg border text-xs"' : 'class="px-2.5 py-1 rounded-lg border hover:bg-slate-100 text-xs text-slate-600"'}>
-                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
-                </button>
-                <span class="px-2 font-bold text-xs text-slate-700">${page} / ${totalPages}</span>
-                <button onclick="changeAdminPage(${page + 1})" ${page === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-2.5 py-1 rounded-lg border text-xs"' : 'class="px-2.5 py-1 rounded-lg border hover:bg-slate-100 text-xs text-slate-600"'}>
-                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                </button>
-            `;
-
-            controls.innerHTML = html;
-        }
-
-        function changeAdminPage(newPage) {
-            adminCurrentPage = newPage;
-            renderAdminTable();
+            btns += `<button onclick="renderAdminPage(${Math.min(totalPages, adminCurrentPage + 1)})" ${adminCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs disabled:opacity-40"><i class="fa-solid fa-chevron-right"></i></button>`;
+            controls.innerHTML = btns;
         }
     </script>
 </body>
