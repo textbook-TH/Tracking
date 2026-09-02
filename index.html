@@ -576,11 +576,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">ID (รหัสรายการ)</label>
-                        <input type="text" id="formId" required placeholder="เช่น Text-030" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none bg-slate-50 font-bold text-sky-800">
+                        <input type="text" id="formId" required readonly placeholder="เช่น Text-030" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none bg-slate-100 font-bold text-sky-800 cursor-not-allowed">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">ปีที่ทำการประเมิน</label>
-                        <input type="text" id="formYear" required placeholder="เช่น 2569" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none bg-slate-50 font-bold text-sky-800">
+                        <input type="text" id="formYear" required readonly placeholder="เช่น 2569" class="w-full p-2.5 border rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none bg-slate-100 font-bold text-sky-800 cursor-not-allowed">
                     </div>
                 </div>
 
@@ -674,7 +674,6 @@
                             </svg>
                             อัปโหลดเอกสารไปยัง Google Drive
                         </label>
-                        <span class="text-[11px] text-slate-400">เลือกระบุไฟล์งานเพื่อลากวางใน Google Drive</span>
                     </div>
 
                     <div class="space-y-4">
@@ -685,7 +684,7 @@
                                     <span class="p-1.5 bg-red-50 text-red-500 rounded-lg">
                                         <i class="fa-solid fa-file-pdf text-base"></i>
                                     </span>
-                                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm">1. หนังสือต้นฉบับ (PDF / Word)</h4>
+                                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm">1. หนังสือต้นฉบับ</h4>
                                 </div>
                                 <span class="px-2.5 py-1 bg-red-50 text-red-500 rounded-full text-[10px] font-semibold">PDF , DOCX</span>
                             </div>
@@ -697,11 +696,6 @@
                                 </div>
                                 <span class="text-slate-600 font-medium text-xs">เปิด <strong class="text-cyan-600 font-bold group-hover:underline">GOOGLE DRIVE</strong></span>
                             </button>
-
-                            <div class="flex items-center gap-2 pt-1">
-                                <i class="fa-solid fa-link text-slate-400 text-[10px]"></i>
-                                <input type="text" id="formUrlOriginal" placeholder="URL ลิงก์โฟลเดอร์ Google Drive (ถ้ามี)" class="w-full p-2 border border-slate-200 rounded-xl text-[11px] focus:ring-2 focus:ring-cyan-400 outline-none bg-slate-50">
-                            </div>
                         </div>
 
                         <!-- 2. ปกหนังสือ -->
@@ -711,7 +705,7 @@
                                     <span class="p-1.5 bg-purple-50 text-purple-500 rounded-lg">
                                         <i class="fa-solid fa-image text-base"></i>
                                     </span>
-                                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm">2. ปกหนังสือ (Image File)</h4>
+                                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm">2. ปกหนังสือ</h4>
                                 </div>
                                 <span class="px-2.5 py-1 bg-purple-50 text-purple-500 rounded-full text-[10px] font-semibold">PNG , JPG , JPEG</span>
                             </div>
@@ -723,21 +717,16 @@
                                 </div>
                                 <span class="text-slate-600 font-medium text-xs">เปิด <strong class="text-purple-600 font-bold group-hover:underline">GOOGLE DRIVE</strong></span>
                             </button>
-
-                            <div class="flex items-center gap-2 pt-1">
-                                <i class="fa-solid fa-link text-slate-400 text-[10px]"></i>
-                                <input type="text" id="formUrlCover" placeholder="URL ลิงก์โฟลเดอร์ Google Drive (ถ้ามี)" class="w-full p-2 border border-slate-200 rounded-xl text-[11px] focus:ring-2 focus:ring-purple-400 outline-none bg-slate-50">
-                            </div>
                         </div>
 
-                        <!-- 3. เอกสารผลการประเมิน -->
+                        <!-- 3. ผลการประเมิน -->
                         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                             <div class="flex justify-between items-center">
                                 <div class="flex items-center gap-2">
                                     <span class="p-1.5 bg-emerald-50 text-emerald-500 rounded-lg">
                                         <i class="fa-solid fa-clipboard-check text-base"></i>
                                     </span>
-                                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm">3. เอกสารผลการประเมิน</h4>
+                                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm">3. ผลการประเมิน</h4>
                                 </div>
                                 <span class="px-2.5 py-1 bg-emerald-50 text-emerald-500 rounded-full text-[10px] font-semibold">PDF , DOCX</span>
                             </div>
@@ -749,11 +738,6 @@
                                 </div>
                                 <span class="text-slate-600 font-medium text-xs">เปิด <strong class="text-emerald-600 font-bold group-hover:underline">GOOGLE DRIVE</strong></span>
                             </button>
-
-                            <div class="flex items-center gap-2 pt-1">
-                                <i class="fa-solid fa-link text-slate-400 text-[10px]"></i>
-                                <input type="text" id="formUrlEval" placeholder="URL ลิงก์โฟลเดอร์ Google Drive (ถ้ามี)" class="w-full p-2 border border-slate-200 rounded-xl text-[11px] focus:ring-2 focus:ring-emerald-400 outline-none bg-slate-50">
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -767,7 +751,7 @@
                     <button type="button" onclick="closeRecordModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl text-xs transition">ยกเลิก</button>
                     <button id="submitRecordBtn" type="submit" class="px-6 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl text-xs shadow-md shadow-cyan-200 transition flex items-center space-x-1.5 cursor-pointer">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>บันทึกข้อมูลและไฟล์ทั้งหมด</span>
+                        <span>บันทึกข้อมูล</span>
                     </button>
                 </div>
             </form>
@@ -866,14 +850,11 @@
             let targetUrl = "https://drive.google.com";
 
             if (type === 'original') {
-                const customUrl = document.getElementById('formUrlOriginal').value.trim();
-                targetUrl = customUrl || currentSavedUrls.original || DEFAULT_DRIVE_ORIGINAL;
+                targetUrl = currentSavedUrls.original || DEFAULT_DRIVE_ORIGINAL;
             } else if (type === 'cover') {
-                const customUrl = document.getElementById('formUrlCover').value.trim();
-                targetUrl = customUrl || currentSavedUrls.cover || DEFAULT_DRIVE_COVER;
+                targetUrl = currentSavedUrls.cover || DEFAULT_DRIVE_COVER;
             } else if (type === 'eval') {
-                const customUrl = document.getElementById('formUrlEval').value.trim();
-                targetUrl = customUrl || currentSavedUrls.eval || DEFAULT_DRIVE_EVAL;
+                targetUrl = currentSavedUrls.eval || DEFAULT_DRIVE_EVAL;
             }
 
             const width = 1000;
@@ -1623,32 +1604,43 @@
             showToast('ออกจากระบบเรียบร้อยแล้ว', 'success');
         }
 
+        // ==========================================
+        // 1. ปรับปรุงการเปิดโมดัลเพิ่มผลงานใหม่ (Add Modal)
+        // ==========================================
         function openAddModal() {
             document.getElementById('recordModalTitle').innerText = 'เพิ่มผลงานใหม่';
             document.getElementById('editRowIdx').value = "-1";
 
+            // 1. ID (รหัสรายการ): เรียงลำดับตามรายการปัจจุบันอัตโนมัติ
             const nextNum = allData.length + 1;
             const paddedNum = String(nextNum).padStart(3, '0');
             document.getElementById('formId').value = `Text-${paddedNum}`;
-            document.getElementById('formYear').value = "2569";
-            document.getElementById('formPosition').value = "ผศ.ดร.";
+
+            // 2. ปีที่ทำการประเมิน: ใส่อัตโนมัติเรียงลำดับตามปีปัจจุบัน (พ.ศ.)
+            const currentYearBE = new Date().getFullYear() + 543;
+            document.getElementById('formYear').value = String(currentYearBE);
+
+            // 3. สถานะการประเมิน: เลือกหัวข้อย่อ "เลือกหัวข้อสถานะ" (ค่าว่าง)
+            document.getElementById('formEvalStatus').value = "";
+
+            // 4. สถานะการจัดพิมพ์: เลือกหัวข้อย่อ "เลือกหัวข้อสถานะ" (ค่าว่าง)
+            document.getElementById('formPrintStatus').value = "";
+
+            // 5. ช่องอื่น ๆ ให้ว่างไว้ไม่ต้องกรองอะไรทั้งสิ้น
+            document.getElementById('formPosition').value = "";
             document.getElementById('formAuthor').value = "";
             document.getElementById('formBookTitle').value = "";
             document.getElementById('formEmail').value = "";
-            document.getElementById('formDept').value = "คอมพิวเตอร์";
-            document.getElementById('formEvalStatus').value = "รับเอกสารการประเมิน";
-            document.getElementById('formPrintStatus').value = "รอจัดพิมพ์";
-            document.getElementById('formKmitlCode').value = `วศ.สจล. 69-${paddedNum}`;
-            document.getElementById('formIsbn').value = "-";
+            document.getElementById('formDept').value = "";
+            document.getElementById('formKmitlCode').value = "";
+            document.getElementById('formIsbn').value = "";
             document.getElementById('formRemark').value = "";
 
-            document.getElementById('formUrlOriginal').value = "";
-            document.getElementById('formUrlCover').value = "";
-            document.getElementById('formUrlEval').value = "";
-
-            currentSavedUrls.original = DEFAULT_DRIVE_ORIGINAL;
-            currentSavedUrls.cover = DEFAULT_DRIVE_COVER;
-            currentSavedUrls.eval = DEFAULT_DRIVE_EVAL;
+            currentSavedUrls = {
+                original: DEFAULT_DRIVE_ORIGINAL,
+                cover: DEFAULT_DRIVE_COVER,
+                eval: DEFAULT_DRIVE_EVAL
+            };
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -1657,7 +1649,7 @@
             const item = allData[index];
             if (!item) return;
 
-            document.getElementById('recordModalTitle').innerText = `แก้ไขข้อมูลรายการ: ${item[0]}`;
+            document.getElementById('recordModalTitle').innerText = 'แก้ไขผลงาน';
             document.getElementById('editRowIdx').value = index;
 
             document.getElementById('formId').value = item[0] || '';
@@ -1665,21 +1657,19 @@
             document.getElementById('formPosition').value = item[3] || '';
             document.getElementById('formAuthor').value = item[4] || '';
             document.getElementById('formBookTitle').value = item[5] || '';
+            document.getElementById('formEmail').value = item[13] || '';
             document.getElementById('formDept').value = item[6] || '';
             document.getElementById('formEvalStatus').value = item[7] || '';
-            document.getElementById('formIsbn').value = item[8] || '-';
-            document.getElementById('formKmitlCode').value = item[9] || '-';
             document.getElementById('formPrintStatus').value = item[10] || '';
-            document.getElementById('formEmail').value = item[13] || '';
+            document.getElementById('formKmitlCode').value = item[9] || '';
+            document.getElementById('formIsbn').value = item[8] || '';
             document.getElementById('formRemark').value = item[15] || '';
 
-            document.getElementById('formUrlOriginal').value = item[16] || '';
-            document.getElementById('formUrlCover').value = item[17] || '';
-            document.getElementById('formUrlEval').value = item[18] || '';
-
-            currentSavedUrls.original = item[16] || DEFAULT_DRIVE_ORIGINAL;
-            currentSavedUrls.cover = item[17] || DEFAULT_DRIVE_COVER;
-            currentSavedUrls.eval = item[18] || DEFAULT_DRIVE_EVAL;
+            currentSavedUrls = {
+                original: item[16] || DEFAULT_DRIVE_ORIGINAL,
+                cover: item[17] || DEFAULT_DRIVE_COVER,
+                eval: item[18] || DEFAULT_DRIVE_EVAL
+            };
 
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -1691,92 +1681,97 @@
         function handleSaveRecord(event) {
             event.preventDefault();
             const editIdx = parseInt(document.getElementById('editRowIdx').value);
-
-            const recordId = document.getElementById('formId').value.trim();
-            const year = document.getElementById('formYear').value.trim();
-            const position = document.getElementById('formPosition').value.trim();
-            const author = document.getElementById('formAuthor').value.trim();
-            const bookTitle = document.getElementById('formBookTitle').value.trim();
-            const email = document.getElementById('formEmail').value.trim();
-            const dept = document.getElementById('formDept').value.trim();
-            const evalStatus = document.getElementById('formEvalStatus').value;
-            const printStatus = document.getElementById('formPrintStatus').value;
-            const kmitlCode = document.getElementById('formKmitlCode').value.trim();
-            const isbn = document.getElementById('formIsbn').value.trim();
-            const remark = document.getElementById('formRemark').value.trim();
-
-            const urlOriginal = document.getElementById('formUrlOriginal').value.trim() || DEFAULT_DRIVE_ORIGINAL;
-            const urlCover = document.getElementById('formUrlCover').value.trim() || DEFAULT_DRIVE_COVER;
-            const urlEval = document.getElementById('formUrlEval').value.trim() || DEFAULT_DRIVE_EVAL;
-
-            const today = new Date().toISOString().split('T')[0];
-
-            const newRow = [
-                recordId, today, year, position, author, bookTitle, dept, evalStatus, isbn, kmitlCode, printStatus, "", "", email, currentUser ? currentUser.email : "admin@kmitl.ac.th", remark, urlOriginal, urlCover, urlEval
+            
+            const record = [
+                document.getElementById('formId').value.trim(),
+                new Date().toISOString().split('T')[0],
+                document.getElementById('formYear').value.trim(),
+                document.getElementById('formPosition').value.trim(),
+                document.getElementById('formAuthor').value.trim(),
+                document.getElementById('formBookTitle').value.trim(),
+                document.getElementById('formDept').value.trim(),
+                document.getElementById('formEvalStatus').value,
+                document.getElementById('formIsbn').value.trim(),
+                document.getElementById('formKmitlCode').value.trim(),
+                document.getElementById('formPrintStatus').value,
+                "", "",
+                document.getElementById('formEmail').value.trim(),
+                currentUser ? currentUser.email : "admin@kmitl.ac.th",
+                document.getElementById('formRemark').value.trim(),
+                currentSavedUrls.original,
+                currentSavedUrls.cover,
+                currentSavedUrls.eval
             ];
 
             if (editIdx >= 0 && editIdx < allData.length) {
-                allData[editIdx] = newRow;
-                showToast("แก้ไขข้อมูลและลิงก์ Google Drive สำเร็จ", "success");
+                allData[editIdx] = record;
+                showToast("บันทึกการแก้ไขเรียบร้อยแล้ว", "success");
             } else {
-                allData.unshift(newRow);
-                showToast("เพิ่มผลงานใหม่เข้าสู่ระบบสำเร็จ", "success");
+                allData.unshift(record);
+                showToast("เพิ่มรายการใหม่เรียบร้อยแล้ว", "success");
             }
 
             closeRecordModal();
-            filterData();
+            filteredData = [...allData];
             initFilters();
-            if (currentActiveView === 'lecturer') renderLecturerPortal();
+            updateDashboard();
         }
 
-        function openDeleteModal(id, index) {
-            targetDeleteGlobalIdx = index;
+        function openDeleteModal(id, globalIdx) {
+            targetDeleteGlobalIdx = globalIdx;
             document.getElementById('deleteTargetId').innerText = id;
             document.getElementById('deleteModal').classList.remove('hidden');
         }
 
         function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.add('hidden');
             targetDeleteGlobalIdx = null;
+            document.getElementById('deleteModal').classList.add('hidden');
         }
 
         function confirmDeleteRecord() {
             if (targetDeleteGlobalIdx !== null && targetDeleteGlobalIdx >= 0 && targetDeleteGlobalIdx < allData.length) {
-                const deletedId = allData[targetDeleteGlobalIdx][0];
                 allData.splice(targetDeleteGlobalIdx, 1);
-                closeDeleteModal();
-                filterData();
+                filteredData = [...allData];
                 initFilters();
-                if (currentActiveView === 'lecturer') renderLecturerPortal();
-                showToast(`ลบรายการ ${deletedId} สำเร็จ`, "success");
+                updateDashboard();
+                showToast("ลบรายการเรียบร้อยแล้ว", "success");
             }
+            closeDeleteModal();
         }
 
-        function copyToClipboard(text) {
-            if (!text || text === '-') return;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast(`คัดลอกข้อความ "${text}" แล้ว`, "success");
-            }).catch(err => {
-                console.error("Could not copy text: ", err);
+        function exportToCSV() {
+            if (allData.length === 0) {
+                showToast("ไม่มีข้อมูลสำหรับส่งออก", "error");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "ID,ปีการศึกษา,ตำแหน่ง,ผู้เขียน,ชื่อเรื่อง,ภาควิชา,สถานะการประเมิน,ISBN,สถานะการจัดพิมพ์,อีเมลผู้ขอ,หมายเหตุ\n";
+
+            allData.forEach(row => {
+                const line = [
+                    `"${row[0] || ''}"`,
+                    `"${row[2] || ''}"`,
+                    `"${row[3] || ''}"`,
+                    `"${row[4] || ''}"`,
+                    `"${row[5] || ''}"`,
+                    `"${row[6] || ''}"`,
+                    `"${row[7] || ''}"`,
+                    `"${row[8] || ''}"`,
+                    `"${row[10] || ''}"`,
+                    `"${row[13] || ''}"`,
+                    `"${row[15] || ''}"`
+                ].join(",");
+                csvContent += line + "\n";
             });
-        }
 
-        function showToast(message, type = "success") {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMsg');
-            const toastIcon = document.getElementById('toastIcon');
-
-            toastMsg.innerText = message;
-            if (type === "error") {
-                toastIcon.className = "fa-solid fa-circle-xmark text-rose-400 text-base";
-            } else {
-                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
-            }
-
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `evaluation_tracking_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("ส่งออกไฟล์ CSV สำเร็จ", "success");
         }
 
         function closeModalOnBackdrop(event, modalId) {
@@ -1785,34 +1780,34 @@
             }
         }
 
-        function exportToCSV() {
-            if (allData.length === 0) {
-                showToast("ไม่มีข้อมูลสำหรับส่งออก", "error");
-                return;
+        function showToast(message, type = "success") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = message;
+            if (type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
             }
 
-            const headers = ["ID", "วันที่ยื่น", "ปีการศึกษา", "คำนำหน้า", "ผู้เขียน", "ชื่อเรื่อง", "ภาควิชา", "สถานะการประเมิน", "ISBN", "รหัสวศ.สจล.", "สถานะจัดพิมพ์", "", "", "อีเมลอาจารย์", "ผู้บันทึก", "หมายเหตุ", "Drive ต้นฉบับ", "Drive ปก", "Drive ผลการประเมิน"];
-            
-            let csvContent = "\uFEFF"; // UTF-8 BOM
-            csvContent += headers.join(",") + "\n";
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
 
-            allData.forEach(row => {
-                const escapedRow = row.map(cell => {
-                    const str = String(cell || "").replace(/"/g, '""');
-                    return `"${str}"`;
-                });
-                csvContent += escapedRow.join(",") + "\n";
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function copyToClipboard(text) {
+            if (!text || text === '-') return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`คัดลอก "${text}" เรียบร้อยแล้ว`, 'success');
+            }).catch(() => {
+                showToast('ไม่สามารถคัดลอกข้อความได้', 'error');
             });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `kmitl_evaluation_status_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast("ส่งออกไฟล์ CSV สำเร็จ", "success");
         }
     </script>
 </body>
