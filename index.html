@@ -860,8 +860,10 @@
     </footer>
 
     <script>
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbybjUKn0IxVwHzK7foLsn00rwQQill3AZOyswTHWz2lOLp0u1kl1ltSO-N403MROog/exec";
-        // Updated Google Sheet ID as requested
+        // Updated GAS Web App URL as requested
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby1cBCfxl79uVLQQB-DbomEDnE30rfr6qt-Rv3LGqzL2GrOsn84XK6QRM1vw6RKk88AlQ/exec";
+        
+        // Public Google Sheet ID
         const PUBLIC_SHEET_ID = "1WHuFwcn8AGk3d-myd8k58HEMin95vHcB8TMQx5FvbCc";
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json`;
 
@@ -1032,7 +1034,6 @@
             if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-check text-emerald-600 mr-1"></i>พร้อมส่งเข้า Google Drive เมื่อกดบันทึก';
             if (linkEl) linkEl.classList.add('hidden');
 
-            // Read as Base64 string for Apps Script backend transmission
             const reader = new FileReader();
             reader.onload = function(e) {
                 uploadedBase64[type] = {
@@ -1689,10 +1690,11 @@
                             </span>
                         </div>
                         <div class="col-span-8 space-y-1 w-full">
-                            <h3 class="font-bold text-slate-800 text-sm hover:text-sky-600 transition truncate">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
+                            <h3 class="font-bold text-slate-800 text-sm hover:text-sky-600 transition">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
                             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                                <span><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i> ${row[3] || ''} ${row[4] || '-'}</span>
-                                <span><i class="fa-solid fa-building-columns mr-1 text-slate-400"></i> ภาควิชา: ${row[6] || '-'}</span>
+                                <span><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i>${row[3] || ''} ${row[4] || '-'}</span>
+                                <span><i class="fa-solid fa-building-columns mr-1 text-slate-400"></i>${row[6] || '-'}</span>
+                                <span><i class="fa-solid fa-barcode mr-1 text-slate-400"></i>ISBN: ${row[8] || '-'}</span>
                             </div>
                         </div>
                     </div>
@@ -1707,35 +1709,30 @@
             const container = document.getElementById('paginationControls');
             if (!container) return;
 
-            let html = '';
-            html += `
-                <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg border text-xs font-medium ${currentPage === 1 ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-600 border-slate-300 hover:bg-slate-100'} transition">
-                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+            let html = `
+                <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
             `;
 
             for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    html += `
-                        <button onclick="goToPage(${i})" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${i === currentPage ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 border border-slate-200'}">
-                            ${i}
-                        </button>
-                    `;
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                    html += `<span class="px-1 text-slate-400">...</span>`;
+                if (i === currentPage) {
+                    html += `<button class="px-3 py-1.5 rounded-lg bg-sky-600 text-white font-bold text-xs shadow-sm">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition text-xs">${i}</button>`;
                 }
             }
 
             html += `
-                <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg border text-xs font-medium ${currentPage === totalPages ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-600 border-slate-300 hover:bg-slate-100'} transition">
-                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
             `;
 
             container.innerHTML = html;
         }
 
-        function goToPage(page) {
+        function changePage(page) {
             const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
             if (page < 1 || page > totalPages) return;
             currentPage = page;
@@ -1746,41 +1743,46 @@
         function renderLecturerPortal() {
             if (!currentUser) return;
 
-            const myBooks = allData.filter(r => (r[13] || '').toLowerCase() === currentUser.email.toLowerCase());
-            document.getElementById('lecturerWelcome').innerText = `สวัสดีอาจารย์ (${currentUser.email})`;
-            document.getElementById('lecturerBookCount').innerText = myBooks.length;
+            const welcomeEl = document.getElementById('lecturerWelcome');
+            const countEl = document.getElementById('lecturerBookCount');
+            const gridEl = document.getElementById('lecturerCardsGrid');
 
-            const grid = document.getElementById('lecturerCardsGrid');
-            if (!grid) return;
+            if (welcomeEl) welcomeEl.innerText = `สวัสดีอาจารย์ (${currentUser.email})`;
 
-            if (myBooks.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-slate-200 p-8 space-y-3">
-                        <i class="fa-solid fa-book-open text-4xl text-slate-300"></i>
-                        <p class="text-slate-500 font-medium text-xs">ไม่พบผลงานในระบบที่ผูกกับอีเมล ${currentUser.email}</p>
+            const lecturerItems = allData.filter(r => (r[13] || '').toLowerCase() === currentUser.email.toLowerCase());
+            if (countEl) countEl.innerText = lecturerItems.length;
+
+            if (!gridEl) return;
+
+            if (lecturerItems.length === 0) {
+                gridEl.innerHTML = `
+                    <div class="col-span-full bg-white rounded-2xl p-8 text-center border border-dashed border-slate-200">
+                        <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-2"></i>
+                        <h4 class="font-bold text-slate-700 text-sm">ยังไม่มีรายการผลงานในระบบ</h4>
+                        <p class="text-xs text-slate-400 mt-1">รายการหนังสือที่คุณยื่นขอประเมินจะแสดงที่นี่เมื่อมีการระบุอีเมลผู้เขียนตรงกับ ${currentUser.email}</p>
                     </div>
                 `;
                 return;
             }
 
-            grid.innerHTML = myBooks.map(row => {
+            gridEl.innerHTML = lecturerItems.map(row => {
                 const globalIdx = allData.indexOf(row);
                 let badgeClass = 'pill-pending';
                 if (row[7] === 'ผ่านการประเมิน') badgeClass = 'pill-passed';
                 else if (row[7] === 'ไม่ผ่านการประเมิน') badgeClass = 'pill-failed';
 
                 return `
-                    <div onclick="openDetailModal(${globalIdx})" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition cursor-pointer space-y-4">
-                        <div class="flex justify-between items-start">
-                            <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-mono font-bold">${row[0] || 'ID'}</span>
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}">${row[7] || '-'}</span>
+                    <div onclick="openDetailModal(${globalIdx})" class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between space-y-4">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-0.5 bg-slate-100 text-slate-600 font-mono text-[11px] font-bold rounded-md">${row[0] || '-'}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${badgeClass}">${row[7] || 'กำลังดำเนินการ'}</span>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base leading-snug hover:text-sky-600 transition">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
+                            <p class="text-xs text-slate-500"><i class="fa-solid fa-building-columns mr-1 text-slate-400"></i> ${row[6] || '-'}</p>
                         </div>
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-sm line-clamp-2">${row[5] || 'ไม่มีชื่อเรื่อง'}</h3>
-                            <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-building-columns mr-1"></i> ${row[6] || '-'}</p>
-                        </div>
-                        <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
-                            <span>ปีการศึกษา ${row[2] || '-'}</span>
+                        <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                            <span>ปีการศึกษา: ${row[2] || '-'}</span>
                             <span class="text-sky-600 font-semibold hover:underline">ดูรายละเอียด <i class="fa-solid fa-arrow-right ml-1"></i></span>
                         </div>
                     </div>
@@ -1800,9 +1802,13 @@
                 const deptMatch = !dept || r[6] === dept;
 
                 let statusMatch = true;
-                if (status === 'ผ่านการประเมิน') statusMatch = (r[7] === 'ผ่านการประเมิน');
-                else if (status === 'ไม่ผ่านการประเมิน') statusMatch = (r[7] === 'ไม่ผ่านการประเมิน');
-                else if (status === 'กำลังดำเนินการ') statusMatch = (r[7] !== 'ผ่านการประเมิน' && r[7] !== 'ไม่ผ่านการประเมิน');
+                if (status === 'ผ่านการประเมิน') {
+                    statusMatch = (r[7] === 'ผ่านการประเมิน');
+                } else if (status === 'ไม่ผ่านการประเมิน') {
+                    statusMatch = (r[7] === 'ไม่ผ่านการประเมิน');
+                } else if (status === 'กำลังดำเนินการ') {
+                    statusMatch = (r[7] !== 'ผ่านการประเมิน' && r[7] !== 'ไม่ผ่านการประเมิน');
+                }
 
                 return textMatch && yearMatch && deptMatch && statusMatch;
             });
@@ -1822,14 +1828,15 @@
 
         function renderAdminTable() {
             const tbody = document.getElementById('adminTableBody');
-            document.getElementById('adminRecordCount').innerText = `${adminFilteredData.length} รายการ`;
+            const countEl = document.getElementById('adminRecordCount');
 
+            if (countEl) countEl.innerText = `${adminFilteredData.length} รายการ`;
             if (!tbody) return;
 
             if (adminFilteredData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="text-center py-8 text-slate-400">ไม่พบข้อมูลตามเงื่อนไขที่กำหนด</td>
+                        <td colspan="6" class="py-8 text-center text-slate-400 text-xs">ไม่พบรายการข้อมูลในระบบ</td>
                     </tr>
                 `;
                 return;
@@ -1841,27 +1848,40 @@
 
             tbody.innerHTML = pageItems.map(row => {
                 const globalIdx = allData.indexOf(row);
+                let badgeClass = 'pill-pending';
+                if (row[7] === 'ผ่านการประเมิน') badgeClass = 'pill-passed';
+                else if (row[7] === 'ไม่ผ่านการประเมิน') badgeClass = 'pill-failed';
+
                 return `
-                    <tr class="hover:bg-slate-50 transition">
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                         <td class="py-3 px-4 font-mono font-bold text-sky-700">${row[0] || '-'}</td>
                         <td class="py-3 px-4">
-                            <div class="font-bold text-slate-800 text-xs">${row[5] || 'ไม่มีชื่อเรื่อง'}</div>
+                            <div class="font-bold text-slate-800">${row[5] || 'ไม่มีชื่อเรื่อง'}</div>
                             <div class="text-[11px] text-slate-400">${row[3] || ''} ${row[4] || '-'} (${row[6] || '-'})</div>
                         </td>
                         <td class="py-3 px-4">
-                            <span class="px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[11px] font-medium inline-block">
-                                ${row[7] || '-'}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${badgeClass}">
+                                ${row[7] || 'กำลังดำเนินการ'}
                             </span>
                         </td>
-                        <td class="py-3 px-4 space-x-1.5">
-                            <a href="${row[16] || DEFAULT_DRIVE_ORIGINAL}" target="_blank" title="ต้นฉบับ" class="p-1.5 bg-sky-50 text-sky-600 hover:bg-sky-100 rounded-lg inline-block transition"><i class="fa-solid fa-file-pdf"></i></a>
-                            <a href="${row[17] || DEFAULT_DRIVE_COVER}" target="_blank" title="ปก" class="p-1.5 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg inline-block transition"><i class="fa-solid fa-image"></i></a>
-                            <a href="${row[18] || DEFAULT_DRIVE_EVAL}" target="_blank" title="ผลประเมิน" class="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg inline-block transition"><i class="fa-solid fa-clipboard-check"></i></a>
+                        <td class="py-3 px-4">
+                            <a href="${row[16] || DEFAULT_DRIVE_ORIGINAL}" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline flex items-center gap-1 font-medium text-[11px]">
+                                <i class="fa-solid fa-folder-open text-amber-500"></i> เปิด Google Drive
+                            </a>
                         </td>
-                        <td class="py-3 px-4 text-[11px] text-slate-500 max-w-[150px] truncate">${row[15] || '-'}</td>
-                        <td class="py-3 px-4 text-center space-x-1">
-                            <button onclick="openEditModal(${globalIdx})" title="แก้ไข" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="openDeleteModal('${row[0]}', ${globalIdx})" title="ลบ" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition"><i class="fa-solid fa-trash-can"></i></button>
+                        <td class="py-3 px-4 text-slate-500 truncate max-w-[150px]">${row[15] || '-'}</td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center space-x-1">
+                                <button onclick="openDetailModal(${globalIdx})" class="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-slate-100 rounded-lg transition" title="ดูรายละเอียด">
+                                    <i class="fa-solid fa-eye text-xs"></i>
+                                </button>
+                                <button onclick="openEditModal(${globalIdx})" class="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition" title="แก้ไข">
+                                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                </button>
+                                <button onclick="openDeleteModal('${row[0]}', ${globalIdx})" class="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบ">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -1875,33 +1895,30 @@
             const container = document.getElementById('adminPaginationControls');
             if (!container) return;
 
-            let html = '';
-            html += `
-                <button onclick="goToAdminPage(${adminCurrentPage - 1})" ${adminCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg border text-xs font-medium ${adminCurrentPage === 1 ? 'text-slate-300 border-slate-200' : 'text-slate-600 hover:bg-slate-100'}">
-                    <i class="fa-solid fa-chevron-left"></i>
+            let html = `
+                <button onclick="changeAdminPage(${adminCurrentPage - 1})" ${adminCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
             `;
 
             for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= adminCurrentPage - 1 && i <= adminCurrentPage + 1)) {
-                    html += `
-                        <button onclick="goToAdminPage(${i})" class="px-3 py-1 rounded-lg text-xs font-semibold ${i === adminCurrentPage ? 'bg-amber-500 text-white' : 'text-slate-600 hover:bg-slate-100 border border-slate-200'}">
-                            ${i}
-                        </button>
-                    `;
+                if (i === adminCurrentPage) {
+                    html += `<button class="px-3 py-1.5 rounded-lg bg-amber-500 text-white font-bold text-xs shadow-sm">${i}</button>`;
+                } else {
+                    html += `<button onclick="changeAdminPage(${i})" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition text-xs">${i}</button>`;
                 }
             }
 
             html += `
-                <button onclick="goToAdminPage(${adminCurrentPage + 1})" ${adminCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg border text-xs font-medium ${adminCurrentPage === totalPages ? 'text-slate-300 border-slate-200' : 'text-slate-600 hover:bg-slate-100'}">
-                    <i class="fa-solid fa-chevron-right"></i>
+                <button onclick="changeAdminPage(${adminCurrentPage + 1})" ${adminCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
             `;
 
             container.innerHTML = html;
         }
 
-        function goToAdminPage(page) {
+        function changeAdminPage(page) {
             const totalPages = Math.ceil(adminFilteredData.length / adminItemsPerPage) || 1;
             if (page < 1 || page > totalPages) return;
             adminCurrentPage = page;
