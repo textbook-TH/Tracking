@@ -66,15 +66,15 @@
           </div>
         </div>
 
-        <!-- Right Side Header Actions: GAS API + Navigation Capsule Bar -->
+        <!-- Right Side Header Actions: Navigation Capsule Bar (Aligned Right) -->
         <div class="hidden md:flex items-center space-x-3">
-          <!-- GAS API Pill Button -->
-          <button onclick="openGasModal()" class="px-4 py-2 rounded-full border border-slate-700/80 bg-slate-800/40 hover:bg-slate-800/80 text-slate-200 text-xs font-semibold flex items-center space-x-2 transition shadow-sm">
+          <!-- GAS API Pill Button (Hidden per Requirement 1) -->
+          <button onclick="openGasModal()" class="hidden px-4 py-2 rounded-full border border-slate-700/80 bg-slate-800/40 hover:bg-slate-800/80 text-slate-200 text-xs font-semibold flex items-center space-x-2 transition shadow-sm">
             <i class="fa-solid fa-link text-emerald-400 text-xs"></i>
             <span>GAS API</span>
           </button>
 
-          <!-- Dynamic Navigation Bar (Capsule Style matching reference UI) -->
+          <!-- Dynamic Navigation Bar (Capsule Style) -->
           <nav class="flex items-center bg-[#0B1120] border border-slate-800 p-1.5 rounded-full shadow-inner space-x-1" id="header-nav-container">
             <button id="nav-main" onclick="switchTab('main')" class="px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60">
               <i class="fa-solid fa-house text-xs"></i>
@@ -104,7 +104,7 @@
           </nav>
         </div>
 
-        <!-- User info badge (hidden mobile indicator) -->
+        <!-- User info badge (Hidden per Requirement 1) -->
         <div id="user-info-badge" class="hidden flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700 text-xs text-slate-300">
           <span id="user-display-email" class="font-medium text-slate-200 truncate max-w-[120px]"></span>
           <span id="user-role-badge" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-500/20 text-blue-300"></span>
@@ -116,8 +116,8 @@
   <!-- Mobile Submenu Navigation -->
   <div class="md:hidden bg-slate-800 border-b border-slate-700 px-4 py-2 flex justify-around text-xs text-slate-300">
     <button id="mobile-nav-main" onclick="switchTab('main')" class="py-1">หน้าหลัก</button>
-    <button id="mobile-nav-prof" onclick="switchTab('professor')" class="py-1 hidden">หน้าอาจารย์</button>
-    <button id="mobile-nav-staff" onclick="switchTab('staff')" class="py-1 hidden">หน้าเจ้าหน้าที่</button>
+    <button id="mobile-nav-prof" onclick="switchTab('professor')" class="py-1">หน้าอาจารย์</button>
+    <button id="mobile-nav-staff" onclick="switchTab('staff')" class="py-1">หน้าเจ้าหน้าที่</button>
   </div>
 
   <!-- ========================================== -->
@@ -444,7 +444,7 @@
   </main>
 
   <!-- ========================================== -->
-  <!-- LOGIN MODAL                                -->
+  <!-- LOGIN MODAL (Email Only - No Password)     -->
   <!-- ========================================== -->
   <div id="login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative border border-slate-100">
@@ -457,7 +457,7 @@
           <i class="fa-solid fa-user-shield"></i>
         </div>
         <h3 class="text-lg font-bold text-slate-900">เข้าสู่ระบบ สจล.</h3>
-        <p class="text-xs text-slate-400 mt-1">ใช้สิทธิ์อีเมลองค์กรเพื่อระบุตัวตน (@kmitl.ac.th)</p>
+        <p class="text-xs text-slate-400 mt-1">ใส่อีเมลองค์กรเพื่อเข้าใช้งาน (@kmitl.ac.th)</p>
       </div>
 
       <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
@@ -503,7 +503,7 @@
     </div>
   </div>
 
-  <!-- GAS API Info Modal -->
+  <!-- GAS API Info Modal (Maintained for logic integrity) -->
   <div id="gas-api-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl relative border border-slate-100">
       <button onclick="closeGasModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
@@ -574,7 +574,7 @@
       fetchEvaluations();
     };
 
-    // Update navigation UI dynamically based on role status & active states
+    // Update navigation UI dynamically based on role status & requirements
     function updateNavigationUI() {
       const btnLoginPill = document.getElementById('btn-login-pill');
       const btnLogoutPill = document.getElementById('btn-logout-pill');
@@ -584,29 +584,29 @@
       const mobileProf = document.getElementById('mobile-nav-prof');
       const mobileStaff = document.getElementById('mobile-nav-staff');
 
+      // Requirement 1: Hide email display at top right
+      if (userInfoBadge) userInfoBadge.classList.add('hidden');
+
       if (!currentUser) {
-        // ยังไม่ได้เข้าสู่ระบบ: แสดงปุ่มเข้าสู่ระบบ และซ่อนเมนูเฉพาะตำแหน่ง
+        // เงื่อนไข 1: ยังไม่ได้ทำ Login -> แสดง [หน้าหลัก], [หน้าอาจารย์], [หน้าเจ้าหน้าที่], [เข้าสู่ระบบ]
         if (btnLoginPill) btnLoginPill.classList.remove('hidden');
         if (btnLogoutPill) btnLogoutPill.classList.add('hidden');
-        if (userInfoBadge) userInfoBadge.classList.add('hidden');
-        if (navProf) navProf.classList.add('hidden');
-        if (navStaff) navStaff.classList.add('hidden');
-        if (mobileProf) mobileProf.classList.add('hidden');
-        if (mobileStaff) mobileStaff.classList.add('hidden');
+        if (navProf) navProf.classList.remove('hidden');
+        if (navStaff) navStaff.classList.remove('hidden');
+        if (mobileProf) mobileProf.classList.remove('hidden');
+        if (mobileStaff) mobileStaff.classList.remove('hidden');
       } else if (currentUser.role === 'staff') {
-        // สิทธิ์เจ้าหน้าที่: แสดงเฉพาะ หน้าหลัก + หน้าเจ้าหน้าที่ + ออกจากระบบ
+        // เงื่อนไข 2: Login เจ้าหน้าที่ -> แสดง [หน้าหลัก], [หน้าเจ้าหน้าที่], [ออกจากระบบ]
         if (btnLoginPill) btnLoginPill.classList.add('hidden');
         if (btnLogoutPill) btnLogoutPill.classList.remove('hidden');
-        if (userInfoBadge) userInfoBadge.classList.remove('hidden');
         if (navProf) navProf.classList.add('hidden');
         if (navStaff) navStaff.classList.remove('hidden');
         if (mobileProf) mobileProf.classList.add('hidden');
         if (mobileStaff) mobileStaff.classList.remove('hidden');
       } else if (currentUser.role === 'professor') {
-        // สิทธิ์อาจารย์: แสดงเฉพาะ หน้าหลัก + หน้าอาจารย์ + ออกจากระบบ
+        // เงื่อนไข 3: Login อาจารย์ -> แสดง [หน้าหลัก], [หน้าอาจารย์], [ออกจากระบบ]
         if (btnLoginPill) btnLoginPill.classList.add('hidden');
         if (btnLogoutPill) btnLogoutPill.classList.remove('hidden');
-        if (userInfoBadge) userInfoBadge.classList.remove('hidden');
         if (navProf) navProf.classList.remove('hidden');
         if (navStaff) navStaff.classList.add('hidden');
         if (mobileProf) mobileProf.classList.remove('hidden');
@@ -616,7 +616,7 @@
       applyNavTabStyles(currentActiveTab);
     }
 
-    // Apply active capsule styling (Bright Orange/Amber pill for active tab)
+    // Apply active capsule styling (Bright Amber pill for active tab)
     function applyNavTabStyles(activeTab) {
       currentActiveTab = activeTab;
       const tabs = ['main', 'professor', 'staff'];
@@ -679,7 +679,7 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    // Login Handler
+    // Login Handler (Email Only - No Password Required)
     function handleLoginSubmit(e) {
       e.preventDefault();
       const emailInput = document.getElementById('login-email');
