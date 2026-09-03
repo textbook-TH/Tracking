@@ -480,41 +480,42 @@
     </div>
   </div>
 
-  <!-- 2. ADD WORK POPUP MODAL (เพิ่มผลงานใหม่ - Redesigned per User Screenshot) -->
-  <div id="add-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-3xl w-full shadow-2xl relative border border-slate-100 my-6">
-      <button onclick="closeAddModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 transition">
-        <i class="fa-solid fa-xmark text-xl"></i>
+  <!-- 2. ADD WORK POPUP MODAL (เพิ่มผลงานใหม่ - Optimized Responsive Sizing) -->
+  <div id="add-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-w-2xl w-full shadow-2xl relative border border-slate-100 my-auto max-h-[90vh] flex flex-col">
+      <button onclick="closeAddModal()" class="absolute right-4 top-4 sm:right-5 sm:top-5 text-slate-400 hover:text-slate-600 transition z-10">
+        <i class="fa-solid fa-xmark text-lg sm:text-xl"></i>
       </button>
 
       <!-- Modal Title Header -->
-      <div class="flex items-center space-x-3 mb-6 pb-4 border-b border-slate-100">
-        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl shadow-sm">
+      <div class="flex items-center space-x-3 mb-4 pb-3 border-b border-slate-100 shrink-0">
+        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg shadow-sm">
           <i class="fa-solid fa-file-circle-plus"></i>
         </div>
         <div>
-          <h3 class="text-base font-bold text-slate-900">เพิ่มข้อมูลผลงานวิชาการ</h3>
-          <p class="text-xs text-slate-400">กรอกข้อมูลบันทึกการประเมินหนังสือ/ตำราเรียน และอัปโหลดไฟล์เข้าระบบ</p>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900">เพิ่มข้อมูลผลงานวิชาการ</h3>
+          <p class="text-[11px] sm:text-xs text-slate-400">กรอกข้อมูลบันทึกการประเมินหนังสือ/ตำราเรียน และอัปโหลดไฟล์เข้าระบบ</p>
         </div>
       </div>
 
-      <form id="add-form" onsubmit="handleAddSubmit(event)" class="space-y-4">
+      <!-- Scrollable Form Container -->
+      <form id="add-form" onsubmit="handleAddSubmit(event)" class="space-y-3 overflow-y-auto pr-1 flex-1">
         <div id="add-form-feedback" class="hidden p-3 rounded-xl text-xs font-medium"></div>
 
         <!-- Section 1: ข้อมูลผู้ขอประเมิน -->
-        <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/60 space-y-3">
+        <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/60 space-y-2.5">
           <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
             <i class="fa-solid fa-user text-blue-600"></i> ข้อมูลผู้ขอประเมิน
           </h4>
           
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">ปีการศึกษา <span class="text-rose-500">*</span></label>
-              <input type="text" id="add_year" value="2568" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="add_year" value="2568" required class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">ตำแหน่งทางวิชาการ</label>
-              <select id="add_academic_pos" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="add_academic_pos" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                 <option value="อ.">อ.</option>
                 <option value="ผศ.">ผศ.</option>
                 <option value="ผศ.ดร.">ผศ.ดร.</option>
@@ -527,18 +528,18 @@
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่อ-นามสกุล <span class="text-rose-500">*</span></label>
-              <input type="text" id="add_author_name" required placeholder="ดร. รัฐชัย ชาวอุทัย" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="add_author_name" required placeholder="ดร. รัฐชัย ชาวอุทัย" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">อีเมลผู้ขอประเมิน (@kmitl.ac.th) <span class="text-rose-500">*</span></label>
-              <input type="email" id="add_applicant_email" required placeholder="ratchai@kmitl.ac.th" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="email" id="add_applicant_email" required placeholder="ratchai@kmitl.ac.th" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">ประเภทผลงาน</label>
-              <select id="add_work_type" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="add_work_type" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                 <option value="ตำรา">ตำรา</option>
                 <option value="หนังสือ">หนังสือ</option>
                 <option value="ผลงานวิชาการอื่น">ผลงานวิชาการอื่น</option>
@@ -548,35 +549,35 @@
         </div>
 
         <!-- Section 2: ข้อมูลผลงานวิชาการ -->
-        <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/60 space-y-3">
+        <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/60 space-y-2.5">
           <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
             <i class="fa-solid fa-book text-blue-600"></i> ข้อมูลรายละเอียดผลงาน
           </h4>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div class="sm:col-span-2">
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่อผลงาน (หนังสือ/ตำรา) <span class="text-rose-500">*</span></label>
-              <input type="text" id="add_book_title" required placeholder="การเรียนรู้เชิงลึก (Deep Learning)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="add_book_title" required placeholder="การเรียนรู้เชิงลึก (Deep Learning)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">คณะ / ส่วนงาน <span class="text-rose-500">*</span></label>
-              <input type="text" id="add_faculty_code" required value="วิศวกรรมศาสตร์" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="add_faculty_code" required value="วิศวกรรมศาสตร์" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">ภาควิชา</label>
-              <input type="text" id="add_department" placeholder="ภาควิชาคอมพิวเตอร์" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="add_department" placeholder="ภาควิชาคอมพิวเตอร์" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">อีเมลภาควิชา/คณะ</label>
-              <input type="email" id="add_dept_email" placeholder="computer@kmitl.ac.th" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="email" id="add_dept_email" placeholder="computer@kmitl.ac.th" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">สถานะการประเมิน</label>
-              <select id="add_status" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="add_status" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                 <option value="รับเอกสารการประเมิน">รับเอกสารการประเมิน</option>
                 <option value="ส่งเอกสารผู้ทรง รอบ 1">ส่งเอกสารผู้ทรง รอบ 1</option>
                 <option value="รอการแก้ไข รอบ 1">รอการแก้ไข รอบ 1</option>
@@ -587,18 +588,18 @@
 
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">สถานะการจัดพิมพ์</label>
-              <input type="text" id="add_print_status" value="อยู่ระหว่างการประเมิน" placeholder="อยู่ระหว่างการประเมิน" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="add_print_status" value="อยู่ระหว่างการประเมิน" placeholder="อยู่ระหว่างการประเมิน" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">หมายเหตุ</label>
-              <input type="text" id="add_notes" placeholder="ระบุหมายเหตุ (ถ้ามี)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="add_notes" placeholder="ระบุหมายเหตุ (ถ้ามี)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
           </div>
         </div>
 
-        <!-- Section 3: Google Drive File Upload Drag and Drop Zone (per Image 2 Requirement) -->
-        <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/60 space-y-3">
+        <!-- Section 3: Google Drive File Upload Drag and Drop Zone -->
+        <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/60 space-y-2.5">
           <div class="flex justify-between items-center">
             <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
               <i class="fa-brands fa-google-drive text-emerald-600"></i> อัปโหลดเอกสารแนบไปยัง Google Drive
@@ -608,41 +609,41 @@
             </button>
           </div>
 
-          <!-- Hidden File Inputs mapped for mapping -->
+          <!-- Hidden File Inputs -->
           <input type="file" id="gdrive-file-input" multiple onchange="handleFileSelect(event)" class="hidden">
           
-          <!-- Hidden inputs to maintain compatibility with backend payload -->
+          <!-- Hidden inputs for backend payload -->
           <input type="hidden" id="add_file_main_url">
           <input type="hidden" id="add_file_cover_url">
           <input type="hidden" id="add_file_eval_url">
 
-          <!-- Drag and Drop Box Area -->
-          <div id="drop-zone" onclick="document.getElementById('gdrive-file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleFileDrop(event)" class="border-2 border-dashed border-blue-300 hover:border-blue-500 bg-white hover:bg-blue-50/30 rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-2 group">
-            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition shadow-sm">
+          <!-- Compact Drag and Drop Box Area -->
+          <div id="drop-zone" onclick="document.getElementById('gdrive-file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleFileDrop(event)" class="border-2 border-dashed border-blue-300 hover:border-blue-500 bg-white hover:bg-blue-50/30 rounded-xl p-4 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-1.5 group">
+            <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition shadow-sm">
               <i class="fa-brands fa-google-drive"></i>
             </div>
             <p class="text-xs font-bold text-slate-700">ลากไฟล์มาวางที่นี่ หรือ <span class="text-blue-600 hover:underline">คลิกเพื่ออัปโหลดเข้า Google Drive</span></p>
-            <p class="text-[11px] text-slate-400">รองรับไฟล์ PDF, WORD, JPG, PNG (ขนาดไม่เกิน 25MB ต่อไฟล์)</p>
+            <p class="text-[10px] text-slate-400">รองรับไฟล์ PDF, WORD, JPG, PNG (ขนาดไม่เกิน 25MB ต่อไฟล์)</p>
           </div>
 
           <!-- Simulated Upload Progress List Container -->
-          <div id="file-upload-status-list" class="space-y-2 hidden"></div>
+          <div id="file-upload-status-list" class="space-y-1.5 hidden"></div>
 
           <!-- Optional Manual URLs input toggle block -->
           <div id="manual-url-block" class="hidden space-y-2 pt-2 border-t border-slate-200">
             <p class="text-[11px] font-semibold text-slate-500">หรือระบุลิงก์ Google Drive / Web Direct URL:</p>
-            <input type="url" id="manual_file_main_url" oninput="document.getElementById('add_file_main_url').value=this.value" placeholder="URL ไฟล์ต้นฉบับหนังสือ (PDF)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none">
-            <input type="url" id="manual_file_cover_url" oninput="document.getElementById('add_file_cover_url').value=this.value" placeholder="URL ปกหนังสือ (รูปภาพ)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none">
-            <input type="url" id="manual_file_eval_url" oninput="document.getElementById('add_file_eval_url').value=this.value" placeholder="URL ผลการประเมิน (PDF)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none">
+            <input type="url" id="manual_file_main_url" oninput="document.getElementById('add_file_main_url').value=this.value" placeholder="URL ไฟล์ต้นฉบับหนังสือ (PDF)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs outline-none">
+            <input type="url" id="manual_file_cover_url" oninput="document.getElementById('add_file_cover_url').value=this.value" placeholder="URL ปกหนังสือ (รูปภาพ)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs outline-none">
+            <input type="url" id="manual_file_eval_url" oninput="document.getElementById('add_file_eval_url').value=this.value" placeholder="URL ผลการประเมิน (PDF)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs outline-none">
           </div>
         </div>
 
         <!-- Form Action Buttons -->
-        <div class="pt-4 flex justify-end space-x-2 border-t border-slate-100">
-          <button type="button" onclick="closeAddModal()" class="px-5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
+        <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100 shrink-0">
+          <button type="button" onclick="closeAddModal()" class="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
             ยกเลิก
           </button>
-          <button type="submit" id="btn-add-submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20 flex items-center space-x-2">
+          <button type="submit" id="btn-add-submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20 flex items-center space-x-1.5">
             <i class="fa-solid fa-floppy-disk"></i>
             <span>บันทึกข้อมูลและไฟล์</span>
           </button>
@@ -944,8 +945,8 @@
             btn.classList.add(...activeClasses);
             btn.classList.remove(...inactiveClasses);
           } else {
-            btn.classList.remove(...activeClasses);
-            btn.classList.add(...inactiveClasses);
+            btn.classList.remove(...inactiveClasses);
+            btn.classList.add(...activeClasses);
           }
         }
 
