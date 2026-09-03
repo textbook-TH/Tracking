@@ -76,27 +76,31 @@
 
           <!-- Dynamic Navigation Bar (Capsule Style) -->
           <nav class="flex items-center bg-[#0B1120] border border-slate-800 p-1.5 rounded-full shadow-inner space-x-1" id="header-nav-container">
+            <!-- [ หน้าหลัก ] -> แสดงเสมอ -->
             <button id="nav-main" onclick="switchTab('main')" class="px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60">
               <i class="fa-solid fa-house text-xs"></i>
               <span>หน้าหลัก</span>
             </button>
 
-            <button id="nav-professor" onclick="switchTab('professor')" class="px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60">
+            <!-- [ หน้าอาจารย์ ] -> ซ่อนโดย Default และเปิดเฉพาะเมื่อ Login เป็น อาจารย์ -->
+            <button id="nav-professor" onclick="switchTab('professor')" class="hidden px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60">
               <i class="fa-solid fa-chalkboard-user text-xs"></i>
               <span>หน้าอาจารย์</span>
             </button>
 
-            <button id="nav-staff" onclick="switchTab('staff')" class="px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60">
+            <!-- [ หน้าเจ้าหน้าที่ ] -> ซ่อนโดย Default และเปิดเฉพาะเมื่อ Login เป็น เจ้าหน้าที่ -->
+            <button id="nav-staff" onclick="switchTab('staff')" class="hidden px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60">
               <i class="fa-solid fa-user-gear text-xs"></i>
               <span>หน้าเจ้าหน้าที่</span>
             </button>
 
-            <!-- Login / Logout Pill Buttons -->
+            <!-- [ เข้าสู่ระบบ ] -> แสดงเมื่อยังไม่ Login -->
             <button id="btn-login-pill" onclick="openLoginModal()" class="px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 bg-blue-600 hover:bg-blue-500 text-white shadow-md">
               <i class="fa-solid fa-right-to-bracket text-xs"></i>
               <span>เข้าสู่ระบบ</span>
             </button>
 
+            <!-- [ ออกจากระบบ ] -> ซ่อนโดย Default และเปิดเมื่อ Login แล้ว -->
             <button id="btn-logout-pill" onclick="logout()" class="hidden px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 bg-[#2D0F18] border border-rose-800/80 hover:bg-rose-950 text-rose-200 shadow-sm">
               <i class="fa-solid fa-power-off text-xs"></i>
               <span>ออกจากระบบ</span>
@@ -116,8 +120,8 @@
   <!-- Mobile Submenu Navigation -->
   <div class="md:hidden bg-slate-800 border-b border-slate-700 px-4 py-2 flex justify-around text-xs text-slate-300">
     <button id="mobile-nav-main" onclick="switchTab('main')" class="py-1">หน้าหลัก</button>
-    <button id="mobile-nav-prof" onclick="switchTab('professor')" class="py-1">หน้าอาจารย์</button>
-    <button id="mobile-nav-staff" onclick="switchTab('staff')" class="py-1">หน้าเจ้าหน้าที่</button>
+    <button id="mobile-nav-prof" onclick="switchTab('professor')" class="hidden py-1">หน้าอาจารย์</button>
+    <button id="mobile-nav-staff" onclick="switchTab('staff')" class="hidden py-1">หน้าเจ้าหน้าที่</button>
   </div>
 
   <!-- ========================================== -->
@@ -575,7 +579,7 @@
       fetchEvaluations();
     };
 
-    // Update navigation UI dynamically based on role status & requirements
+    // Update navigation UI dynamically based on role status & exact requirements
     function updateNavigationUI() {
       const btnLoginPill = document.getElementById('btn-login-pill');
       const btnLogoutPill = document.getElementById('btn-logout-pill');
@@ -585,39 +589,47 @@
       const mobileProf = document.getElementById('mobile-nav-prof');
       const mobileStaff = document.getElementById('mobile-nav-staff');
 
-      // Requirement 1: Hide email display at top right
+      // Hide user email display top right per initial requirement
       if (userInfoBadge) userInfoBadge.classList.add('hidden');
 
       if (!currentUser) {
-        // เงื่อนไข 1: ยังไม่ได้ทำ Login -> แสดงในแคปซูล: [หน้าหลัก], [หน้าอาจารย์], [หน้าเจ้าหน้าที่], [เข้าสู่ระบบ]
+        // สถานะ 1: ยังไม่เข้าสู่ระบบ
+        // แคปซูลแสดง: [ หน้าหลัก ] [ เข้าสู่ระบบ ]
+        // ปุ่มที่ถูกซ่อน: หน้าอาจารย์, หน้าเจ้าหน้าที่, ออกจากระบบ
         if (btnLoginPill) btnLoginPill.classList.remove('hidden');
         if (btnLogoutPill) btnLogoutPill.classList.add('hidden');
-        if (navProf) navProf.classList.remove('hidden');
-        if (navStaff) navStaff.classList.remove('hidden');
-        if (mobileProf) mobileProf.classList.remove('hidden');
-        if (mobileStaff) mobileStaff.classList.remove('hidden');
-      } else if (currentUser.role === 'staff') {
-        // เงื่อนไข 2: Login เจ้าหน้าที่ -> แสดงในแคปซูล: [หน้าหลัก], [หน้าเจ้าหน้าที่], [ออกจากระบบ] (ไม่แสดงของอาจารย์)
-        if (btnLoginPill) btnLoginPill.classList.add('hidden');
-        if (btnLogoutPill) btnLogoutPill.classList.remove('hidden');
         if (navProf) navProf.classList.add('hidden');
-        if (navStaff) navStaff.classList.remove('hidden');
+        if (navStaff) navStaff.classList.add('hidden');
         if (mobileProf) mobileProf.classList.add('hidden');
-        if (mobileStaff) mobileStaff.classList.remove('hidden');
+        if (mobileStaff) mobileStaff.classList.add('hidden');
+
       } else if (currentUser.role === 'professor') {
-        // เงื่อนไข 3: Login อาจารย์ -> แสดงในแคปซูล: [หน้าหลัก], [หน้าอาจารย์], [ออกจากระบบ] (ไม่แสดงของเจ้าหน้าที่)
+        // สถานะ 2: เข้าสู่ระบบเป็น "อาจารย์"
+        // แคปซูลแสดง: [ หน้าหลัก ] [ หน้าอาจารย์ ] [ ออกจากระบบ ]
+        // ปุ่มที่ถูกซ่อน: หน้าเจ้าหน้าที่, เข้าสู่ระบบ
         if (btnLoginPill) btnLoginPill.classList.add('hidden');
         if (btnLogoutPill) btnLogoutPill.classList.remove('hidden');
         if (navProf) navProf.classList.remove('hidden');
         if (navStaff) navStaff.classList.add('hidden');
         if (mobileProf) mobileProf.classList.remove('hidden');
         if (mobileStaff) mobileStaff.classList.add('hidden');
+
+      } else if (currentUser.role === 'staff') {
+        // สถานะ 3: เข้าสู่ระบบเป็น "เจ้าหน้าที่"
+        // แคปซูลแสดง: [ หน้าหลัก ] [ หน้าเจ้าหน้าที่ ] [ ออกจากระบบ ]
+        // ปุ่มที่ถูกซ่อน: หน้าอาจารย์, เข้าสู่ระบบ
+        if (btnLoginPill) btnLoginPill.classList.add('hidden');
+        if (btnLogoutPill) btnLogoutPill.classList.remove('hidden');
+        if (navProf) navProf.classList.add('hidden');
+        if (navStaff) navStaff.classList.remove('hidden');
+        if (mobileProf) mobileProf.classList.add('hidden');
+        if (mobileStaff) mobileStaff.classList.remove('hidden');
       }
 
       applyNavTabStyles(currentActiveTab);
     }
 
-    // Apply active capsule styling
+    // Apply active capsule styling safely without modifying hidden status
     function applyNavTabStyles(activeTab) {
       currentActiveTab = activeTab;
       const tabs = ['main', 'professor', 'staff'];
@@ -625,13 +637,15 @@
       tabs.forEach(t => {
         const btn = document.getElementById(`nav-${t}`);
         if (btn) {
+          const activeClasses = ['bg-amber-500', 'hover:bg-amber-600', 'text-white', 'shadow-md'];
+          const inactiveClasses = ['text-slate-300', 'hover:text-white', 'hover:bg-slate-800/60'];
+
           if (t === activeTab) {
-            btn.className = "px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-white shadow-md";
-          } else if (!currentUser && (t === 'professor' || t === 'staff')) {
-            // เมื่อยังไม่ได้ล็อกอิน ให้ปุ่มแสดงในรูปแบบล็อก ไม่สามารถคลิกได้
-            btn.className = "px-4 py-2 rounded-full text-xs font-semibold flex items-center space-x-2 text-slate-500 opacity-50 cursor-not-allowed";
+            btn.classList.add(...activeClasses);
+            btn.classList.remove(...inactiveClasses);
           } else {
-            btn.className = "px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60";
+            btn.classList.remove(...activeClasses);
+            btn.classList.add(...inactiveClasses);
           }
         }
 
@@ -644,11 +658,11 @@
         const mBtn = document.getElementById(mobileBtnMap[t]);
         if (mBtn) {
           if (t === activeTab) {
-            mBtn.className = "py-1 text-amber-400 font-bold border-b-2 border-amber-400";
-          } else if (!currentUser && (t === 'professor' || t === 'staff')) {
-            mBtn.className = "py-1 text-slate-500 opacity-50 cursor-not-allowed";
+            mBtn.classList.add('text-amber-400', 'font-bold', 'border-b-2', 'border-amber-400');
+            mBtn.classList.remove('text-slate-300', 'hover:text-white');
           } else {
-            mBtn.className = "py-1 text-slate-300 hover:text-white";
+            mBtn.classList.remove('text-amber-400', 'font-bold', 'border-b-2', 'border-amber-400');
+            mBtn.classList.add('text-slate-300', 'hover:text-white');
           }
         }
       });
@@ -667,12 +681,7 @@
 
     // Navigation Switcher
     function switchTab(tab) {
-      // ห้ามเข้าหน้าอาจารย์ หรือ เจ้าหน้าที่ หากยังไม่ได้ล็อกอิน (ไม่เปลี่ยนหน้า และไม่เปิดป๊อปอัป)
-      if (!currentUser && (tab === 'professor' || tab === 'staff')) {
-        return;
-      }
-
-      // Prevent staff from navigating to professor tab and vice versa
+      // Prevent staff from navigating to professor tab and vice versa if locked
       if (currentUser && currentUser.role === 'staff' && tab === 'professor') {
         tab = 'staff';
       }
@@ -769,6 +778,10 @@
       if (currentUser.role === 'staff' && currentActiveTab === 'professor') {
         switchTab('staff');
       } else if (currentUser.role === 'professor' && currentActiveTab === 'staff') {
+        switchTab('professor');
+      } else if (currentUser.role === 'professor') {
+        switchTab('professor');
+      } else if (currentUser.role === 'staff') {
         switchTab('staff');
       }
 
