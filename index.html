@@ -237,9 +237,9 @@
               </div>
 
               <div>
-                <label class="block text-[11px] font-semibold text-slate-500 mb-1">ปีการศึกษา</label>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">ปีที่ทำการประเมิน</label>
                 <select id="filter-year" onchange="filterEvaluations()" class="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
-                  <option value="">ปีการศึกษาทั้งหมด</option>
+                  <option value="">ปีทั้งหมด</option>
                   <option value="2569">2569</option>
                   <option value="2568">2568</option>
                   <option value="2567">2567</option>
@@ -383,9 +383,9 @@
             </div>
 
             <div>
-              <label class="block text-[11px] font-semibold text-slate-600 mb-1">ปีการศึกษา</label>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">ปีที่ทำการประเมิน</label>
               <select id="staff-filter-year" onchange="filterStaffEvaluations()" class="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="">ปีการศึกษาทั้งหมด</option>
+                <option value="">ปีทั้งหมด</option>
                 <option value="2569">2569</option>
                 <option value="2568">2568</option>
                 <option value="2567">2567</option>
@@ -498,7 +498,7 @@
     </div>
   </div>
 
-  <!-- 2. ADD WORK POPUP MODAL (ปรับปรุงเป็น 3 ช่องแนวนอนเรียงตามลำดับลงมา พร้อมแถบสถานะ) -->
+  <!-- 2. ADD WORK POPUP MODAL -->
   <div id="add-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-w-3xl w-full shadow-2xl relative border border-slate-100 my-auto max-h-[92vh] flex flex-col">
       <button onclick="closeAddModal()" class="absolute right-4 top-4 sm:right-5 sm:top-5 text-slate-400 hover:text-slate-600 transition z-10">
@@ -528,8 +528,8 @@
           
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
-              <label class="block text-[11px] font-semibold text-slate-600 mb-1">ปีการศึกษา <span class="text-rose-500">*</span></label>
-              <input type="text" id="add_year" value="2569" required class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">ปีที่ทำการประเมิน <span class="text-rose-500">*</span></label>
+              <input type="text" id="add_year" placeholder="เช่น 2569" required class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">ตำแหน่งทางวิชาการ <span class="text-rose-500">*</span></label>
@@ -611,6 +611,16 @@
               </select>
             </div>
 
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">ISBN</label>
+              <input type="text" id="add_isbn" placeholder="เช่น 978-616-xxx-xxx-x" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">- วศ.สจล.</label>
+              <input type="text" id="add_kmitl_eng" placeholder="เช่น 888" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
             <div class="sm:col-span-2">
               <label class="block text-[11px] font-semibold text-slate-600 mb-1">หมายเหตุ</label>
               <input type="text" id="add_notes" placeholder="ระบุหมายเหตุ (ถ้ามี)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
@@ -618,7 +628,7 @@
           </div>
         </div>
 
-        <!-- Section 3: Google Drive File Upload (ปรับเป็น 3 แถบแนวนอนเรียงตามลำดับลงมา) -->
+        <!-- Section 3: Google Drive File Upload -->
         <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/60 space-y-3">
           <div class="flex justify-between items-center">
             <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
@@ -657,7 +667,6 @@
                 </div>
               </div>
 
-              <!-- Upload Status / Progress Area -->
               <div class="flex-1 max-w-xs sm:ml-auto w-full">
                 <div id="status-card-main" class="hidden w-full bg-slate-50 p-2 rounded-lg border border-slate-200">
                   <div class="flex items-center justify-between text-[11px] mb-1">
@@ -695,7 +704,6 @@
                 </div>
               </div>
 
-              <!-- Upload Status / Progress Area -->
               <div class="flex-1 max-w-xs sm:ml-auto w-full">
                 <div id="status-card-cover" class="hidden w-full bg-slate-50 p-2 rounded-lg border border-slate-200">
                   <div class="flex items-center justify-between text-[11px] mb-1">
@@ -733,7 +741,6 @@
                 </div>
               </div>
 
-              <!-- Upload Status / Progress Area -->
               <div class="flex-1 max-w-xs sm:ml-auto w-full">
                 <div id="status-card-eval" class="hidden w-full bg-slate-50 p-2 rounded-lg border border-slate-200">
                   <div class="flex items-center justify-between text-[11px] mb-1">
@@ -755,7 +762,6 @@
 
           </div>
 
-          <!-- Hidden Manual Block for compatibility -->
           <div id="manual-url-block" class="hidden"></div>
         </div>
 
@@ -796,8 +802,8 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1">ปีการศึกษา *</label>
-            <input type="text" id="edit_year" required class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="block text-xs font-medium text-slate-700 mb-1">ปีที่ทำการประเมิน *</label>
+            <input type="text" id="edit_year" required placeholder="เช่น 2569" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-700 mb-1">ตำแหน่งทางวิชาการ</label>
@@ -853,6 +859,17 @@
               <option value="นำไปจัดพิมพ์ไม่ได้">นำไปจัดพิมพ์ไม่ได้</option>
               <option value="จัดพิมพ์เอง">จัดพิมพ์เอง</option>
             </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">ISBN</label>
+            <input type="text" id="edit_isbn" placeholder="เช่น 978-616-xxx-xxx-x" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">- วศ.สจล.</label>
+            <input type="text" id="edit_kmitl_eng" placeholder="เช่น 888" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
         </div>
 
@@ -1296,7 +1313,7 @@
 
         card.innerHTML = `
           <div class="flex items-center space-x-3 min-w-[180px]">
-            <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg">${item.evaluation_year || '2569'}</span>
+            <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg">${item.evaluation_year || '-'}</span>
             <div>
               ${statusBadge}
               <p class="text-[11px] text-slate-400 mt-1">พิมพ์: ${item.print_status || 'อยู่ระหว่างการประเมิน'}</p>
@@ -1405,7 +1422,7 @@
     function exportCSV() {
       if (!allEvaluations || allEvaluations.length === 0) return;
 
-      const headers = ["ID", "ปีการศึกษา", "คำนำหน้า", "ผู้เขียน", "ชื่อหนังสือ", "ภาควิชา", "สถานะ", "สถานะการพิมพ์", "หมายเหตุ", "อีเมลผู้ขอ", "ไฟล์ต้นฉบับ", "ไฟล์ปก", "ไฟล์ผลประเมิน"];
+      const headers = ["ID", "ปีที่ทำการประเมิน", "คำนำหน้า", "ผู้เขียน", "ชื่อหนังสือ", "ภาควิชา", "สถานะ", "สถานะการพิมพ์", "ISBN", "- วศ.สจล.", "หมายเหตุ", "อีเมลผู้ขอ", "ไฟล์ต้นฉบับ", "ไฟล์ปก", "ไฟล์ผลประเมิน"];
       
       let csvContent = "\uFEFF"; 
       csvContent += headers.join(",") + "\n";
@@ -1420,6 +1437,8 @@
           `"${item.department || ''}"`,
           `"${item.status || ''}"`,
           `"${item.print_status || ''}"`,
+          `"${item.isbn || ''}"`,
+          `"${item.kmitl_eng || ''}"`,
           `"${(item.notes || item.remark || '').replace(/"/g, '""')}"`,
           `"${item.applicant_email || ''}"`,
           `"${item.file_main_url || ''}"`,
@@ -1579,12 +1598,14 @@
         content.innerHTML = `
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div><span class="text-slate-400">รหัสรายการ:</span> <b class="text-blue-600 font-mono">${item.id}</b></div>
-            <div><span class="text-slate-400">ปีการศึกษา:</span> <b>${item.evaluation_year || '2569'}</b></div>
+            <div><span class="text-slate-400">ปีที่ทำการประเมิน:</span> <b>${item.evaluation_year || '-'}</b></div>
             <div class="col-span-2"><span class="text-slate-400">ชื่อผลงาน:</span> <b class="text-slate-800">${item.book_title || '-'}</b></div>
             <div><span class="text-slate-400">ผู้เขียน:</span> <b>${item.academic_position || ''}${item.author_name || '-'}</b></div>
             <div><span class="text-slate-400">ภาควิชา:</span> <b>${item.department || '-'}</b></div>
             <div><span class="text-slate-400">สถานะประเมิน:</span> <b>${item.status || '-'}</b></div>
             <div><span class="text-slate-400">สถานะการพิมพ์:</span> <b>${item.print_status || '-'}</b></div>
+            <div><span class="text-slate-400">ISBN:</span> <b>${item.isbn || '-'}</b></div>
+            <div><span class="text-slate-400">- วศ.สจล.:</span> <b>${item.kmitl_eng || '-'}</b></div>
             <div class="col-span-2"><span class="text-slate-400">อีเมลผู้ขอ:</span> <b>${item.applicant_email || '-'}</b></div>
             <div class="col-span-2"><span class="text-slate-400">หมายเหตุ:</span> <b>${item.notes || item.remark || '-'}</b></div>
           </div>
@@ -1615,13 +1636,15 @@
 
       document.getElementById('edit_id').value = item.id;
       document.getElementById('edit-id-display').textContent = `#${item.id}`;
-      document.getElementById('edit_year').value = item.evaluation_year || '2569';
+      document.getElementById('edit_year').value = item.evaluation_year || '';
       document.getElementById('edit_academic_pos').value = item.academic_position || '';
       document.getElementById('edit_author_name').value = item.author_name || '';
       document.getElementById('edit_book_title').value = item.book_title || '';
       document.getElementById('edit_department').value = item.department || '';
       document.getElementById('edit_status').value = item.status || 'รับเอกสารการประเมิน';
       document.getElementById('edit_print_status').value = item.print_status || 'อยู่ระหว่างการประเมิน';
+      document.getElementById('edit_isbn').value = item.isbn || '';
+      document.getElementById('edit_kmitl_eng').value = item.kmitl_eng || '';
       document.getElementById('edit_notes').value = item.notes || item.remark || '';
       document.getElementById('edit_applicant_email').value = item.applicant_email || '';
       document.getElementById('edit_file_main_url').value = item.file_main_url || '';
@@ -1677,7 +1700,7 @@
       }
     }
 
-    // Single Drag & Drop File Handlers for the 3 Horizontal Boxes
+    // Single Drag & Drop File Handlers
     function handleSingleDragOver(e, type) {
       e.preventDefault();
       e.stopPropagation();
@@ -1697,93 +1720,86 @@
       e.stopPropagation();
       const dz = document.getElementById(`drop-zone-${type}`);
       if (dz) dz.classList.remove('drag-active');
-
-      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-        processUploadedFile(e.dataTransfer.files[0], type);
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processSingleFile(e.dataTransfer.files[0], type);
       }
     }
 
     function handleSingleFileSelect(e, type) {
       if (e.target.files && e.target.files[0]) {
-        processUploadedFile(e.target.files[0], type);
+        processSingleFile(e.target.files[0], type);
       }
     }
 
-    function processUploadedFile(file, type) {
+    function processSingleFile(file, type) {
       singleFileStates[type] = file;
-
-      const nameEl = document.getElementById(`name-${type}`);
       const statusCard = document.getElementById(`status-card-${type}`);
       const placeholder = document.getElementById(`placeholder-${type}`);
-      const fillBar = document.getElementById(`progress-fill-${type}`);
+      const fileNameEl = document.getElementById(`name-${type}`);
+      const progressFill = document.getElementById(`progress-fill-${type}`);
 
-      if (nameEl) nameEl.textContent = file.name;
       if (statusCard) statusCard.classList.remove('hidden');
       if (placeholder) placeholder.classList.add('hidden');
+      if (fileNameEl) fileNameEl.textContent = file.name;
 
-      // Animate Status & Progress Fill Bar
-      if (fillBar) {
-        fillBar.style.width = '0%';
+      if (progressFill) {
+        progressFill.style.width = '0%';
         let progress = 0;
         const interval = setInterval(() => {
-          progress += 20;
-          fillBar.style.width = `${progress}%`;
+          progress += 25;
+          progressFill.style.width = progress + '%';
           if (progress >= 100) {
             clearInterval(interval);
           }
-        }, 60);
-      }
-
-      // Set URL into form payload hidden input
-      const hiddenInput = document.getElementById(`add_file_${type}_url`);
-      if (hiddenInput) {
-        hiddenInput.value = `https://drive.google.com/file/d/uploaded_${type}_${Date.now()}/view`;
+        }, 80);
       }
     }
 
     function clearSingleFile(type) {
       singleFileStates[type] = null;
-
       const statusCard = document.getElementById(`status-card-${type}`);
       const placeholder = document.getElementById(`placeholder-${type}`);
-      const fillBar = document.getElementById(`progress-fill-${type}`);
-      const hiddenInput = document.getElementById(`add_file_${type}_url`);
-      const fileInput = document.getElementById(`input-file-${type}`);
+      const inputEl = document.getElementById(`input-file-${type}`);
+      const hiddenUrlInput = document.getElementById(`add_file_${type}_url`);
 
       if (statusCard) statusCard.classList.add('hidden');
       if (placeholder) placeholder.classList.remove('hidden');
-      if (fillBar) fillBar.style.width = '0%';
-      if (hiddenInput) hiddenInput.value = '';
-      if (fileInput) fileInput.value = '';
+      if (inputEl) inputEl.value = '';
+      if (hiddenUrlInput) hiddenUrlInput.value = '';
     }
 
     async function handleAddSubmit(e) {
       e.preventDefault();
       const feedback = document.getElementById('add-form-feedback');
       const submitBtn = document.getElementById('btn-add-submit');
+      if (feedback) {
+        feedback.classList.add('hidden');
+        feedback.className = "p-3 rounded-xl text-xs font-medium";
+      }
 
-      const config = getSupabaseConfig();
-      const newId = `Text-${Math.floor(100 + Math.random() * 900)}`;
+      if (submitBtn) submitBtn.disabled = true;
 
       const payload = {
-        id: newId,
-        evaluation_year: document.getElementById('add_year').value,
-        academic_position: document.getElementById('add_academic_pos').value,
-        author_name: document.getElementById('add_author_name').value,
-        applicant_email: document.getElementById('add_applicant_email').value,
+        evaluation_year: document.getElementById('add_year').value.trim(),
+        academic_position: document.getElementById('add_academic_pos').value.trim(),
+        author_name: document.getElementById('add_author_name').value.trim(),
+        applicant_email: document.getElementById('add_applicant_email').value.trim(),
         work_type: document.getElementById('add_work_type').value,
-        book_title: document.getElementById('add_book_title').value,
-        department: document.getElementById('add_department').value,
+        book_title: document.getElementById('add_book_title').value.trim(),
+        department: document.getElementById('add_department').value.trim(),
         status: document.getElementById('add_status').value,
         print_status: document.getElementById('add_print_status').value,
-        notes: document.getElementById('add_notes').value,
-        file_main_url: document.getElementById('add_file_main_url').value || null,
-        file_cover_url: document.getElementById('add_file_cover_url').value || null,
-        file_eval_url: document.getElementById('add_file_eval_url').value || null
+        isbn: document.getElementById('add_isbn') ? document.getElementById('add_isbn').value.trim() : '',
+        kmitl_eng: document.getElementById('add_kmitl_eng') ? document.getElementById('add_kmitl_eng').value.trim() : '',
+        notes: document.getElementById('add_notes').value.trim(),
+        file_main_url: document.getElementById('add_file_main_url').value,
+        file_cover_url: document.getElementById('add_file_cover_url').value,
+        file_eval_url: document.getElementById('add_file_eval_url').value
       };
 
+      const config = getSupabaseConfig();
+
       try {
-        if (submitBtn) submitBtn.disabled = true;
         const response = await fetch(`${config.url}/rest/v1/evaluations`, {
           method: 'POST',
           headers: {
@@ -1796,24 +1812,37 @@
         });
 
         if (response.ok) {
-          const inserted = await response.json();
-          if (inserted && inserted.length > 0) {
-            allEvaluations.unshift(inserted[0]);
+          const newItems = await response.json();
+          if (newItems && newItems.length > 0) {
+            allEvaluations.unshift(newItems[0]);
           } else {
-            allEvaluations.unshift(payload);
+            await fetchEvaluations();
           }
+
+          if (feedback) {
+            feedback.textContent = 'บันทึกข้อมูลสำเร็จเรียบร้อยแล้ว!';
+            feedback.classList.remove('hidden');
+            feedback.classList.add('bg-emerald-50', 'text-emerald-700', 'border', 'border-emerald-200');
+          }
+
           renderMainCardsList(allEvaluations);
           renderStaffTable(allEvaluations);
           updateDashboardMetrics(allEvaluations);
-          closeAddModal();
+
+          setTimeout(() => {
+            closeAddModal();
+          }, 1000);
+
         } else {
-          if (feedback) {
-            feedback.textContent = 'บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง';
-            feedback.className = 'p-3 rounded-xl text-xs font-medium bg-rose-50 text-rose-600 block mb-3';
-          }
+          throw new Error(`HTTP Error: ${response.status}`);
         }
       } catch (err) {
-        console.error('Add submit error:', err);
+        console.error('Submit error:', err);
+        if (feedback) {
+          feedback.textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง';
+          feedback.classList.remove('hidden');
+          feedback.classList.add('bg-rose-50', 'text-rose-700', 'border', 'border-rose-200');
+        }
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -1821,30 +1850,38 @@
 
     async function handleEditSubmit(e) {
       e.preventDefault();
-      const editId = document.getElementById('edit_id').value;
+      const id = document.getElementById('edit_id').value;
       const feedback = document.getElementById('edit-form-feedback');
       const submitBtn = document.getElementById('btn-edit-submit');
 
-      const config = getSupabaseConfig();
+      if (submitBtn) submitBtn.disabled = true;
 
       const payload = {
-        evaluation_year: document.getElementById('edit_year').value,
-        academic_position: document.getElementById('edit_academic_pos').value,
-        author_name: document.getElementById('edit_author_name').value,
-        book_title: document.getElementById('edit_book_title').value,
-        department: document.getElementById('edit_department').value,
+        evaluation_year: document.getElementById('edit_year').value.trim(),
+        academic_position: document.getElementById('edit_academic_pos').value.trim(),
+        author_name: document.getElementById('edit_author_name').value.trim(),
+        book_title: document.getElementById('edit_book_title').value.trim(),
+        department: document.getElementById('edit_department').value.trim(),
         status: document.getElementById('edit_status').value,
         print_status: document.getElementById('edit_print_status').value,
-        notes: document.getElementById('edit_notes').value,
-        applicant_email: document.getElementById('edit_applicant_email').value,
-        file_main_url: document.getElementById('edit_file_main_url').value || null,
-        file_cover_url: document.getElementById('edit_file_cover_url').value || null,
-        file_eval_url: document.getElementById('edit_file_eval_url').value || null
+        notes: document.getElementById('edit_notes').value.trim(),
+        applicant_email: document.getElementById('edit_applicant_email').value.trim(),
+        file_main_url: document.getElementById('edit_file_main_url').value,
+        file_cover_url: document.getElementById('edit_file_cover_url').value,
+        file_eval_url: document.getElementById('edit_file_eval_url').value
       };
 
+      if (document.getElementById('edit_isbn')) {
+        payload.isbn = document.getElementById('edit_isbn').value.trim();
+      }
+      if (document.getElementById('edit_kmitl_eng')) {
+        payload.kmitl_eng = document.getElementById('edit_kmitl_eng').value.trim();
+      }
+
+      const config = getSupabaseConfig();
+
       try {
-        if (submitBtn) submitBtn.disabled = true;
-        const response = await fetch(`${config.url}/rest/v1/evaluations?id=eq.${editId}`, {
+        const response = await fetch(`${config.url}/rest/v1/evaluations?id=eq.${id}`, {
           method: 'PATCH',
           headers: {
             'apikey': config.key,
@@ -1856,29 +1893,31 @@
         });
 
         if (response.ok) {
-          const index = allEvaluations.findIndex(i => String(i.id) === String(editId));
-          if (index !== -1) {
-            allEvaluations[index] = { ...allEvaluations[index], ...payload };
+          const updated = await response.json();
+          if (updated && updated.length > 0) {
+            const idx = allEvaluations.findIndex(i => String(i.id) === String(id));
+            if (idx !== -1) allEvaluations[idx] = updated[0];
+          } else {
+            await fetchEvaluations();
           }
+
           renderMainCardsList(allEvaluations);
           renderStaffTable(allEvaluations);
           updateDashboardMetrics(allEvaluations);
           closeEditModal();
         } else {
-          if (feedback) {
-            feedback.textContent = 'แก้ไขไม่สำเร็จ กรุณาลองอีกครั้ง';
-            feedback.className = 'p-3 rounded-xl text-xs font-medium bg-rose-50 text-rose-600 block mb-3';
-          }
+          throw new Error('Update failed');
         }
       } catch (err) {
-        console.error('Edit submit error:', err);
+        console.error('Edit error:', err);
+        if (feedback) {
+          feedback.textContent = 'เกิดข้อผิดพลาดในการบันทึกการแก้ไข';
+          feedback.classList.remove('hidden');
+          feedback.classList.add('bg-rose-50', 'text-rose-700', 'border', 'border-rose-200');
+        }
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
-    }
-
-    function toggleManualUrlInputs() {
-      // Kept for backward compatibility
     }
   </script>
 </body>
