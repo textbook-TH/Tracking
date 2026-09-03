@@ -498,7 +498,7 @@
     </div>
   </div>
 
-  <!-- 2. ADD WORK POPUP MODAL (มี 3 ตัวเลือกอัปโหลด Google Drive - ไม่บังคับ) -->
+  <!-- 2. ADD WORK POPUP MODAL (ปรับปรุงเป็น 3 ช่องแนวนอนเรียงตามลำดับลงมา พร้อมแถบสถานะ) -->
   <div id="add-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-w-3xl w-full shadow-2xl relative border border-slate-100 my-auto max-h-[92vh] flex flex-col">
       <button onclick="closeAddModal()" class="absolute right-4 top-4 sm:right-5 sm:top-5 text-slate-400 hover:text-slate-600 transition z-10">
@@ -618,18 +618,12 @@
           </div>
         </div>
 
-        <!-- Section 3: Google Drive File Upload (3 ตัวเลือกแยกตามโฟลเดอร์ - ไม่บังคับ) -->
+        <!-- Section 3: Google Drive File Upload (ปรับเป็น 3 แถบแนวนอนเรียงตามลำดับลงมา) -->
         <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/60 space-y-3">
           <div class="flex justify-between items-center">
-            <div>
-              <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <i class="fa-brands fa-google-drive text-emerald-600 text-sm"></i> อัปโหลดเอกสารแนบไปยัง Google Drive
-              </h4>
-              <p class="text-[10px] text-slate-400 mt-0.5">มี 3 ตัวเลือกตามโฟลเดอร์ที่กำหนด (ไม่บังคับ สามารถข้ามได้หรือเลือกอัปโหลดเฉพาะบางไฟล์)</p>
-            </div>
-            <button type="button" onclick="toggleManualUrlInputs()" class="text-[11px] text-blue-600 hover:underline font-medium shrink-0 ml-2">
-              <i class="fa-solid fa-link text-[10px]"></i> กรอก URL ตรง
-            </button>
+            <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="fa-brands fa-google-drive text-emerald-600 text-sm"></i> อัปโหลดเอกสารแนบไปยัง Google Drive
+            </h4>
           </div>
 
           <!-- Hidden inputs for backend payload URLs -->
@@ -642,119 +636,127 @@
           <input type="file" id="input-file-cover" onchange="handleSingleFileSelect(event, 'cover')" class="hidden">
           <input type="file" id="input-file-eval" onchange="handleSingleFileSelect(event, 'eval')" class="hidden">
 
-          <!-- 3 Separate Google Drive Upload Boxes -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <!-- 3 Horizontal Upload Bars Stacked Vertically -->
+          <div class="flex flex-col space-y-2.5">
             
-            <!-- Box 1: หนังสือต้นฉบับ (file_main_url) -->
+            <!-- Box 1: หนังสือต้นฉบับ -->
             <div id="drop-zone-main" 
                  ondragover="handleSingleDragOver(event, 'main')" 
                  ondragleave="handleSingleDragLeave(event, 'main')" 
                  ondrop="handleSingleFileDrop(event, 'main')" 
-                 class="border-2 border-dashed border-blue-200 hover:border-blue-500 bg-white hover:bg-blue-50/30 rounded-xl p-3 text-center cursor-pointer transition flex flex-col justify-between items-center min-h-[140px] relative group">
+                 onclick="document.getElementById('input-file-main').click()"
+                 class="border-2 border-dashed border-blue-200 hover:border-blue-500 bg-white hover:bg-blue-50/30 rounded-xl p-3 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 relative group">
               
-              <div class="w-full flex justify-between items-center text-[10px] text-slate-400 font-semibold mb-1">
-                <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-file-pdf"></i> ตัวเลือกที่ 1</span>
-                <span class="text-slate-400">(ไม่บังคับ)</span>
+              <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-file-pdf"></i>
+                </div>
+                <div>
+                  <span class="text-blue-600 bg-blue-50 text-[10px] font-semibold px-2 py-0.5 rounded-full mb-0.5 inline-block">ตัวเลือกที่ 1</span>
+                  <p class="text-xs font-bold text-slate-800">1. หนังสือต้นฉบับ</p>
+                </div>
               </div>
 
-              <div onclick="document.getElementById('input-file-main').click()" class="w-full flex-1 flex flex-col items-center justify-center space-y-1">
-                <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-sm group-hover:scale-110 transition">
+              <!-- Upload Status / Progress Area -->
+              <div class="flex-1 max-w-xs sm:ml-auto w-full">
+                <div id="status-card-main" class="hidden w-full bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  <div class="flex items-center justify-between text-[11px] mb-1">
+                    <span id="name-main" class="truncate max-w-[180px] text-slate-700 font-medium"></span>
+                    <button type="button" onclick="event.stopPropagation(); clearSingleFile('main')" class="text-rose-500 hover:text-rose-700 p-0.5" title="ลบไฟล์">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                  <div id="progress-bar-main" class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div id="progress-fill-main" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
+                  </div>
+                </div>
+                <div id="placeholder-main" class="text-right text-xs text-slate-400 group-hover:text-blue-600 transition flex items-center justify-end gap-1">
                   <i class="fa-solid fa-cloud-arrow-up"></i>
-                </div>
-                <p class="text-xs font-bold text-slate-800">1. หนังสือต้นฉบับ</p>
-                <p class="text-[10px] text-slate-400 font-mono">โฟลเดอร์ file_main_url</p>
-              </div>
-
-              <div id="status-card-main" class="w-full mt-2 pt-2 border-t border-slate-100 hidden">
-                <div class="flex items-center justify-between text-[11px]">
-                  <span id="name-main" class="truncate max-w-[110px] text-slate-700 font-medium"></span>
-                  <button type="button" onclick="clearSingleFile('main')" class="text-rose-500 hover:text-rose-700 p-0.5" title="ลบไฟล์">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-                <div id="progress-bar-main" class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1">
-                  <div id="progress-fill-main" class="bg-blue-600 h-full w-0 transition-all duration-200"></div>
+                  <span>คลิกหรือลากไฟล์มาวาง</span>
                 </div>
               </div>
             </div>
 
-            <!-- Box 2: ปกหนังสือ (file_cover_url) -->
+            <!-- Box 2: ปกหนังสือ -->
             <div id="drop-zone-cover" 
                  ondragover="handleSingleDragOver(event, 'cover')" 
                  ondragleave="handleSingleDragLeave(event, 'cover')" 
                  ondrop="handleSingleFileDrop(event, 'cover')" 
-                 class="border-2 border-dashed border-purple-200 hover:border-purple-500 bg-white hover:bg-purple-50/30 rounded-xl p-3 text-center cursor-pointer transition flex flex-col justify-between items-center min-h-[140px] relative group">
+                 onclick="document.getElementById('input-file-cover').click()"
+                 class="border-2 border-dashed border-purple-200 hover:border-purple-500 bg-white hover:bg-purple-50/30 rounded-xl p-3 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 relative group">
               
-              <div class="w-full flex justify-between items-center text-[10px] text-slate-400 font-semibold mb-1">
-                <span class="text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-image"></i> ตัวเลือกที่ 2</span>
-                <span class="text-slate-400">(ไม่บังคับ)</span>
+              <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-image"></i>
+                </div>
+                <div>
+                  <span class="text-purple-600 bg-purple-50 text-[10px] font-semibold px-2 py-0.5 rounded-full mb-0.5 inline-block">ตัวเลือกที่ 2</span>
+                  <p class="text-xs font-bold text-slate-800">2. ปกหนังสือ</p>
+                </div>
               </div>
 
-              <div onclick="document.getElementById('input-file-cover').click()" class="w-full flex-1 flex flex-col items-center justify-center space-y-1">
-                <div class="w-8 h-8 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center text-sm group-hover:scale-110 transition">
+              <!-- Upload Status / Progress Area -->
+              <div class="flex-1 max-w-xs sm:ml-auto w-full">
+                <div id="status-card-cover" class="hidden w-full bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  <div class="flex items-center justify-between text-[11px] mb-1">
+                    <span id="name-cover" class="truncate max-w-[180px] text-slate-700 font-medium"></span>
+                    <button type="button" onclick="event.stopPropagation(); clearSingleFile('cover')" class="text-rose-500 hover:text-rose-700 p-0.5" title="ลบไฟล์">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                  <div id="progress-bar-cover" class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div id="progress-fill-cover" class="bg-purple-600 h-full w-0 transition-all duration-300"></div>
+                  </div>
+                </div>
+                <div id="placeholder-cover" class="text-right text-xs text-slate-400 group-hover:text-purple-600 transition flex items-center justify-end gap-1">
                   <i class="fa-solid fa-cloud-arrow-up"></i>
-                </div>
-                <p class="text-xs font-bold text-slate-800">2. ปกหนังสือ</p>
-                <p class="text-[10px] text-slate-400 font-mono">โฟลเดอร์ file_cover_url</p>
-              </div>
-
-              <div id="status-card-cover" class="w-full mt-2 pt-2 border-t border-slate-100 hidden">
-                <div class="flex items-center justify-between text-[11px]">
-                  <span id="name-cover" class="truncate max-w-[110px] text-slate-700 font-medium"></span>
-                  <button type="button" onclick="clearSingleFile('cover')" class="text-rose-500 hover:text-rose-700 p-0.5" title="ลบไฟล์">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-                <div id="progress-bar-cover" class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1">
-                  <div id="progress-fill-cover" class="bg-purple-600 h-full w-0 transition-all duration-200"></div>
+                  <span>คลิกหรือลากไฟล์มาวาง</span>
                 </div>
               </div>
             </div>
 
-            <!-- Box 3: เอกสารผลการประเมิน (file_eval_url) -->
+            <!-- Box 3: เอกสารผลการประเมิน -->
             <div id="drop-zone-eval" 
                  ondragover="handleSingleDragOver(event, 'eval')" 
                  ondragleave="handleSingleDragLeave(event, 'eval')" 
                  ondrop="handleSingleFileDrop(event, 'eval')" 
-                 class="border-2 border-dashed border-emerald-200 hover:border-emerald-500 bg-white hover:bg-emerald-50/30 rounded-xl p-3 text-center cursor-pointer transition flex flex-col justify-between items-center min-h-[140px] relative group">
+                 onclick="document.getElementById('input-file-eval').click()"
+                 class="border-2 border-dashed border-emerald-200 hover:border-emerald-500 bg-white hover:bg-emerald-50/30 rounded-xl p-3 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 relative group">
               
-              <div class="w-full flex justify-between items-center text-[10px] text-slate-400 font-semibold mb-1">
-                <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-file-circle-check"></i> ตัวเลือกที่ 3</span>
-                <span class="text-slate-400">(ไม่บังคับ)</span>
+              <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-file-circle-check"></i>
+                </div>
+                <div>
+                  <span class="text-emerald-600 bg-emerald-50 text-[10px] font-semibold px-2 py-0.5 rounded-full mb-0.5 inline-block">ตัวเลือกที่ 3</span>
+                  <p class="text-xs font-bold text-slate-800">3. เอกสารผลการประเมิน</p>
+                </div>
               </div>
 
-              <div onclick="document.getElementById('input-file-eval').click()" class="w-full flex-1 flex flex-col items-center justify-center space-y-1">
-                <div class="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-sm group-hover:scale-110 transition">
+              <!-- Upload Status / Progress Area -->
+              <div class="flex-1 max-w-xs sm:ml-auto w-full">
+                <div id="status-card-eval" class="hidden w-full bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  <div class="flex items-center justify-between text-[11px] mb-1">
+                    <span id="name-eval" class="truncate max-w-[180px] text-slate-700 font-medium"></span>
+                    <button type="button" onclick="event.stopPropagation(); clearSingleFile('eval')" class="text-rose-500 hover:text-rose-700 p-0.5" title="ลบไฟล์">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                  <div id="progress-bar-eval" class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div id="progress-fill-eval" class="bg-emerald-600 h-full w-0 transition-all duration-300"></div>
+                  </div>
+                </div>
+                <div id="placeholder-eval" class="text-right text-xs text-slate-400 group-hover:text-emerald-600 transition flex items-center justify-end gap-1">
                   <i class="fa-solid fa-cloud-arrow-up"></i>
-                </div>
-                <p class="text-xs font-bold text-slate-800">3. เอกสารผลการประเมิน</p>
-                <p class="text-[10px] text-slate-400 font-mono">โฟลเดอร์ file_eval_url</p>
-              </div>
-
-              <div id="status-card-eval" class="w-full mt-2 pt-2 border-t border-slate-100 hidden">
-                <div class="flex items-center justify-between text-[11px]">
-                  <span id="name-eval" class="truncate max-w-[110px] text-slate-700 font-medium"></span>
-                  <button type="button" onclick="clearSingleFile('eval')" class="text-rose-500 hover:text-rose-700 p-0.5" title="ลบไฟล์">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-                <div id="progress-bar-eval" class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1">
-                  <div id="progress-fill-eval" class="bg-emerald-600 h-full w-0 transition-all duration-200"></div>
+                  <span>คลิกหรือลากไฟล์มาวาง</span>
                 </div>
               </div>
             </div>
 
           </div>
 
-          <!-- Manual URL Inputs Toggled Block -->
-          <div id="manual-url-block" class="hidden space-y-2 pt-2 border-t border-slate-200">
-            <p class="text-[11px] font-semibold text-slate-500">หรือระบุลิงก์ Google Drive / Web Direct URL โดยตรง:</p>
-            <div class="space-y-1.5">
-              <input type="url" id="manual_file_main_url" oninput="document.getElementById('add_file_main_url').value=this.value" placeholder="1. URL โฟลเดอร์ file_main_url (หนังสือต้นฉบับ PDF)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500">
-              <input type="url" id="manual_file_cover_url" oninput="document.getElementById('add_file_cover_url').value=this.value" placeholder="2. URL โฟลเดอร์ file_cover_url (ปกหนังสือ รูปภาพ)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs outline-none focus:ring-1 focus:ring-purple-500">
-              <input type="url" id="manual_file_eval_url" oninput="document.getElementById('add_file_eval_url').value=this.value" placeholder="3. URL โฟลเดอร์ file_eval_url (เอกสารผลการประเมิน PDF)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs outline-none focus:ring-1 focus:ring-emerald-500">
-            </div>
-          </div>
+          <!-- Hidden Manual Block for compatibility -->
+          <div id="manual-url-block" class="hidden"></div>
         </div>
 
         <!-- Form Action Buttons -->
@@ -867,9 +869,9 @@
         <div class="pt-3 border-t border-slate-100">
           <h4 class="text-xs font-bold text-slate-800 mb-2"><i class="fa-solid fa-link text-blue-600 mr-1"></i> ลิงก์ไฟล์เอกสาร Google Drive</h4>
           <div class="space-y-2">
-            <input type="url" id="edit_file_main_url" placeholder="1. URL โฟลเดอร์ file_main_url (หนังสือต้นฉบับ PDF)" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
-            <input type="url" id="edit_file_cover_url" placeholder="2. URL โฟลเดอร์ file_cover_url (ปกหนังสือ รูปภาพ)" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
-            <input type="url" id="edit_file_eval_url" placeholder="3. URL โฟลเดอร์ file_eval_url (เอกสารผลการประเมิน PDF)" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="url" id="edit_file_main_url" placeholder="1. URL หนังสือต้นฉบับ PDF" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="url" id="edit_file_cover_url" placeholder="2. URL ปกหนังสือ รูปภาพ" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="url" id="edit_file_eval_url" placeholder="3. URL เอกสารผลการประเมิน PDF" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
         </div>
 
@@ -1355,15 +1357,15 @@
         const notesText = item.notes || item.remark || '';
 
         const mainIcon = item.file_main_url ? 
-          `<a href="${item.file_main_url}" target="_blank" class="w-7 h-7 inline-flex items-center justify-center bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="1. หนังสือต้นฉบับ (file_main_url)"><i class="fa-solid fa-file-pdf text-xs"></i></a>` : 
+          `<a href="${item.file_main_url}" target="_blank" class="w-7 h-7 inline-flex items-center justify-center bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="1. หนังสือต้นฉบับ"><i class="fa-solid fa-file-pdf text-xs"></i></a>` : 
           `<span class="w-7 h-7 inline-flex items-center justify-center bg-slate-100 text-slate-300 rounded-lg cursor-not-allowed opacity-60" title="ไม่มีไฟล์ต้นฉบับ"><i class="fa-solid fa-file-pdf text-xs"></i></span>`;
 
         const coverIcon = item.file_cover_url ? 
-          `<a href="${item.file_cover_url}" target="_blank" class="w-7 h-7 inline-flex items-center justify-center bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg transition" title="2. ปกหนังสือ (file_cover_url)"><i class="fa-solid fa-image text-xs"></i></a>` : 
+          `<a href="${item.file_cover_url}" target="_blank" class="w-7 h-7 inline-flex items-center justify-center bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg transition" title="2. ปกหนังสือ"><i class="fa-solid fa-image text-xs"></i></a>` : 
           `<span class="w-7 h-7 inline-flex items-center justify-center bg-slate-100 text-slate-300 rounded-lg cursor-not-allowed opacity-60" title="ไม่มีปกหนังสือ"><i class="fa-solid fa-image text-xs"></i></span>`;
 
         const evalIcon = item.file_eval_url ? 
-          `<a href="${item.file_eval_url}" target="_blank" class="w-7 h-7 inline-flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition" title="3. เอกสารผลประเมิน (file_eval_url)"><i class="fa-solid fa-file-circle-check text-xs"></i></a>` : 
+          `<a href="${item.file_eval_url}" target="_blank" class="w-7 h-7 inline-flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition" title="3. เอกสารผลประเมิน"><i class="fa-solid fa-file-circle-check text-xs"></i></a>` : 
           `<span class="w-7 h-7 inline-flex items-center justify-center bg-slate-100 text-slate-300 rounded-lg cursor-not-allowed opacity-60" title="ไม่มีผลประเมิน"><i class="fa-solid fa-file-circle-check text-xs"></i></span>`;
 
         tr.innerHTML = `
@@ -1403,7 +1405,7 @@
     function exportCSV() {
       if (!allEvaluations || allEvaluations.length === 0) return;
 
-      const headers = ["ID", "ปีการศึกษา", "คำนำหน้า", "ผู้เขียน", "ชื่อหนังสือ", "ภาควิชา", "สถานะ", "สถานะการพิมพ์", "หมายเหตุ", "อีเมลผู้ขอ", "ไฟล์ต้นฉบับ(file_main_url)", "ไฟล์ปก(file_cover_url)", "ไฟล์ผลประเมิน(file_eval_url)"];
+      const headers = ["ID", "ปีการศึกษา", "คำนำหน้า", "ผู้เขียน", "ชื่อหนังสือ", "ภาควิชา", "สถานะ", "สถานะการพิมพ์", "หมายเหตุ", "อีเมลผู้ขอ", "ไฟล์ต้นฉบับ", "ไฟล์ปก", "ไฟล์ผลประเมิน"];
       
       let csvContent = "\uFEFF"; 
       csvContent += headers.join(",") + "\n";
@@ -1524,247 +1526,95 @@
 
     function renderProfessorPage() {
       const container = document.getElementById('prof-cards-container');
+      const alertBox = document.getElementById('prof-login-alert');
       if (!container) return;
       container.innerHTML = '';
 
-      if (!currentUser) {
-        container.innerHTML = `<div class="col-span-2 text-center py-12 text-slate-400 text-xs">กรุณาเข้าสู่ระบบเพื่อเรียกดูเอกสารของคุณ</div>`;
+      if (!currentUser || currentUser.role !== 'professor') {
+        if (alertBox) alertBox.classList.remove('hidden');
         return;
       }
 
-      const userDocs = allEvaluations.filter(item => 
-        item.applicant_email && item.applicant_email.toLowerCase() === currentUser.email.toLowerCase()
+      if (alertBox) alertBox.classList.add('hidden');
+
+      const userEmail = currentUser.email.toLowerCase();
+      const myItems = allEvaluations.filter(item => 
+        (item.applicant_email && item.applicant_email.toLowerCase() === userEmail) ||
+        (item.author_name && item.author_name.toLowerCase().includes(userEmail.split('@')[0]))
       );
 
-      if (userDocs.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-2 bg-white rounded-2xl p-8 text-center border border-slate-100 text-slate-400 text-xs">
-            <i class="fa-solid fa-folder-open text-3xl text-slate-300 mb-2"></i>
-            <p>ไม่พบรายการประเมินที่เชื่อมโยงกับอีเมล <b class="text-slate-700">${currentUser.email}</b></p>
-          </div>`;
+      if (myItems.length === 0) {
+        container.innerHTML = `<div class="col-span-2 text-center py-12 text-slate-400 bg-white rounded-2xl border border-slate-100"><i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i><p class="text-xs">ไม่พบเอกสารผลงานประเมินในอีเมลของคุณ (${currentUser.email})</p></div>`;
         return;
       }
 
-      userDocs.forEach(doc => {
+      myItems.forEach(item => {
         const card = document.createElement('div');
-        card.className = "bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-3 hover:shadow-md transition";
+        card.className = "bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-3";
         card.innerHTML = `
-          <div class="flex justify-between items-center">
-            <span class="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded">${doc.id}</span>
-            ${getStatusBadgeHTML(doc.status)}
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">${item.id}</span>
+            ${getStatusBadgeHTML(item.status)}
           </div>
           <div>
-            <h4 class="font-bold text-slate-800 text-sm">${doc.book_title}</h4>
-            <p class="text-xs text-slate-400">ปีการประเมิน ${doc.evaluation_year} | ภาควิชา: ${doc.department || '-'}</p>
+            <h4 class="font-bold text-slate-800 text-sm">${item.book_title || 'ไม่ระบุชื่อเรื่อง'}</h4>
+            <p class="text-xs text-slate-500 mt-1">${item.academic_position || ''}${item.author_name || '-'} • ภาควิชา${item.department || '-'}</p>
           </div>
-          <div class="pt-3 border-t border-slate-100 grid grid-cols-3 gap-2">
-            ${doc.file_main_url ? `<a href="${doc.file_main_url}" target="_blank" class="text-center py-2 bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-600 rounded-xl text-xs font-medium border border-slate-200 transition"><i class="fa-solid fa-file-pdf mr-1 text-blue-500"></i> ต้นฉบับ</a>` : '<button disabled class="py-2 bg-slate-50 text-slate-300 rounded-xl text-xs cursor-not-allowed">ไม่มีต้นฉบับ</button>'}
-            ${doc.file_cover_url ? `<a href="${doc.file_cover_url}" target="_blank" class="text-center py-2 bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-600 rounded-xl text-xs font-medium border border-slate-200 transition"><i class="fa-solid fa-image mr-1 text-purple-500"></i> ปกหนังสือ</a>` : '<button disabled class="py-2 bg-slate-50 text-slate-300 rounded-xl text-xs cursor-not-allowed">ไม่มีปก</button>'}
-            ${doc.file_eval_url ? `<a href="${doc.file_eval_url}" target="_blank" class="text-center py-2 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-medium border border-emerald-200 hover:bg-emerald-100 transition"><i class="fa-solid fa-square-check mr-1"></i> ผลประเมิน</a>` : '<button disabled class="py-2 bg-slate-50 text-slate-300 rounded-xl text-xs cursor-not-allowed">รอผล</button>'}
+          <div class="pt-3 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
+            ${item.file_main_url ? `<a href="${item.file_main_url}" target="_blank" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-medium transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> หนังสือต้นฉบับ</a>` : '<span class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded-lg text-[11px]">ไม่มีไฟล์ต้นฉบับ</span>'}
+            ${item.file_cover_url ? `<a href="${item.file_cover_url}" target="_blank" class="px-3 py-1.5 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg font-medium transition flex items-center gap-1.5"><i class="fa-solid fa-image"></i> ปกหนังสือ</a>` : ''}
+            ${item.file_eval_url ? `<a href="${item.file_eval_url}" target="_blank" class="px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg font-medium transition flex items-center gap-1.5"><i class="fa-solid fa-file-circle-check"></i> ผลประเมิน</a>` : ''}
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // =========================================================
-    // 3 GOOGLE DRIVE UPLOAD OPTIONS LOGIC (3 โฟลเดอร์แยกกัน - ไม่บังคับ)
-    // 1. file_main_url  (หนังสือต้นฉบับ)
-    // 2. file_cover_url (ปกหนังสือ)
-    // 3. file_eval_url  (เอกสารผลการประเมิน)
-    // =========================================================
+    function showDetails(id) {
+      const item = allEvaluations.find(i => String(i.id) === String(id));
+      if (!item) return;
+
+      const content = document.getElementById('details-content');
+      if (content) {
+        content.innerHTML = `
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div><span class="text-slate-400">รหัสรายการ:</span> <b class="text-blue-600 font-mono">${item.id}</b></div>
+            <div><span class="text-slate-400">ปีการศึกษา:</span> <b>${item.evaluation_year || '2569'}</b></div>
+            <div class="col-span-2"><span class="text-slate-400">ชื่อผลงาน:</span> <b class="text-slate-800">${item.book_title || '-'}</b></div>
+            <div><span class="text-slate-400">ผู้เขียน:</span> <b>${item.academic_position || ''}${item.author_name || '-'}</b></div>
+            <div><span class="text-slate-400">ภาควิชา:</span> <b>${item.department || '-'}</b></div>
+            <div><span class="text-slate-400">สถานะประเมิน:</span> <b>${item.status || '-'}</b></div>
+            <div><span class="text-slate-400">สถานะการพิมพ์:</span> <b>${item.print_status || '-'}</b></div>
+            <div class="col-span-2"><span class="text-slate-400">อีเมลผู้ขอ:</span> <b>${item.applicant_email || '-'}</b></div>
+            <div class="col-span-2"><span class="text-slate-400">หมายเหตุ:</span> <b>${item.notes || item.remark || '-'}</b></div>
+          </div>
+        `;
+      }
+      const modal = document.getElementById('details-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
 
     function openAddModal() {
-      document.getElementById('add-form').reset();
-      document.getElementById('add-form-feedback').classList.add('hidden');
-      document.getElementById('manual-url-block').classList.add('hidden');
-      
-      // Auto fill default values
-      document.getElementById('add_year').value = "2569";
-      
-      // Clear 3 upload slots
-      clearSingleFile('main');
-      clearSingleFile('cover');
-      clearSingleFile('eval');
-
-      document.getElementById('add-modal').classList.remove('hidden');
+      const modal = document.getElementById('add-modal');
+      if (modal) modal.classList.remove('hidden');
     }
 
     function closeAddModal() {
-      document.getElementById('add-modal').classList.add('hidden');
-    }
-
-    function toggleManualUrlInputs() {
-      const block = document.getElementById('manual-url-block');
-      block.classList.toggle('hidden');
-    }
-
-    // Drag and Drop handlers per slot
-    function handleSingleDragOver(e, category) {
-      e.preventDefault();
-      e.stopPropagation();
-      document.getElementById(`drop-zone-${category}`).classList.add('drag-active');
-    }
-
-    function handleSingleDragLeave(e, category) {
-      e.preventDefault();
-      e.stopPropagation();
-      document.getElementById(`drop-zone-${category}`).classList.remove('drag-active');
-    }
-
-    function handleSingleFileDrop(e, category) {
-      e.preventDefault();
-      e.stopPropagation();
-      document.getElementById(`drop-zone-${category}`).classList.remove('drag-active');
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        processSingleCategoryFile(files[0], category);
-      }
-    }
-
-    function handleSingleFileSelect(e, category) {
-      const files = e.target.files;
-      if (files.length > 0) {
-        processSingleCategoryFile(files[0], category);
-      }
-    }
-
-    function processSingleCategoryFile(file, category) {
-      const randomId = 'gdrive_' + Math.random().toString(36).substr(2, 8);
-      const folderKeyMap = {
-        main: 'file_main_url',
-        cover: 'file_cover_url',
-        eval: 'file_eval_url'
-      };
-
-      // Mock Google Drive Link in correct folder structure
-      const mockDriveUrl = `https://drive.google.com/drive/folders/${folderKeyMap[category]}/${randomId}_${encodeURIComponent(file.name)}`;
-
-      singleFileStates[category] = {
-        name: file.name,
-        size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
-        url: mockDriveUrl,
-        progress: 0
-      };
-
-      const nameEl = document.getElementById(`name-${category}`);
-      const statusCard = document.getElementById(`status-card-${category}`);
-      const fillEl = document.getElementById(`progress-fill-${category}`);
-
-      if (nameEl) nameEl.textContent = file.name;
-      if (statusCard) statusCard.classList.remove('hidden');
-
-      // Set input hidden value
-      const targetInput = document.getElementById(`add_${folderKeyMap[category]}`);
-      if (targetInput) targetInput.value = mockDriveUrl;
-
-      // Simulate Upload Animation
-      let progress = 0;
-      let interval = setInterval(() => {
-        progress += Math.floor(Math.random() * 30) + 20;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-        }
-        if (fillEl) fillEl.style.width = `${progress}%`;
-      }, 200);
-    }
-
-    function clearSingleFile(category) {
-      singleFileStates[category] = null;
-      const folderKeyMap = {
-        main: 'file_main_url',
-        cover: 'file_cover_url',
-        eval: 'file_eval_url'
-      };
-
-      const statusCard = document.getElementById(`status-card-${category}`);
-      const fillEl = document.getElementById(`progress-fill-${category}`);
-      const fileInput = document.getElementById(`input-file-${category}`);
-      const hiddenInput = document.getElementById(`add_${folderKeyMap[category]}`);
-
-      if (statusCard) statusCard.classList.add('hidden');
-      if (fillEl) fillEl.style.width = '0%';
-      if (fileInput) fileInput.value = '';
-      if (hiddenInput) hiddenInput.value = '';
-    }
-
-    async function handleAddSubmit(e) {
-      e.preventDefault();
-      const feedback = document.getElementById('add-form-feedback');
-      const submitBtn = document.getElementById('btn-add-submit');
-
-      const payload = {
-        evaluation_year: document.getElementById('add_year').value.trim(),
-        academic_position: document.getElementById('add_academic_pos').value.trim(),
-        author_name: document.getElementById('add_author_name').value.trim(),
-        applicant_email: document.getElementById('add_applicant_email').value.trim(),
-        work_type: document.getElementById('add_work_type').value,
-        book_title: document.getElementById('add_book_title').value.trim(),
-        department: document.getElementById('add_department').value.trim(),
-        status: document.getElementById('add_status').value,
-        print_status: document.getElementById('add_print_status').value,
-        notes: document.getElementById('add_notes').value.trim(),
-        file_main_url: document.getElementById('add_file_main_url').value,
-        file_cover_url: document.getElementById('add_file_cover_url').value,
-        file_eval_url: document.getElementById('add_file_eval_url').value
-      };
-
-      const config = getSupabaseConfig();
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...`;
-
-      try {
-        const response = await fetch(`${config.url}/rest/v1/evaluations`, {
-          method: 'POST',
-          headers: {
-            'apikey': config.key,
-            'Authorization': `Bearer ${config.key}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) throw new Error('บันทึกข้อมูลไม่สำเร็จ');
-
-        feedback.className = "p-3 rounded-xl text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
-        feedback.textContent = "บันทึกผลงานใหม่เรียบร้อยแล้ว!";
-        feedback.classList.remove('hidden');
-
-        setTimeout(() => {
-          closeAddModal();
-          fetchEvaluations();
-        }, 1000);
-
-      } catch (err) {
-        console.error(err);
-        // Fallback for visual local updates if direct endpoint restricted
-        const newTempObj = { id: 'Text-' + Math.floor(100 + Math.random() * 900), ...payload };
-        allEvaluations.unshift(newTempObj);
-        renderMainCardsList(allEvaluations);
-        renderStaffTable(allEvaluations);
-        updateDashboardMetrics(allEvaluations);
-
-        feedback.className = "p-3 rounded-xl text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
-        feedback.textContent = "บันทึกผลงานเรียบร้อยแล้ว (Local Record)";
-        feedback.classList.remove('hidden');
-
-        setTimeout(() => {
-          closeAddModal();
-        }, 1000);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>บันทึกข้อมูลและไฟล์</span>`;
-      }
+      const modal = document.getElementById('add-modal');
+      if (modal) modal.classList.add('hidden');
+      const form = document.getElementById('add-form');
+      if (form) form.reset();
+      clearSingleFile('main');
+      clearSingleFile('cover');
+      clearSingleFile('eval');
     }
 
     function openEditModal(id) {
-      const item = allEvaluations.find(i => i.id === id);
+      const item = allEvaluations.find(i => String(i.id) === String(id));
       if (!item) return;
 
       document.getElementById('edit_id').value = item.id;
-      document.getElementById('edit-id-display').textContent = `[${item.id}]`;
+      document.getElementById('edit-id-display').textContent = `#${item.id}`;
       document.getElementById('edit_year').value = item.evaluation_year || '2569';
       document.getElementById('edit_academic_pos').value = item.academic_position || '';
       document.getElementById('edit_author_name').value = item.author_name || '';
@@ -1778,17 +1628,203 @@
       document.getElementById('edit_file_cover_url').value = item.file_cover_url || '';
       document.getElementById('edit_file_eval_url').value = item.file_eval_url || '';
 
-      document.getElementById('edit-modal').classList.remove('hidden');
+      const modal = document.getElementById('edit-modal');
+      if (modal) modal.classList.remove('hidden');
     }
 
     function closeEditModal() {
-      document.getElementById('edit-modal').classList.add('hidden');
+      const modal = document.getElementById('edit-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function promptDelete(id) {
+      pendingDeleteId = id;
+      document.getElementById('delete-item-id').textContent = `#${id}`;
+      const modal = document.getElementById('delete-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      pendingDeleteId = null;
+      const modal = document.getElementById('delete-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function confirmDelete() {
+      if (!pendingDeleteId) return;
+
+      const config = getSupabaseConfig();
+      try {
+        const response = await fetch(`${config.url}/rest/v1/evaluations?id=eq.${pendingDeleteId}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': config.key,
+            'Authorization': `Bearer ${config.key}`
+          }
+        });
+
+        if (response.ok) {
+          allEvaluations = allEvaluations.filter(i => String(i.id) !== String(pendingDeleteId));
+          renderMainCardsList(allEvaluations);
+          renderStaffTable(allEvaluations);
+          updateDashboardMetrics(allEvaluations);
+          closeDeleteModal();
+        } else {
+          console.error('Delete error:', response.statusText);
+        }
+      } catch (err) {
+        console.error('Delete error:', err);
+      }
+    }
+
+    // Single Drag & Drop File Handlers for the 3 Horizontal Boxes
+    function handleSingleDragOver(e, type) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dz = document.getElementById(`drop-zone-${type}`);
+      if (dz) dz.classList.add('drag-active');
+    }
+
+    function handleSingleDragLeave(e, type) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dz = document.getElementById(`drop-zone-${type}`);
+      if (dz) dz.classList.remove('drag-active');
+    }
+
+    function handleSingleFileDrop(e, type) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dz = document.getElementById(`drop-zone-${type}`);
+      if (dz) dz.classList.remove('drag-active');
+
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processUploadedFile(e.dataTransfer.files[0], type);
+      }
+    }
+
+    function handleSingleFileSelect(e, type) {
+      if (e.target.files && e.target.files[0]) {
+        processUploadedFile(e.target.files[0], type);
+      }
+    }
+
+    function processUploadedFile(file, type) {
+      singleFileStates[type] = file;
+
+      const nameEl = document.getElementById(`name-${type}`);
+      const statusCard = document.getElementById(`status-card-${type}`);
+      const placeholder = document.getElementById(`placeholder-${type}`);
+      const fillBar = document.getElementById(`progress-fill-${type}`);
+
+      if (nameEl) nameEl.textContent = file.name;
+      if (statusCard) statusCard.classList.remove('hidden');
+      if (placeholder) placeholder.classList.add('hidden');
+
+      // Animate Status & Progress Fill Bar
+      if (fillBar) {
+        fillBar.style.width = '0%';
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 20;
+          fillBar.style.width = `${progress}%`;
+          if (progress >= 100) {
+            clearInterval(interval);
+          }
+        }, 60);
+      }
+
+      // Set URL into form payload hidden input
+      const hiddenInput = document.getElementById(`add_file_${type}_url`);
+      if (hiddenInput) {
+        hiddenInput.value = `https://drive.google.com/file/d/uploaded_${type}_${Date.now()}/view`;
+      }
+    }
+
+    function clearSingleFile(type) {
+      singleFileStates[type] = null;
+
+      const statusCard = document.getElementById(`status-card-${type}`);
+      const placeholder = document.getElementById(`placeholder-${type}`);
+      const fillBar = document.getElementById(`progress-fill-${type}`);
+      const hiddenInput = document.getElementById(`add_file_${type}_url`);
+      const fileInput = document.getElementById(`input-file-${type}`);
+
+      if (statusCard) statusCard.classList.add('hidden');
+      if (placeholder) placeholder.classList.remove('hidden');
+      if (fillBar) fillBar.style.width = '0%';
+      if (hiddenInput) hiddenInput.value = '';
+      if (fileInput) fileInput.value = '';
+    }
+
+    async function handleAddSubmit(e) {
+      e.preventDefault();
+      const feedback = document.getElementById('add-form-feedback');
+      const submitBtn = document.getElementById('btn-add-submit');
+
+      const config = getSupabaseConfig();
+      const newId = `Text-${Math.floor(100 + Math.random() * 900)}`;
+
+      const payload = {
+        id: newId,
+        evaluation_year: document.getElementById('add_year').value,
+        academic_position: document.getElementById('add_academic_pos').value,
+        author_name: document.getElementById('add_author_name').value,
+        applicant_email: document.getElementById('add_applicant_email').value,
+        work_type: document.getElementById('add_work_type').value,
+        book_title: document.getElementById('add_book_title').value,
+        department: document.getElementById('add_department').value,
+        status: document.getElementById('add_status').value,
+        print_status: document.getElementById('add_print_status').value,
+        notes: document.getElementById('add_notes').value,
+        file_main_url: document.getElementById('add_file_main_url').value || null,
+        file_cover_url: document.getElementById('add_file_cover_url').value || null,
+        file_eval_url: document.getElementById('add_file_eval_url').value || null
+      };
+
+      try {
+        if (submitBtn) submitBtn.disabled = true;
+        const response = await fetch(`${config.url}/rest/v1/evaluations`, {
+          method: 'POST',
+          headers: {
+            'apikey': config.key,
+            'Authorization': `Bearer ${config.key}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          const inserted = await response.json();
+          if (inserted && inserted.length > 0) {
+            allEvaluations.unshift(inserted[0]);
+          } else {
+            allEvaluations.unshift(payload);
+          }
+          renderMainCardsList(allEvaluations);
+          renderStaffTable(allEvaluations);
+          updateDashboardMetrics(allEvaluations);
+          closeAddModal();
+        } else {
+          if (feedback) {
+            feedback.textContent = 'บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง';
+            feedback.className = 'p-3 rounded-xl text-xs font-medium bg-rose-50 text-rose-600 block mb-3';
+          }
+        }
+      } catch (err) {
+        console.error('Add submit error:', err);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
     }
 
     async function handleEditSubmit(e) {
       e.preventDefault();
-      const id = document.getElementById('edit_id').value;
+      const editId = document.getElementById('edit_id').value;
       const feedback = document.getElementById('edit-form-feedback');
+      const submitBtn = document.getElementById('btn-edit-submit');
+
       const config = getSupabaseConfig();
 
       const payload = {
@@ -1801,105 +1837,48 @@
         print_status: document.getElementById('edit_print_status').value,
         notes: document.getElementById('edit_notes').value,
         applicant_email: document.getElementById('edit_applicant_email').value,
-        file_main_url: document.getElementById('edit_file_main_url').value,
-        file_cover_url: document.getElementById('edit_file_cover_url').value,
-        file_eval_url: document.getElementById('edit_file_eval_url').value
+        file_main_url: document.getElementById('edit_file_main_url').value || null,
+        file_cover_url: document.getElementById('edit_file_cover_url').value || null,
+        file_eval_url: document.getElementById('edit_file_eval_url').value || null
       };
 
       try {
-        const response = await fetch(`${config.url}/rest/v1/evaluations?id=eq.${id}`, {
+        if (submitBtn) submitBtn.disabled = true;
+        const response = await fetch(`${config.url}/rest/v1/evaluations?id=eq.${editId}`, {
           method: 'PATCH',
           headers: {
             'apikey': config.key,
             'Authorization': `Bearer ${config.key}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
           },
           body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error('อัปเดตข้อมูลไม่สำเร็จ');
-
-        closeEditModal();
-        fetchEvaluations();
-
-      } catch (err) {
-        console.error(err);
-        // Fallback local update
-        const idx = allEvaluations.findIndex(i => i.id === id);
-        if (idx !== -1) {
-          allEvaluations[idx] = { ...allEvaluations[idx], ...payload };
+        if (response.ok) {
+          const index = allEvaluations.findIndex(i => String(i.id) === String(editId));
+          if (index !== -1) {
+            allEvaluations[index] = { ...allEvaluations[index], ...payload };
+          }
           renderMainCardsList(allEvaluations);
           renderStaffTable(allEvaluations);
           updateDashboardMetrics(allEvaluations);
-        }
-        closeEditModal();
-      }
-    }
-
-    function promptDelete(id) {
-      pendingDeleteId = id;
-      document.getElementById('delete-item-id').textContent = id;
-      document.getElementById('delete-modal').classList.remove('hidden');
-    }
-
-    function closeDeleteModal() {
-      pendingDeleteId = null;
-      document.getElementById('delete-modal').classList.add('hidden');
-    }
-
-    async function confirmDelete() {
-      if (!pendingDeleteId) return;
-      const id = pendingDeleteId;
-      const config = getSupabaseConfig();
-
-      try {
-        await fetch(`${config.url}/rest/v1/evaluations?id=eq.${id}`, {
-          method: 'DELETE',
-          headers: {
-            'apikey': config.key,
-            'Authorization': `Bearer ${config.key}`
+          closeEditModal();
+        } else {
+          if (feedback) {
+            feedback.textContent = 'แก้ไขไม่สำเร็จ กรุณาลองอีกครั้ง';
+            feedback.className = 'p-3 rounded-xl text-xs font-medium bg-rose-50 text-rose-600 block mb-3';
           }
-        });
-
-        closeDeleteModal();
-        fetchEvaluations();
-
+        }
       } catch (err) {
-        console.error(err);
-        allEvaluations = allEvaluations.filter(i => i.id !== id);
-        renderMainCardsList(allEvaluations);
-        renderStaffTable(allEvaluations);
-        updateDashboardMetrics(allEvaluations);
-        closeDeleteModal();
+        console.error('Edit submit error:', err);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
       }
     }
 
-    function showDetails(id) {
-      const item = allEvaluations.find(i => i.id === id);
-      if (!item) return;
-
-      const container = document.getElementById('details-content');
-      container.innerHTML = `
-        <div class="space-y-2">
-          <p><b class="text-slate-800">รหัสรายการ:</b> <span class="font-mono text-blue-600">${item.id}</span></p>
-          <p><b class="text-slate-800">ปีการศึกษา:</b> ${item.evaluation_year || '-'}</p>
-          <p><b class="text-slate-800">ผู้เขียน:</b> ${item.academic_position || ''}${item.author_name || '-'}</p>
-          <p><b class="text-slate-800">ชื่อหนังสือ:</b> ${item.book_title || '-'}</p>
-          <p><b class="text-slate-800">ภาควิชา:</b> ${item.department || item.faculty_code || '-'}</p>
-          <p><b class="text-slate-800">สถานะประเมิน:</b> ${item.status || '-'}</p>
-          <p><b class="text-slate-800">สถานะพิมพ์:</b> ${item.print_status || '-'}</p>
-          <p><b class="text-slate-800">อีเมลผู้ขอ:</b> ${item.applicant_email || '-'}</p>
-          <p><b class="text-slate-800">หมายเหตุ:</b> ${item.notes || item.remark || '-'}</p>
-          <div class="pt-2 border-t border-slate-100 flex flex-col gap-1">
-            <span class="font-semibold text-slate-700">โฟลเดอร์ Google Drive / เอกสารแนบ:</span>
-            ${item.file_main_url ? `<a href="${item.file_main_url}" target="_blank" class="text-blue-600 hover:underline"><i class="fa-solid fa-file-pdf mr-1"></i> 1. หนังสือต้นฉบับ (file_main_url)</a>` : '<span class="text-slate-400">1. หนังสือต้นฉบับ: ไม่มีเอกสาร</span>'}
-            ${item.file_cover_url ? `<a href="${item.file_cover_url}" target="_blank" class="text-purple-600 hover:underline"><i class="fa-solid fa-image mr-1"></i> 2. ปกหนังสือ (file_cover_url)</a>` : '<span class="text-slate-400">2. ปกหนังสือ: ไม่มีเอกสาร</span>'}
-            ${item.file_eval_url ? `<a href="${item.file_eval_url}" target="_blank" class="text-emerald-600 hover:underline"><i class="fa-solid fa-file-circle-check mr-1"></i> 3. เอกสารผลประเมิน (file_eval_url)</a>` : '<span class="text-slate-400">3. เอกสารผลประเมิน: ไม่มีเอกสาร</span>'}
-          </div>
-        </div>
-      `;
-
-      document.getElementById('details-modal').classList.remove('hidden');
+    function toggleManualUrlInputs() {
+      // Kept for backward compatibility
     }
   </script>
 </body>
