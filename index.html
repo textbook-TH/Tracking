@@ -66,7 +66,7 @@
           </div>
         </div>
 
-        <!-- Right Side Header Actions: Navigation Capsule Bar -->
+        <!-- Right Side Header Actions: Navigation Capsule Bar (Aligned Right) -->
         <div class="hidden md:flex items-center space-x-3">
           <!-- GAS API Pill Button (Hidden per Requirement) -->
           <button onclick="openGasModal()" class="hidden px-4 py-2 rounded-full border border-slate-700/80 bg-slate-800/40 hover:bg-slate-800/80 text-slate-200 text-xs font-semibold flex items-center space-x-2 transition shadow-sm">
@@ -446,7 +446,7 @@
   <!-- ========================================== -->
   <!-- MODALS                                     -->
   <!-- ========================================== -->
-  <!-- LOGIN MODAL (Email Only) -->
+  <!-- LOGIN MODAL (Email Only - No Password) -->
   <div id="login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative border border-slate-100">
       <button onclick="closeLoginModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
@@ -504,7 +504,7 @@
     </div>
   </div>
 
-  <!-- GAS API Info Modal -->
+  <!-- GAS API Info Modal (Maintained for logic integrity) -->
   <div id="gas-api-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl relative border border-slate-100">
       <button onclick="closeGasModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
@@ -575,7 +575,7 @@
       fetchEvaluations();
     };
 
-    // Update navigation UI dynamically based on role status & user authorization
+    // Update navigation UI dynamically based on role status & requirements
     function updateNavigationUI() {
       const btnLoginPill = document.getElementById('btn-login-pill');
       const btnLogoutPill = document.getElementById('btn-logout-pill');
@@ -585,7 +585,7 @@
       const mobileProf = document.getElementById('mobile-nav-prof');
       const mobileStaff = document.getElementById('mobile-nav-staff');
 
-      // Requirement 1: Hide email display badge
+      // Requirement 1: Hide email display at top right
       if (userInfoBadge) userInfoBadge.classList.add('hidden');
 
       if (!currentUser) {
@@ -597,7 +597,7 @@
         if (mobileProf) mobileProf.classList.remove('hidden');
         if (mobileStaff) mobileStaff.classList.remove('hidden');
       } else if (currentUser.role === 'staff') {
-        // เงื่อนไข 2: Login เจ้าหน้าที่ -> แสดงในแคปซูล: [หน้าหลัก], [หน้าเจ้าหน้าที่], [ออกจากระบบ] (ซ่อนหน้าอาจารย์เด็ดขาด)
+        // เงื่อนไข 2: Login เจ้าหน้าที่ -> แสดงในแคปซูล: [หน้าหลัก], [หน้าเจ้าหน้าที่], [ออกจากระบบ] (ไม่แสดงของอาจารย์)
         if (btnLoginPill) btnLoginPill.classList.add('hidden');
         if (btnLogoutPill) btnLogoutPill.classList.remove('hidden');
         if (navProf) navProf.classList.add('hidden');
@@ -605,7 +605,7 @@
         if (mobileProf) mobileProf.classList.add('hidden');
         if (mobileStaff) mobileStaff.classList.remove('hidden');
       } else if (currentUser.role === 'professor') {
-        // เงื่อนไข 3: Login อาจารย์ -> แสดงในแคปซูล: [หน้าหลัก], [หน้าอาจารย์], [ออกจากระบบ] (ซ่อนหน้าเจ้าหน้าที่เด็ดขาด)
+        // เงื่อนไข 3: Login อาจารย์ -> แสดงในแคปซูล: [หน้าหลัก], [หน้าอาจารย์], [ออกจากระบบ] (ไม่แสดงของเจ้าหน้าที่)
         if (btnLoginPill) btnLoginPill.classList.add('hidden');
         if (btnLogoutPill) btnLogoutPill.classList.remove('hidden');
         if (navProf) navProf.classList.remove('hidden');
@@ -617,7 +617,7 @@
       applyNavTabStyles(currentActiveTab);
     }
 
-    // Apply active capsule styling (Bright Amber pill for active tab)
+    // Apply active capsule styling
     function applyNavTabStyles(activeTab) {
       currentActiveTab = activeTab;
       const tabs = ['main', 'professor', 'staff'];
@@ -627,6 +627,9 @@
         if (btn) {
           if (t === activeTab) {
             btn.className = "px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-white shadow-md";
+          } else if (!currentUser && (t === 'professor' || t === 'staff')) {
+            // เมื่อยังไม่ได้ล็อกอิน ให้ปุ่มแสดงในรูปแบบล็อก ไม่สามารถคลิกได้
+            btn.className = "px-4 py-2 rounded-full text-xs font-semibold flex items-center space-x-2 text-slate-500 opacity-50 cursor-not-allowed";
           } else {
             btn.className = "px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60";
           }
@@ -642,6 +645,8 @@
         if (mBtn) {
           if (t === activeTab) {
             mBtn.className = "py-1 text-amber-400 font-bold border-b-2 border-amber-400";
+          } else if (!currentUser && (t === 'professor' || t === 'staff')) {
+            mBtn.className = "py-1 text-slate-500 opacity-50 cursor-not-allowed";
           } else {
             mBtn.className = "py-1 text-slate-300 hover:text-white";
           }
@@ -660,20 +665,19 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    // Navigation Switcher with Authentication Guard Rules
+    // Navigation Switcher
     function switchTab(tab) {
-      // Rule 1: หากยังไม่ได้ล็อกอิน ห้ามกดเข้าหน้าอาจารย์ หรือ เจ้าหน้าที่ ให้เปิดป๊อปอัปเข้าสู่ระบบทันที
+      // ห้ามเข้าหน้าอาจารย์ หรือ เจ้าหน้าที่ หากยังไม่ได้ล็อกอิน (ไม่เปลี่ยนหน้า และไม่เปิดป๊อปอัป)
       if (!currentUser && (tab === 'professor' || tab === 'staff')) {
-        openLoginModal();
         return;
       }
 
-      // Rule 2: ป้องกันเจ้าหน้าที่ไปหน้าอาจารย์ และ อาจารย์ไปหน้าเจ้าหน้าที่
+      // Prevent staff from navigating to professor tab and vice versa
       if (currentUser && currentUser.role === 'staff' && tab === 'professor') {
-        return;
+        tab = 'staff';
       }
       if (currentUser && currentUser.role === 'professor' && tab === 'staff') {
-        return;
+        tab = 'professor';
       }
 
       ['main', 'professor', 'staff'].forEach(p => {
@@ -709,7 +713,7 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    // Login Handler (Email Only)
+    // Login Handler (Email Only - No Password Required)
     function handleLoginSubmit(e) {
       e.preventDefault();
       const emailInput = document.getElementById('login-email');
@@ -761,11 +765,11 @@
 
       updateNavigationUI();
 
-      // สลับหน้าให้อัตโนมัติไปยังหน้าที่ตนเองมีสิทธิ์
-      if (currentUser.role === 'staff') {
+      // สลับหน้าให้อัตโนมัติหากอยู่บนหน้าที่ไม่มีสิทธิ์เข้าถึง
+      if (currentUser.role === 'staff' && currentActiveTab === 'professor') {
         switchTab('staff');
-      } else if (currentUser.role === 'professor') {
-        switchTab('professor');
+      } else if (currentUser.role === 'professor' && currentActiveTab === 'staff') {
+        switchTab('staff');
       }
 
       renderProfessorPage();
