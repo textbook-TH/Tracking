@@ -95,7 +95,7 @@
           </button>
 
           <nav class="flex items-center bg-[#0B1120] border border-slate-800 p-1.5 rounded-full shadow-inner space-x-1" id="header-nav-container">
-            <button id="nav-main" onclick="switchTab('main')" class="px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-white bg-blue-600 shadow-sm">
+            <button id="nav-main" onclick="switchTab('main')" class="px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60">
               <i class="fa-solid fa-house text-xs"></i>
               <span>หน้าหลัก</span>
             </button>
@@ -132,7 +132,7 @@
 
   <!-- Mobile Submenu Navigation -->
   <div class="md:hidden bg-slate-800 border-b border-slate-700 px-4 py-2 flex justify-around text-xs text-slate-300">
-    <button id="mobile-nav-main" onclick="switchTab('main')" class="py-1 font-bold text-white border-b-2 border-blue-500">หน้าหลัก</button>
+    <button id="mobile-nav-main" onclick="switchTab('main')" class="py-1">หน้าหลัก</button>
     <button id="mobile-nav-prof" onclick="switchTab('professor')" class="hidden py-1">หน้าอาจารย์</button>
     <button id="mobile-nav-staff" onclick="switchTab('staff')" class="hidden py-1">หน้าเจ้าหน้าที่</button>
   </div>
@@ -299,7 +299,7 @@
 
         <div class="p-4 space-y-3" id="evaluation-list-container"></div>
 
-        <div id="loading-spinner" class="py-12 text-center text-slate-400 hidden">
+        <div id="loading-spinner" class="py-12 text-center text-slate-400">
           <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-600 mb-2"></i>
           <p class="text-xs">กำลังโหลดข้อมูลสถานะ...</p>
         </div>
@@ -316,7 +316,7 @@
             <p class="text-xs text-amber-700">กรุณาล็อกอินด้วยอีเมลองค์กร (@kmitl.ac.th) เพื่อดาวน์โหลดเอกสารผลประเมินของคุณ</p>
           </div>
         </div>
-        <button onclick="openLoginModal()" class="bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-amber-700 transition shrink-0">
+        <button onclick="openLoginModal()" class="bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-amber-700 transition">
           เข้าสู่ระบบอาจารย์
         </button>
       </div>
@@ -1111,19 +1111,11 @@
         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
           <p class="font-semibold text-slate-700 mb-1">สถานะระบบ API:</p>
           <div class="flex items-center space-x-2 text-emerald-600 font-medium">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-            <span>พร้อมใช้งาน (Google Apps Script Web App Connected)</span>
+            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+            <span>เชื่อมต่อกับ Supabase Rest API พร้อมใช้งาน</span>
           </div>
         </div>
-        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-          <p class="font-semibold text-slate-700 mb-1">Endpoint Web App:</p>
-          <p class="text-[11px] text-slate-500 font-mono break-all bg-white p-2 rounded border border-slate-200">
-            https://script.google.com/macros/s/AKfycbx_EXAMPLE_API/exec
-          </p>
-        </div>
-        <p class="text-[11px] text-slate-400">
-          * ระบบใช้ Google Apps Script ร่วมกับ Google Sheets และ Google Drive ในการจัดการข้อมูลและไฟล์แบบเรียลไทม์
-        </p>
+        <p class="text-slate-500">ระบบทำงานร่วมกับ Google Apps Script และ Supabase ในการดึงและอัปเดตสถานะการประเมินหนังสือ/ตำราเรียนแบบ Real-time</p>
       </div>
       <div class="mt-5 text-right">
         <button onclick="closeGasModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-xl font-medium">ปิดหน้าต่าง</button>
@@ -1131,458 +1123,50 @@
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-100 py-6 mt-12 text-center text-xs text-slate-400">
+    <p>© 2026 งานเทคโนโลยีการศึกษา คณะวิศวกรรมศาสตร์ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
+  </footer>
+
   <!-- ========================================== -->
-  <!-- JAVASCRIPT LOGIC                           -->
+  <!-- JAVASCRIPT LOGIC                          -->
   <!-- ========================================== -->
   <script>
-    // Initial evaluation dataset
-    let evaluationsData = [
-      {
-        id: "Text-105",
-        year: "2569",
-        academicPos: "ผศ.ดร.",
-        authorName: "สมชาย วิทยการ",
-        applicantEmail: "somchai.wi@kmitl.ac.th",
-        workType: "ตำราเรียน",
-        bookTitle: "การวิเคราะห์อัลกอริทึมและโครงสร้างข้อมูลขั้นสูง",
-        department: "คอมพิวเตอร์",
-        status: "ผ่านการประเมิน",
-        printStatus: "นำไปจัดพิมพ์ได้",
-        isbn: "978-616-01-2345-1",
-        kmitlEng: "105",
-        notes: "ผ่านการรับรองจากคณะกรรมการประเมิน",
-        fileMainUrl: "#",
-        fileCoverUrl: "#",
-        fileEvalUrl: "#"
-      },
-      {
-        id: "Text-104",
-        year: "2568",
-        academicPos: "รศ.ดร.",
-        authorName: "วิภาดา สายฟ้า",
-        applicantEmail: "wiphada.sa@kmitl.ac.th",
-        workType: "หนังสือ",
-        bookTitle: "ระบบวิศวกรรมพลังงานไฟฟ้าสมัยใหม่",
-        department: "ไฟฟ้า",
-        status: "ส่งเอกสารผู้ทรง รอบ 1",
-        printStatus: "อยู่ระหว่างการประเมิน",
-        isbn: "978-616-01-2344-4",
-        kmitlEng: "104",
-        notes: "รอผลตอบรับจากผู้ทรงคุณวุฒิท่านที่ 2",
-        fileMainUrl: "#",
-        fileCoverUrl: "#",
-        fileEvalUrl: ""
-      },
-      {
-        id: "Text-103",
-        year: "2568",
-        academicPos: "ผศ.",
-        authorName: "อนันต์ ชีวการ",
-        applicantEmail: "anan.ch@kmitl.ac.th",
-        workType: "ตำราเรียน",
-        bookTitle: "การประมวลผลสัญญาณทางการแพทย์",
-        department: "ชีวการแพทย์",
-        status: "รอการแก้ไข รอบ 1",
-        printStatus: "อยู่ระหว่างการประเมิน",
-        isbn: "",
-        kmitlEng: "103",
-        notes: "ส่งผู้เขียนแก้ไขตามข้อเสนอแนะ",
-        fileMainUrl: "#",
-        fileCoverUrl: "",
-        fileEvalUrl: "#"
-      },
-      {
-        id: "Text-102",
-        year: "2567",
-        academicPos: "ดร.",
-        authorName: "ปรีชา สารสนเทศ",
-        applicantEmail: "preecha.sa@kmitl.ac.th",
-        workType: "หนังสือ",
-        bookTitle: "เทคโนโลยีคลาวด์คอมพิวติ้งและความปลอดภัย",
-        department: "ไอที",
-        status: "ผ่านการประเมิน",
-        printStatus: "จัดพิมพ์เอง",
-        isbn: "978-616-01-2340-6",
-        kmitlEng: "102",
-        notes: "จัดพิมพ์และเผยแพร่เรียบร้อยแล้ว",
-        fileMainUrl: "#",
-        fileCoverUrl: "#",
-        fileEvalUrl: "#"
-      },
-      {
-        id: "Text-101",
-        year: "2567",
-        academicPos: "ผศ.ดร.",
-        authorName: "กิตติพงษ์ เครื่องกล",
-        applicantEmail: "kittipong.ke@kmitl.ac.th",
-        workType: "ตำราเรียน",
-        bookTitle: "กลศาสตร์ของไหลทางวิศวกรรม",
-        department: "เครื่องกล",
-        status: "ไม่ผ่านการประเมิน",
-        printStatus: "นำไปจัดพิมพ์ไม่ได้",
-        isbn: "",
-        kmitlEng: "101",
-        notes: "คะแนนไม่อยู่ในเกณฑ์มาตรฐาน",
-        fileMainUrl: "",
-        fileCoverUrl: "",
-        fileEvalUrl: "#"
-      }
-    ];
+    // Supabase Credentials
+    const _0x4d8a = "aHR0cHM6Ly9kdnp6cHVvcnl0ZHZkYXdvbGtlbi5zdXBhYmFzZS5jbw==";
+    const _0x9e12 = "c2JfcHVibGlzaGFibGVfVEstbV9wTWNVU25xOWgyTGYxVDNiUV9iVXJTcGQ0SA==";
 
-    let currentUser = {
-      email: "",
-      role: "" // "professor" or "staff"
+    function getSupabaseConfig() {
+      return {
+        url: atob(_0x4d8a),
+        key: atob(_0x9e12)
+      };
+    }
+
+    const STAFF_EMAIL = "textbook@kmitl.ac.th";
+
+    // Application State
+    let currentUser = null;
+    let allEvaluations = [];
+    let statusChartInstance = null;
+    let currentActiveTab = 'main';
+    let selectedLoginRole = 'professor';
+    let pendingDeleteId = null;
+
+    // Window Load Event
+    window.onload = function() {
+      const storedEmail = localStorage.getItem('kmitl_user_email');
+      const storedRole = localStorage.getItem('kmitl_user_role');
+      if (storedEmail) {
+        setUserSession(storedEmail, storedRole || (storedEmail === STAFF_EMAIL ? 'staff' : 'professor'));
+      } else {
+        updateNavigationUI();
+      }
+      initChart();
+      fetchEvaluations();
     };
 
-    let selectedLoginRole = "professor";
-    let deleteTargetId = null;
-    let myChart = null;
-
-    // Tab Switcher Logic
-    function switchTab(tab) {
-      const pageMain = document.getElementById('page-main');
-      const pageProf = document.getElementById('page-professor');
-      const pageStaff = document.getElementById('page-staff');
-
-      const navMain = document.getElementById('nav-main');
-      const navProf = document.getElementById('nav-professor');
-      const navStaff = document.getElementById('nav-staff');
-
-      const mobMain = document.getElementById('mobile-nav-main');
-      const mobProf = document.getElementById('mobile-nav-prof');
-      const mobStaff = document.getElementById('mobile-nav-staff');
-
-      // Hide all pages first
-      pageMain.classList.add('hidden');
-      pageProf.classList.add('hidden');
-      pageStaff.classList.add('hidden');
-
-      // Reset desktop nav buttons styling
-      [navMain, navProf, navStaff].forEach(btn => {
-        if(btn) {
-          btn.className = "px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800/60";
-        }
-      });
-
-      // Reset mobile nav buttons
-      [mobMain, mobProf, mobStaff].forEach(btn => {
-        if(btn) {
-          btn.className = "py-1";
-        }
-      });
-
-      if (tab === 'main') {
-        pageMain.classList.remove('hidden');
-        if(navMain) navMain.className = "px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-white bg-blue-600 shadow-sm";
-        if(mobMain) mobMain.className = "py-1 font-bold text-white border-b-2 border-blue-500";
-      } else if (tab === 'professor') {
-        pageProf.classList.remove('hidden');
-        if(navProf) navProf.className = "px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-white bg-blue-600 shadow-sm";
-        if(mobProf) mobProf.className = "py-1 font-bold text-white border-b-2 border-blue-500";
-        renderProfCards();
-      } else if (tab === 'staff') {
-        pageStaff.classList.remove('hidden');
-        if(navStaff) navStaff.className = "px-4 py-2 rounded-full text-xs font-semibold transition flex items-center space-x-2 text-white bg-blue-600 shadow-sm";
-        if(mobStaff) mobStaff.className = "py-1 font-bold text-white border-b-2 border-blue-500";
-        renderStaffTable();
-      }
-    }
-
-    function getStatusBadgeHtml(status) {
-      if (status.includes('ผ่านการประเมิน')) {
-        return `<span class="badge-status bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-circle-check text-[10px]"></i> ${status}</span>`;
-      } else if (status.includes('ไม่ผ่าน')) {
-        return `<span class="badge-status bg-rose-50 text-rose-700 border border-rose-200"><i class="fa-solid fa-circle-xmark text-[10px]"></i> ${status}</span>`;
-      } else {
-        return `<span class="badge-status bg-amber-50 text-amber-700 border border-amber-200"><i class="fa-solid fa-hourglass-half text-[10px]"></i> ${status}</span>`;
-      }
-    }
-
-    // Render Page 1 List
-    function renderMainList(dataToRender = evaluationsData) {
-      const container = document.getElementById('evaluation-list-container');
-      const countDisplay = document.getElementById('result-count');
-      const filterSummary = document.getElementById('filter-summary-text');
-      
-      countDisplay.innerText = dataToRender.length;
-      filterSummary.innerText = `กำลังแสดงผลลัพธ์ ${dataToRender.length} จาก ${evaluationsData.length} รายการ`;
-
-      if (dataToRender.length === 0) {
-        container.innerHTML = `
-          <div class="py-12 text-center text-slate-400">
-            <i class="fa-solid fa-folder-open text-4xl mb-2 text-slate-300"></i>
-            <p class="text-xs">ไม่พบรายการข้อมูลตามเงื่อนไขที่ระบุ</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = dataToRender.map(item => `
-        <div class="bg-white p-4 rounded-xl border border-slate-100 hover:border-blue-200 shadow-sm hover:shadow transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div class="space-y-1">
-            <div class="flex items-center space-x-2">
-              <span class="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">${item.id}</span>
-              <span class="text-xs text-slate-400">| ปี ${item.year}</span>
-              <span class="text-xs text-slate-500 font-medium">(${item.workType})</span>
-            </div>
-            <h4 class="font-bold text-sm text-slate-800">${item.bookTitle}</h4>
-            <p class="text-xs text-slate-500">
-              <i class="fa-solid fa-user-graduate text-slate-400 mr-1"></i>${item.academicPos} ${item.authorName} 
-              <span class="text-slate-300 mx-1">•</span> 
-              <i class="fa-solid fa-building text-slate-400 mr-1"></i>ภาควิชา${item.department}
-            </p>
-          </div>
-          <div class="flex flex-col sm:items-end gap-2 w-full sm:w-auto shrink-0">
-            ${getStatusBadgeHtml(item.status)}
-            <button onclick="viewDetails('${item.id}')" class="text-[11px] text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
-              <i class="fa-solid fa-circle-info"></i> รายละเอียดเพิ่มเติม
-            </button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function updateMetricsAndChart(data = evaluationsData) {
-      let total = data.length;
-      let completed = data.filter(d => d.status.includes('ผ่านการประเมิน')).length;
-      let failed = data.filter(d => d.status.includes('ไม่ผ่าน')).length;
-      let pending = total - (completed + failed);
-
-      document.getElementById('stat-total').innerText = total;
-      document.getElementById('stat-completed').innerText = completed;
-      document.getElementById('stat-pending').innerText = pending;
-      document.getElementById('stat-failed').innerText = failed;
-
-      document.getElementById('chart-center-total').innerText = total;
-      document.getElementById('chart-legend-pass').innerText = completed;
-      document.getElementById('chart-legend-pending').innerText = pending;
-      document.getElementById('chart-legend-fail').innerText = failed;
-
-      // Donut Chart Update
-      const ctx = document.getElementById('statusChart').getContext('2d');
-      if (myChart) {
-        myChart.destroy();
-      }
-
-      myChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['ผ่านการประเมิน', 'กำลังดำเนินการ', 'ไม่ผ่านการประเมิน'],
-          datasets: [{
-            data: [completed, pending, failed],
-            backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
-            borderWidth: 0,
-            hoverOffset: 4
-          }]
-        },
-        options: {
-          cutout: '75%',
-          plugins: {
-            legend: { display: false },
-            tooltip: { enabled: true }
-          },
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
-
-    function filterEvaluations() {
-      const search = document.getElementById('search-input').value.toLowerCase().trim();
-      const year = document.getElementById('filter-year').value;
-      const dept = document.getElementById('filter-dept').value;
-      const status = document.getElementById('filter-status').value;
-
-      const filtered = evaluationsData.filter(item => {
-        const matchSearch = !search || 
-          item.bookTitle.toLowerCase().includes(search) || 
-          item.authorName.toLowerCase().includes(search) || 
-          item.id.toLowerCase().includes(search);
-
-        const matchYear = !year || item.year === year;
-        const matchDept = !dept || item.department.includes(dept);
-        
-        let matchStatus = true;
-        if (status) {
-          if (status === 'ไม่ผ่าน') matchStatus = item.status.includes('ไม่ผ่าน');
-          else matchStatus = item.status.includes(status);
-        }
-
-        return matchSearch && matchYear && matchDept && matchStatus;
-      });
-
-      renderMainList(filtered);
-      updateMetricsAndChart(filtered);
-    }
-
-    function filterByCardStatus(statusType) {
-      document.getElementById('filter-status').value = statusType;
-      filterEvaluations();
-    }
-
-    function resetFilters() {
-      document.getElementById('search-input').value = "";
-      document.getElementById('filter-year').value = "";
-      document.getElementById('filter-dept').value = "";
-      document.getElementById('filter-status').value = "";
-      filterEvaluations();
-    }
-
-    function fetchEvaluations() {
-      const spinner = document.getElementById('loading-spinner');
-      spinner.classList.remove('hidden');
-      setTimeout(() => {
-        spinner.classList.add('hidden');
-        filterEvaluations();
-      }, 400);
-    }
-
-    // Render Page 2 Professor Cards
-    function renderProfCards() {
-      const container = document.getElementById('prof-cards-container');
-      const alertBox = document.getElementById('prof-login-alert');
-
-      if (!currentUser.email) {
-        alertBox.classList.remove('hidden');
-      } else {
-        alertBox.classList.add('hidden');
-      }
-
-      let myWorks = evaluationsData;
-      if (currentUser.email && currentUser.role === 'professor') {
-        myWorks = evaluationsData.filter(w => w.applicantEmail.toLowerCase() === currentUser.email.toLowerCase());
-      }
-
-      if (myWorks.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-100">
-            <i class="fa-solid fa-folder-closed text-4xl mb-2 text-slate-300"></i>
-            <p class="text-xs">ไม่พบเอกสารผลงานที่ตรงกับอีเมลที่เข้าสู่ระบบ</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = myWorks.map(item => `
-        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4 hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <div>
-              <span class="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">${item.id}</span>
-              <span class="text-xs text-slate-400 ml-2">ปี ${item.year}</span>
-            </div>
-            ${getStatusBadgeHtml(item.status)}
-          </div>
-
-          <div>
-            <h3 class="font-bold text-sm text-slate-900 leading-snug">${item.bookTitle}</h3>
-            <p class="text-xs text-slate-500 mt-1">${item.academicPos} ${item.authorName} • ภาควิชา${item.department}</p>
-          </div>
-
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-500"><i class="fa-solid fa-file-pdf text-blue-500 mr-1.5"></i> หนังสือต้นฉบับ:</span>
-              ${item.fileMainUrl ? `<a href="${item.fileMainUrl}" target="_blank" class="text-blue-600 hover:underline font-semibold">ดาวน์โหลด</a>` : `<span class="text-slate-400">ไม่มีไฟล์</span>`}
-            </div>
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-500"><i class="fa-solid fa-image text-purple-500 mr-1.5"></i> ปกหนังสือ:</span>
-              ${item.fileCoverUrl ? `<a href="${item.fileCoverUrl}" target="_blank" class="text-purple-600 hover:underline font-semibold">ดาวน์โหลด</a>` : `<span class="text-slate-400">ไม่มีไฟล์</span>`}
-            </div>
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-500"><i class="fa-solid fa-file-circle-check text-emerald-500 mr-1.5"></i> รายงานผลประเมิน:</span>
-              ${item.fileEvalUrl ? `<a href="${item.fileEvalUrl}" target="_blank" class="text-emerald-600 hover:underline font-semibold">ดาวน์โหลด</a>` : `<span class="text-slate-400">รอผลประเมิน</span>`}
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Render Page 3 Staff Management Table
-    function renderStaffTable(dataToRender = evaluationsData) {
-      const lockBox = document.getElementById('staff-auth-lock');
-      const contentContainer = document.getElementById('staff-content-container');
-      const tbody = document.getElementById('staff-table-body');
-      const countDisplay = document.getElementById('staff-result-count');
-
-      // Auth view toggle
-      if (currentUser.role === 'staff' && currentUser.email === 'textbook@kmitl.ac.th') {
-        lockBox.classList.add('hidden');
-        contentContainer.classList.remove('hidden');
-      } else {
-        lockBox.classList.remove('hidden');
-        contentContainer.classList.add('hidden');
-        return;
-      }
-
-      countDisplay.innerText = dataToRender.length;
-
-      if (dataToRender.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="py-8 text-center text-slate-400">ไม่พบข้อมูลตามเงื่อนไขการค้นหา</td>
-          </tr>
-        `;
-        return;
-      }
-
-      tbody.innerHTML = dataToRender.map(item => `
-        <tr class="hover:bg-slate-50/80 transition">
-          <td class="py-3 px-4 font-mono font-bold text-blue-600">${item.id}</td>
-          <td class="py-3 px-5">
-            <div class="font-bold text-slate-800">${item.bookTitle}</div>
-            <div class="text-[11px] text-slate-400">${item.academicPos} ${item.authorName} (${item.applicantEmail})</div>
-          </td>
-          <td class="py-3 px-4">${getStatusBadgeHtml(item.status)}</td>
-          <td class="py-3 px-4 text-center">
-            <div class="flex justify-center space-x-2">
-              ${item.fileMainUrl ? `<a href="${item.fileMainUrl}" target="_blank" class="text-blue-600 hover:text-blue-800" title="หนังสือ"><i class="fa-solid fa-file-pdf text-sm"></i></a>` : `<i class="fa-solid fa-file-pdf text-slate-300 text-sm"></i>`}
-              ${item.fileCoverUrl ? `<a href="${item.fileCoverUrl}" target="_blank" class="text-purple-600 hover:text-purple-800" title="ปกหนังสือ"><i class="fa-solid fa-image text-sm"></i></a>` : `<i class="fa-solid fa-image text-slate-300 text-sm"></i>`}
-              ${item.fileEvalUrl ? `<a href="${item.fileEvalUrl}" target="_blank" class="text-emerald-600 hover:text-emerald-800" title="ผลประเมิน"><i class="fa-solid fa-file-circle-check text-sm"></i></a>` : `<i class="fa-solid fa-file-circle-check text-slate-300 text-sm"></i>`}
-            </div>
-          </td>
-          <td class="py-3 px-5 text-slate-500">${item.notes || '-'}</td>
-          <td class="py-3 px-4 text-center space-x-1">
-            <button onclick="openEditModal('${item.id}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="แก้ไข">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button onclick="openDeleteModal('${item.id}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบ">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </td>
-        </tr>
-      `).join('');
-    }
-
-    function filterStaffEvaluations() {
-      const search = document.getElementById('staff-search-input').value.toLowerCase().trim();
-      const year = document.getElementById('staff-filter-year').value;
-      const dept = document.getElementById('staff-filter-dept').value;
-      const status = document.getElementById('staff-filter-status').value;
-
-      const filtered = evaluationsData.filter(item => {
-        const matchSearch = !search || 
-          item.bookTitle.toLowerCase().includes(search) || 
-          item.authorName.toLowerCase().includes(search) || 
-          item.id.toLowerCase().includes(search);
-
-        const matchYear = !year || item.year === year;
-        const matchDept = !dept || item.department.includes(dept);
-        const matchStatus = !status || item.status.includes(status);
-
-        return matchSearch && matchYear && matchDept && matchStatus;
-      });
-
-      renderStaffTable(filtered);
-    }
-
-    function resetStaffFilters() {
-      document.getElementById('staff-search-input').value = "";
-      document.getElementById('staff-filter-year').value = "";
-      document.getElementById('staff-filter-dept').value = "";
-      document.getElementById('staff-filter-status').value = "";
-      filterStaffEvaluations();
-    }
-
-    // Authentication Handlers
+    // Select Role in Login Modal
     function selectRole(role) {
       selectedLoginRole = role;
       const btnProf = document.getElementById('role-btn-professor');
@@ -1597,88 +1181,518 @@
       }
     }
 
+    function updateNavigationUI() {
+      const btnLoginPill = document.getElementById('btn-login-pill');
+      const btnLogoutPill = document.getElementById('btn-logout-pill');
+      const userInfoBadge = document.getElementById('user-info-badge');
+      const navProf = document.getElementById('nav-professor');
+      const navStaff = document.getElementById('nav-staff');
+      const mobileProf = document.getElementById('mobile-nav-prof');
+      const mobileStaff = document.getElementById('mobile-nav-staff');
+
+      if (userInfoBadge) userInfoBadge.classList.add('hidden');
+
+      if (!currentUser) {
+        if (btnLoginPill) btnLoginPill.classList.remove('hidden');
+        if (btnLogoutPill) btnLogoutPill.classList.add('hidden');
+        if (navProf) navProf.classList.add('hidden');
+        if (navStaff) navStaff.classList.add('hidden');
+        if (mobileProf) mobileProf.classList.add('hidden');
+        if (mobileStaff) mobileStaff.classList.add('hidden');
+
+      } else if (currentUser.role === 'professor') {
+        if (btnLoginPill) btnLoginPill.classList.add('hidden');
+        if (btnLogoutPill) btnLogoutPill.classList.remove('hidden');
+        if (navProf) navProf.classList.remove('hidden');
+        if (navStaff) navStaff.classList.add('hidden');
+        if (mobileProf) mobileProf.classList.remove('hidden');
+        if (mobileStaff) mobileStaff.classList.add('hidden');
+
+      } else if (currentUser.role === 'staff') {
+        if (btnLoginPill) btnLoginPill.classList.add('hidden');
+        if (btnLogoutPill) btnLogoutPill.classList.remove('hidden');
+        if (navProf) navProf.classList.add('hidden');
+        if (navStaff) navStaff.classList.remove('hidden');
+        if (mobileProf) mobileProf.classList.add('hidden');
+        if (mobileStaff) mobileStaff.classList.remove('hidden');
+      }
+
+      applyNavTabStyles(currentActiveTab);
+    }
+
+    function applyNavTabStyles(activeTab) {
+      currentActiveTab = activeTab;
+      const tabs = ['main', 'professor', 'staff'];
+
+      tabs.forEach(t => {
+        const btn = document.getElementById(`nav-${t}`);
+        if (btn) {
+          const activeClasses = ['bg-amber-500', 'hover:bg-amber-600', 'text-white', 'shadow-md'];
+          const inactiveClasses = ['text-slate-300', 'hover:text-white', 'hover:bg-slate-800/60'];
+
+          if (t === activeTab) {
+            btn.classList.add(...activeClasses);
+            btn.classList.remove(...inactiveClasses);
+          } else {
+            btn.classList.remove(...activeClasses);
+            btn.classList.add(...inactiveClasses);
+          }
+        }
+
+        const mobileBtnMap = {
+          'main': 'mobile-nav-main',
+          'professor': 'mobile-nav-prof',
+          'staff': 'mobile-nav-staff'
+        };
+        const mBtn = document.getElementById(mobileBtnMap[t]);
+        if (mBtn) {
+          if (t === activeTab) {
+            mBtn.classList.add('text-amber-400', 'font-bold', 'border-b-2', 'border-amber-400');
+            mBtn.classList.remove('text-slate-300', 'hover:text-white');
+          } else {
+            mBtn.classList.remove('text-amber-400', 'font-bold', 'border-b-2', 'border-amber-400');
+            mBtn.classList.add('text-slate-300', 'hover:text-white');
+          }
+        }
+      });
+    }
+
+    function openGasModal() {
+      const modal = document.getElementById('gas-api-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeGasModal() {
+      const modal = document.getElementById('gas-api-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function switchTab(tab) {
+      if (currentUser && currentUser.role === 'staff' && tab === 'professor') {
+        tab = 'staff';
+      }
+      if (currentUser && currentUser.role === 'professor' && tab === 'staff') {
+        tab = 'professor';
+      }
+
+      ['main', 'professor', 'staff'].forEach(p => {
+        const pageEl = document.getElementById(`page-${p}`);
+        if (pageEl) pageEl.classList.add('hidden');
+      });
+
+      const activePage = document.getElementById(`page-${tab}`);
+      if (activePage) activePage.classList.remove('hidden');
+
+      applyNavTabStyles(tab);
+
+      if (tab === 'professor') {
+        renderProfessorPage();
+      } else if (tab === 'staff') {
+        renderStaffTable(allEvaluations);
+      }
+    }
+
     function openLoginModal() {
-      document.getElementById('login-modal').classList.remove('hidden');
+      const modal = document.getElementById('login-modal');
+      if (modal) modal.classList.remove('hidden');
     }
 
     function closeLoginModal() {
-      document.getElementById('login-modal').classList.add('hidden');
-      document.getElementById('login-error').classList.add('hidden');
+      const modal = document.getElementById('login-modal');
+      const errorEl = document.getElementById('login-error');
+      if (modal) modal.classList.add('hidden');
+      if (errorEl) errorEl.classList.add('hidden');
+    }
+
+    function closeDetailsModal() {
+      const modal = document.getElementById('details-modal');
+      if (modal) modal.classList.add('hidden');
     }
 
     function handleLoginSubmit(e) {
       e.preventDefault();
-      const email = document.getElementById('login-email').value.trim();
-      const errBox = document.getElementById('login-error');
+      const emailInput = document.getElementById('login-email');
+      const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+      const errorEl = document.getElementById('login-error');
 
-      if (!email.toLowerCase().endsWith('@kmitl.ac.th')) {
-        errBox.innerText = "กรุณาใช้อีเมลสถาบัน @kmitl.ac.th เท่านั้น";
-        errBox.classList.remove('hidden');
+      if (!email.endsWith('@kmitl.ac.th')) {
+        if (errorEl) {
+          errorEl.textContent = 'กรุณาใช้อีเมลสถาบัน @kmitl.ac.th เท่านั้น';
+          errorEl.classList.remove('hidden');
+        }
         return;
       }
 
-      if (selectedLoginRole === 'staff' && email.toLowerCase() !== 'textbook@kmitl.ac.th') {
-        errBox.innerText = "สิทธิ์เจ้าหน้าที่เฉพาะหนังสือ textbook@kmitl.ac.th เท่านั้น";
-        errBox.classList.remove('hidden');
-        return;
-      }
+      setUserSession(email, selectedLoginRole);
+      closeLoginModal();
+    }
 
-      currentUser.email = email;
-      currentUser.role = selectedLoginRole;
+    function setUserSession(email, role) {
+      const isStaffRole = (role === 'staff') || (email === STAFF_EMAIL);
+      currentUser = { email: email, role: isStaffRole ? 'staff' : 'professor' };
+      localStorage.setItem('kmitl_user_email', email);
+      localStorage.setItem('kmitl_user_role', currentUser.role);
 
-      // Update UI Header
-      document.getElementById('btn-login-pill').classList.add('hidden');
-      document.getElementById('btn-logout-pill').classList.remove('hidden');
-      document.getElementById('nav-professor').classList.remove('hidden');
-      document.getElementById('mobile-nav-prof').classList.remove('hidden');
+      const userDisplay = document.getElementById('user-display-email');
+      if (userDisplay) userDisplay.textContent = email;
+
+      const roleBadge = document.getElementById('user-role-badge');
+      const staffAuthLock = document.getElementById('staff-auth-lock');
+      const staffContentContainer = document.getElementById('staff-content-container');
 
       if (currentUser.role === 'staff') {
-        document.getElementById('nav-staff').classList.remove('hidden');
-        document.getElementById('mobile-nav-staff').classList.remove('hidden');
+        if (roleBadge) {
+          roleBadge.textContent = 'เจ้าหน้าที่';
+          roleBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-300';
+        }
+        if (staffAuthLock) staffAuthLock.classList.add('hidden');
+        if (staffContentContainer) staffContentContainer.classList.remove('hidden');
+      } else {
+        if (roleBadge) {
+          roleBadge.textContent = 'อาจารย์';
+          roleBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-semibold bg-blue-500/20 text-blue-300';
+        }
+        if (staffAuthLock) staffAuthLock.classList.remove('hidden');
+        if (staffContentContainer) staffContentContainer.classList.add('hidden');
       }
 
-      document.getElementById('user-display-email').innerText = email;
-      document.getElementById('user-role-badge').innerText = currentUser.role === 'staff' ? 'เจ้าหน้าที่' : 'อาจารย์';
-      document.getElementById('user-info-badge').classList.remove('hidden');
+      const profAlert = document.getElementById('prof-login-alert');
+      if (profAlert) profAlert.classList.add('hidden');
 
-      closeLoginModal();
+      updateNavigationUI();
 
       if (currentUser.role === 'staff') {
         switchTab('staff');
-      } else {
+      } else if (currentUser.role === 'professor') {
         switchTab('professor');
       }
+
+      renderProfessorPage();
     }
 
     function logout() {
-      currentUser.email = "";
-      currentUser.role = "";
+      currentUser = null;
+      localStorage.removeItem('kmitl_user_email');
+      localStorage.removeItem('kmitl_user_role');
 
-      document.getElementById('btn-login-pill').classList.remove('hidden');
-      document.getElementById('btn-logout-pill').classList.add('hidden');
-      document.getElementById('nav-professor').classList.add('hidden');
-      document.getElementById('nav-staff').classList.add('hidden');
-      document.getElementById('mobile-nav-prof').classList.add('hidden');
-      document.getElementById('mobile-nav-staff').classList.add('hidden');
-      document.getElementById('user-info-badge').classList.add('hidden');
+      document.getElementById('staff-auth-lock').classList.remove('hidden');
+      document.getElementById('staff-content-container').classList.add('hidden');
+      document.getElementById('prof-login-alert').classList.remove('hidden');
 
+      updateNavigationUI();
+      renderProfessorPage();
       switchTab('main');
     }
 
-    // Drag & Drop Single File Handlers for Add/Edit Form
+    function initChart() {
+      const ctx = document.getElementById('statusChart').getContext('2d');
+      statusChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['ผ่านการประเมิน', 'กำลังดำเนินการ', 'ไม่ผ่าน'],
+          datasets: [{
+            data: [0, 0, 0],
+            backgroundColor: ['#10B981', '#FBBF24', '#F87171'],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          cutout: '78%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: true }
+          },
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+
+    async function fetchEvaluations() {
+      const spinner = document.getElementById('loading-spinner');
+      const config = getSupabaseConfig();
+
+      try {
+        const response = await fetch(`${config.url}/rest/v1/evaluations?select=*&order=id.desc`, {
+          headers: {
+            'apikey': config.key,
+            'Authorization': `Bearer ${config.key}`
+          }
+        });
+
+        if (!response.ok) throw new Error('ไม่สามารถเชื่อมต่อฐานข้อมูล');
+
+        allEvaluations = await response.json();
+        if (spinner) spinner.classList.add('hidden');
+
+        renderMainCardsList(allEvaluations);
+        renderStaffTable(allEvaluations);
+        updateDashboardMetrics(allEvaluations);
+
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        if (spinner) {
+          spinner.innerHTML = `<p class="text-rose-500 text-xs"><i class="fa-solid fa-triangle-exclamation"></i> ไม่สามารถดึงข้อมูลจากฐานข้อมูลได้</p>`;
+        }
+      }
+    }
+
+    function updateDashboardMetrics(data) {
+      if (!data) data = [];
+      const total = data.length;
+      let pass = 0;
+      let fail = 0;
+      let pending = 0;
+
+      data.forEach(item => {
+        const st = (item.status || '').toLowerCase();
+        if (st.includes('ผ่านการประเมิน') && !st.includes('ไม่ผ่าน')) {
+          pass++;
+        } else if (st.includes('ไม่ผ่าน')) {
+          fail++;
+        } else {
+          pending++;
+        }
+      });
+
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-completed').textContent = pass;
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-failed').textContent = fail;
+
+      document.getElementById('chart-center-total').textContent = total;
+      document.getElementById('chart-legend-pass').textContent = pass;
+      document.getElementById('chart-legend-pending').textContent = pending;
+      document.getElementById('chart-legend-fail').textContent = fail;
+
+      if (statusChartInstance) {
+        statusChartInstance.data.datasets[0].data = [pass, pending, fail];
+        statusChartInstance.update();
+      }
+    }
+
+    function renderMainCardsList(data) {
+      const container = document.getElementById('evaluation-list-container');
+      const countEl = document.getElementById('result-count');
+      if (!container) return;
+      container.innerHTML = '';
+      if (countEl) countEl.textContent = data.length;
+
+      if (data.length === 0) {
+        container.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs">ไม่พบข้อมูลการประเมินตามเงื่อนไข</div>`;
+        return;
+      }
+
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4";
+
+        let statusBadge = getStatusBadgeHTML(item.status);
+
+        card.innerHTML = `
+          <div class="flex items-center space-x-3 min-w-[180px]">
+            <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg">${item.evaluation_year || '-'}</span>
+            <div>
+              ${statusBadge}
+              <p class="text-[11px] text-slate-400 mt-1">พิมพ์: ${item.print_status || 'อยู่ระหว่างการประเมิน'}</p>
+            </div>
+          </div>
+
+          <div class="flex-grow">
+            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded font-mono">${item.id}</span>
+            <h4 class="font-bold text-slate-800 text-sm mt-0.5">${item.book_title || 'ไม่ระบุชื่อหนังสือ'}</h4>
+            <p class="text-xs text-slate-500">${item.academic_position || ''}${item.author_name || '-'} • <span class="text-slate-400">${item.department || item.faculty_code || '-'}</span></p>
+          </div>
+
+          <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+            ${item.file_main_url ? `<a href="${item.file_main_url}" target="_blank" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg text-xs" title="ดูหนังสือต้นฉบับ"><i class="fa-solid fa-file-pdf"></i></a>` : ''}
+            ${item.file_cover_url ? `<a href="${item.file_cover_url}" target="_blank" class="p-2 text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg text-xs" title="ดูรูปปก"><i class="fa-solid fa-image"></i></a>` : ''}
+            ${item.file_eval_url ? `<a href="${item.file_eval_url}" target="_blank" class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg text-xs" title="ดูผลประเมิน"><i class="fa-solid fa-file-circle-check"></i></a>` : ''}
+            <button onclick="showDetails('${item.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-lg font-medium transition">
+              <i class="fa-solid fa-circle-info mr-1"></i> รายละเอียด
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function getStatusBadgeHTML(status) {
+      const st = status || 'รอการประเมิน';
+      if (st.includes('ผ่านการประเมิน') && !st.includes('ไม่ผ่าน')) {
+        return `<span class="badge-status bg-emerald-100 text-emerald-700"><i class="fa-solid fa-circle-check"></i> ${st}</span>`;
+      } else if (st.includes('ไม่ผ่าน')) {
+        return `<span class="badge-status bg-rose-100 text-rose-700"><i class="fa-solid fa-circle-xmark"></i> ${st}</span>`;
+      } else {
+        return `<span class="badge-status bg-amber-100 text-amber-700"><i class="fa-solid fa-clock"></i> ${st}</span>`;
+      }
+    }
+
+    function filterEvaluations() {
+      const search = (document.getElementById('search-input')?.value || '').toLowerCase();
+      const year = document.getElementById('filter-year')?.value || '';
+      const dept = document.getElementById('filter-dept')?.value || '';
+      const status = document.getElementById('filter-status')?.value || '';
+
+      const filtered = allEvaluations.filter(item => {
+        const matchesSearch = !search || 
+          (item.book_title || '').toLowerCase().includes(search) ||
+          (item.author_name || '').toLowerCase().includes(search) ||
+          (item.id || '').toLowerCase().includes(search);
+
+        const matchesYear = !year || (item.evaluation_year || '').toString() === year;
+        const matchesDept = !dept || (item.department || '').toLowerCase().includes(dept.toLowerCase());
+        const matchesStatus = !status || (item.status || '').toLowerCase().includes(status.toLowerCase());
+
+        return matchesSearch && matchesYear && matchesDept && matchesStatus;
+      });
+
+      renderMainCardsList(filtered);
+    }
+
+    function filterByCardStatus(cardStatus) {
+      const statusSelect = document.getElementById('filter-status');
+      if (statusSelect) {
+        statusSelect.value = cardStatus;
+        filterEvaluations();
+      }
+    }
+
+    function resetFilters() {
+      if (document.getElementById('search-input')) document.getElementById('search-input').value = '';
+      if (document.getElementById('filter-year')) document.getElementById('filter-year').value = '';
+      if (document.getElementById('filter-dept')) document.getElementById('filter-dept').value = '';
+      if (document.getElementById('filter-status')) document.getElementById('filter-status').value = '';
+      renderMainCardsList(allEvaluations);
+    }
+
+    function renderProfessorPage() {
+      const container = document.getElementById('prof-cards-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!currentUser) {
+        container.innerHTML = `<div class="col-span-2 text-center py-10 text-slate-400 text-xs">กรุณาล็อกอินด้วยอีเมลอาจารย์เพื่อดูเอกสาร</div>`;
+        return;
+      }
+
+      const profItems = allEvaluations.filter(item => 
+        (item.applicant_email || '').toLowerCase() === currentUser.email.toLowerCase()
+      );
+
+      if (profItems.length === 0) {
+        container.innerHTML = `<div class="col-span-2 text-center py-10 text-slate-400 text-xs">ไม่พบรายการขอประเมินที่ตรงกับอีเมล ${currentUser.email}</div>`;
+        return;
+      }
+
+      profItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">${item.id}</span>
+            ${getStatusBadgeHTML(item.status)}
+          </div>
+          <h4 class="font-bold text-slate-800 text-sm">${item.book_title || 'ไม่ระบุชื่อผลงาน'}</h4>
+          <p class="text-xs text-slate-500">ปีการประเมิน: ${item.evaluation_year || '-'} • ภาควิชา: ${item.department || '-'}</p>
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400">สถานะจัดพิมพ์: ${item.print_status || '-'}</span>
+            <div class="flex space-x-2">
+              ${item.file_main_url ? `<a href="${item.file_main_url}" target="_blank" class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium"><i class="fa-solid fa-download mr-1"></i> ต้นฉบับ</a>` : ''}
+              ${item.file_eval_url ? `<a href="${item.file_eval_url}" target="_blank" class="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-medium"><i class="fa-solid fa-download mr-1"></i> ผลประเมิน</a>` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderStaffTable(data) {
+      const tbody = document.getElementById('staff-table-body');
+      const countEl = document.getElementById('staff-result-count');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (countEl) countEl.textContent = data.length;
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">ไม่พบรายการข้อมูล</td></tr>`;
+        return;
+      }
+
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold text-blue-600">${item.id}</td>
+          <td class="py-3 px-5">
+            <p class="font-semibold text-slate-800">${item.book_title || '-'}</p>
+            <p class="text-[11px] text-slate-400">${item.academic_position || ''}${item.author_name || '-'} (${item.department || '-'})</p>
+          </td>
+          <td class="py-3 px-4">${getStatusBadgeHTML(item.status)}</td>
+          <td class="py-3 px-4 text-center">
+            <div class="flex justify-center gap-1.5">
+              ${item.file_main_url ? `<a href="${item.file_main_url}" target="_blank" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="หนังสือ"><i class="fa-solid fa-file-pdf"></i></a>` : ''}
+              ${item.file_cover_url ? `<a href="${item.file_cover_url}" target="_blank" class="p-1.5 text-purple-600 hover:bg-purple-50 rounded" title="รูปปก"><i class="fa-solid fa-image"></i></a>` : ''}
+              ${item.file_eval_url ? `<a href="${item.file_eval_url}" target="_blank" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded" title="ผลประเมิน"><i class="fa-solid fa-file-circle-check"></i></a>` : ''}
+            </div>
+          </td>
+          <td class="py-3 px-5 text-slate-500 text-[11px]">${item.remarks || '-'}</td>
+          <td class="py-3 px-4 text-center">
+            <div class="flex justify-center space-x-2">
+              <button onclick="openEditModal('${item.id}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded" title="แก้ไข"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="openDeleteModal('${item.id}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded" title="ลบ"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterStaffEvaluations() {
+      const search = (document.getElementById('staff-search-input')?.value || '').toLowerCase();
+      const year = document.getElementById('staff-filter-year')?.value || '';
+      const dept = document.getElementById('staff-filter-dept')?.value || '';
+      const status = document.getElementById('staff-filter-status')?.value || '';
+
+      const filtered = allEvaluations.filter(item => {
+        const matchesSearch = !search || 
+          (item.book_title || '').toLowerCase().includes(search) ||
+          (item.author_name || '').toLowerCase().includes(search) ||
+          (item.id || '').toLowerCase().includes(search);
+
+        const matchesYear = !year || (item.evaluation_year || '').toString() === year;
+        const matchesDept = !dept || (item.department || '').toLowerCase().includes(dept.toLowerCase());
+        const matchesStatus = !status || (item.status || '').toLowerCase().includes(status.toLowerCase());
+
+        return matchesSearch && matchesYear && matchesDept && matchesStatus;
+      });
+
+      renderStaffTable(filtered);
+    }
+
+    function resetStaffFilters() {
+      if (document.getElementById('staff-search-input')) document.getElementById('staff-search-input').value = '';
+      if (document.getElementById('staff-filter-year')) document.getElementById('staff-filter-year').value = '';
+      if (document.getElementById('staff-filter-dept')) document.getElementById('staff-filter-dept').value = '';
+      if (document.getElementById('staff-filter-status')) document.getElementById('staff-filter-status').value = '';
+      renderStaffTable(allEvaluations);
+    }
+
+    // Drag and Drop & Single File Upload Controls
     function handleSingleDragOver(e, type) {
       e.preventDefault();
-      document.getElementById(`drop-zone-${type}`).classList.add('drag-active');
+      document.getElementById(`drop-zone-${type}`)?.classList.add('drag-active');
     }
 
     function handleSingleDragLeave(e, type) {
       e.preventDefault();
-      document.getElementById(`drop-zone-${type}`).classList.remove('drag-active');
+      document.getElementById(`drop-zone-${type}`)?.classList.remove('drag-active');
     }
 
     function handleSingleFileDrop(e, type) {
       e.preventDefault();
-      document.getElementById(`drop-zone-${type}`).classList.remove('drag-active');
+      document.getElementById(`drop-zone-${type}`)?.classList.remove('drag-active');
       if (e.dataTransfer.files && e.dataTransfer.files[0]) {
         processSingleFile(e.dataTransfer.files[0], type, 'add');
       }
@@ -1692,17 +1706,17 @@
 
     function handleSingleEditDragOver(e, type) {
       e.preventDefault();
-      document.getElementById(`edit-drop-zone-${type}`).classList.add('drag-active');
+      document.getElementById(`edit-drop-zone-${type}`)?.classList.add('drag-active');
     }
 
     function handleSingleEditDragLeave(e, type) {
       e.preventDefault();
-      document.getElementById(`edit-drop-zone-${type}`).classList.remove('drag-active');
+      document.getElementById(`edit-drop-zone-${type}`)?.classList.remove('drag-active');
     }
 
     function handleSingleEditFileDrop(e, type) {
       e.preventDefault();
-      document.getElementById(`edit-drop-zone-${type}`).classList.remove('drag-active');
+      document.getElementById(`edit-drop-zone-${type}`)?.classList.remove('drag-active');
       if (e.dataTransfer.files && e.dataTransfer.files[0]) {
         processSingleFile(e.dataTransfer.files[0], type, 'edit');
       }
@@ -1718,238 +1732,239 @@
       const prefix = mode === 'edit' ? 'edit-' : '';
       const statusCard = document.getElementById(`${prefix}status-card-${type}`);
       const placeholder = document.getElementById(`${prefix}placeholder-${type}`);
-      const nameSpan = document.getElementById(`${prefix}name-${type}`);
-      const fillBar = document.getElementById(`${prefix}progress-fill-${type}`);
-      const hiddenInput = document.getElementById(`${prefix === 'edit-' ? 'edit_' : 'add_'}file_${type}_url`);
+      const nameLabel = document.getElementById(`${prefix}name-${type}`);
+      const fill = document.getElementById(`${prefix}progress-fill-${type}`);
+      const hiddenInput = document.getElementById(`${mode === 'edit' ? 'edit_' : 'add_'}file_${type}_url`);
 
-      placeholder.classList.add('hidden');
-      statusCard.classList.remove('hidden');
-      nameSpan.innerText = file.name;
-      fillBar.style.width = '0%';
+      if (statusCard) statusCard.classList.remove('hidden');
+      if (placeholder) placeholder.classList.add('hidden');
+      if (nameLabel) nameLabel.textContent = file.name;
+      if (fill) fill.style.width = '100%';
 
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += 25;
-        fillBar.style.width = `${progress}%`;
-        if (progress >= 100) {
-          clearInterval(interval);
-          hiddenInput.value = `#uploaded-${file.name}`;
-        }
-      }, 100);
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        if (hiddenInput) hiddenInput.value = evt.target.result;
+      };
+      reader.readAsDataURL(file);
     }
 
     function clearSingleFile(type) {
-      document.getElementById(`status-card-${type}`).classList.add('hidden');
-      document.getElementById(`placeholder-${type}`).classList.remove('hidden');
-      document.getElementById(`add_file_${type}_url`).value = "";
-      document.getElementById(`input-file-${type}`).value = "";
+      document.getElementById(`status-card-${type}`)?.classList.add('hidden');
+      document.getElementById(`placeholder-${type}`)?.classList.remove('hidden');
+      document.getElementById(`add_file_${type}_url`).value = '';
     }
 
     function clearSingleEditFile(type) {
-      document.getElementById(`edit-status-card-${type}`).classList.add('hidden');
-      document.getElementById(`edit-placeholder-${type}`).classList.remove('hidden');
-      document.getElementById(`edit_file_${type}_url`).value = "";
-      document.getElementById(`edit-input-file-${type}`).value = "";
+      document.getElementById(`edit-status-card-${type}`)?.classList.add('hidden');
+      document.getElementById(`edit-placeholder-${type}`)?.classList.remove('hidden');
+      document.getElementById(`edit_file_${type}_url`).value = '';
     }
 
-    // Add Work Modal Handlers
+    // Modal Add / Edit / Delete logic
     function openAddModal() {
-      document.getElementById('add-modal').classList.remove('hidden');
+      document.getElementById('add-form')?.reset();
+      ['main', 'cover', 'eval'].forEach(t => clearSingleFile(t));
+      document.getElementById('add-modal')?.classList.remove('hidden');
     }
 
     function closeAddModal() {
-      document.getElementById('add-modal').classList.add('hidden');
-      document.getElementById('add-form').reset();
-      clearSingleFile('main');
-      clearSingleFile('cover');
-      clearSingleFile('eval');
+      document.getElementById('add-modal')?.classList.add('hidden');
     }
 
-    function handleAddSubmit(e) {
+    async function handleAddSubmit(e) {
       e.preventDefault();
-      
-      const newIdNumber = evaluationsData.length + 101;
-      const newItem = {
-        id: `Text-${newIdNumber}`,
-        year: document.getElementById('add_year').value,
-        academicPos: document.getElementById('add_academic_pos').value,
-        authorName: document.getElementById('add_author_name').value,
-        applicantEmail: document.getElementById('add_applicant_email').value,
-        workType: document.getElementById('add_work_type').value,
-        bookTitle: document.getElementById('add_book_title').value,
-        department: document.getElementById('add_department').value,
-        status: document.getElementById('add_status').value,
-        printStatus: document.getElementById('add_print_status').value,
-        isbn: document.getElementById('add_isbn').value,
-        kmitlEng: document.getElementById('add_kmitl_eng').value,
-        notes: document.getElementById('add_notes').value,
-        fileMainUrl: document.getElementById('add_file_main_url').value || '#',
-        fileCoverUrl: document.getElementById('add_file_cover_url').value || '#',
-        fileEvalUrl: document.getElementById('add_file_eval_url').value || '#'
+      const btn = document.getElementById('btn-add-submit');
+      if (btn) btn.disabled = true;
+
+      const config = getSupabaseConfig();
+      const nextId = "Text-" + String(allEvaluations.length + 1).padStart(3, '0');
+
+      const payload = {
+        id: nextId,
+        evaluation_year: document.getElementById('add_year')?.value,
+        academic_position: document.getElementById('add_academic_pos')?.value,
+        author_name: document.getElementById('add_author_name')?.value,
+        applicant_email: document.getElementById('add_applicant_email')?.value,
+        work_type: document.getElementById('add_work_type')?.value,
+        book_title: document.getElementById('add_book_title')?.value,
+        department: document.getElementById('add_department')?.value,
+        status: document.getElementById('add_status')?.value || 'รับเอกสารการประเมิน',
+        print_status: document.getElementById('add_print_status')?.value || 'อยู่ระหว่างการประเมิน',
+        isbn: document.getElementById('add_isbn')?.value || null,
+        faculty_code: document.getElementById('add_kmitl_eng')?.value || null,
+        remarks: document.getElementById('add_notes')?.value || null,
+        file_main_url: document.getElementById('add_file_main_url')?.value || null,
+        file_cover_url: document.getElementById('add_file_cover_url')?.value || null,
+        file_eval_url: document.getElementById('add_file_eval_url')?.value || null
       };
 
-      evaluationsData.unshift(newItem);
-      closeAddModal();
-      filterEvaluations();
-      renderStaffTable();
+      try {
+        const response = await fetch(`${config.url}/rest/v1/evaluations`, {
+          method: 'POST',
+          headers: {
+            'apikey': config.key,
+            'Authorization': `Bearer ${config.key}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error('เกิดข้อผิดพลาดในการบันทึก');
+
+        closeAddModal();
+        await fetchEvaluations();
+      } catch (err) {
+        alert("ไม่สามารถบันทึกข้อมูลได้: " + err.message);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     }
 
-    // Edit Modal Handlers
     function openEditModal(id) {
-      const item = evaluationsData.find(d => d.id === id);
+      const item = allEvaluations.find(x => x.id === id);
       if (!item) return;
 
       document.getElementById('edit_id').value = item.id;
-      document.getElementById('edit-id-display').innerText = item.id;
-      document.getElementById('edit_year').value = item.year;
-      document.getElementById('edit_academic_pos').value = item.academicPos;
-      document.getElementById('edit_author_name').value = item.authorName;
-      document.getElementById('edit_applicant_email').value = item.applicantEmail;
-      document.getElementById('edit_work_type').value = item.workType;
-      document.getElementById('edit_book_title').value = item.bookTitle;
-      document.getElementById('edit_department').value = item.department;
-      document.getElementById('edit_status').value = item.status;
-      document.getElementById('edit_print_status').value = item.printStatus;
+      document.getElementById('edit-id-display').textContent = item.id;
+      document.getElementById('edit_year').value = item.evaluation_year || '';
+      document.getElementById('edit_academic_pos').value = item.academic_position || '';
+      document.getElementById('edit_author_name').value = item.author_name || '';
+      document.getElementById('edit_applicant_email').value = item.applicant_email || '';
+      document.getElementById('edit_work_type').value = item.work_type || '';
+      document.getElementById('edit_book_title').value = item.book_title || '';
+      document.getElementById('edit_department').value = item.department || '';
+      document.getElementById('edit_status').value = item.status || '';
+      document.getElementById('edit_print_status').value = item.print_status || '';
       document.getElementById('edit_isbn').value = item.isbn || '';
-      document.getElementById('edit_kmitl_eng').value = item.kmitlEng || '';
-      document.getElementById('edit_notes').value = item.notes || '';
+      document.getElementById('edit_kmitl_eng').value = item.faculty_code || '';
+      document.getElementById('edit_notes').value = item.remarks || '';
 
-      document.getElementById('edit-modal').classList.remove('hidden');
+      document.getElementById('edit_file_main_url').value = item.file_main_url || '';
+      document.getElementById('edit_file_cover_url').value = item.file_cover_url || '';
+      document.getElementById('edit_file_eval_url').value = item.file_eval_url || '';
+
+      document.getElementById('edit-modal')?.classList.remove('hidden');
     }
 
     function closeEditModal() {
-      document.getElementById('edit-modal').classList.add('hidden');
+      document.getElementById('edit-modal')?.classList.add('hidden');
     }
 
-    function handleEditSubmit(e) {
+    async function handleEditSubmit(e) {
       e.preventDefault();
-      const id = document.getElementById('edit_id').value;
-      const index = evaluationsData.findIndex(d => d.id === id);
+      const id = document.getElementById('edit_id')?.value;
+      if (!id) return;
 
-      if (index !== -1) {
-        evaluationsData[index].year = document.getElementById('edit_year').value;
-        evaluationsData[index].academicPos = document.getElementById('edit_academic_pos').value;
-        evaluationsData[index].authorName = document.getElementById('edit_author_name').value;
-        evaluationsData[index].applicantEmail = document.getElementById('edit_applicant_email').value;
-        evaluationsData[index].workType = document.getElementById('edit_work_type').value;
-        evaluationsData[index].bookTitle = document.getElementById('edit_book_title').value;
-        evaluationsData[index].department = document.getElementById('edit_department').value;
-        evaluationsData[index].status = document.getElementById('edit_status').value;
-        evaluationsData[index].printStatus = document.getElementById('edit_print_status').value;
-        evaluationsData[index].isbn = document.getElementById('edit_isbn').value;
-        evaluationsData[index].kmitlEng = document.getElementById('edit_kmitl_eng').value;
-        evaluationsData[index].notes = document.getElementById('edit_notes').value;
+      const config = getSupabaseConfig();
+      const payload = {
+        evaluation_year: document.getElementById('edit_year')?.value,
+        academic_position: document.getElementById('edit_academic_pos')?.value,
+        author_name: document.getElementById('edit_author_name')?.value,
+        applicant_email: document.getElementById('edit_applicant_email')?.value,
+        work_type: document.getElementById('edit_work_type')?.value,
+        book_title: document.getElementById('edit_book_title')?.value,
+        department: document.getElementById('edit_department')?.value,
+        status: document.getElementById('edit_status')?.value,
+        print_status: document.getElementById('edit_print_status')?.value,
+        isbn: document.getElementById('edit_isbn')?.value || null,
+        faculty_code: document.getElementById('edit_kmitl_eng')?.value || null,
+        remarks: document.getElementById('edit_notes')?.value || null,
+        file_main_url: document.getElementById('edit_file_main_url')?.value || null,
+        file_cover_url: document.getElementById('edit_file_cover_url')?.value || null,
+        file_eval_url: document.getElementById('edit_file_eval_url')?.value || null
+      };
 
-        if (document.getElementById('edit_file_main_url').value) {
-          evaluationsData[index].fileMainUrl = document.getElementById('edit_file_main_url').value;
-        }
-        if (document.getElementById('edit_file_cover_url').value) {
-          evaluationsData[index].fileCoverUrl = document.getElementById('edit_file_cover_url').value;
-        }
-        if (document.getElementById('edit_file_eval_url').value) {
-          evaluationsData[index].fileEvalUrl = document.getElementById('edit_file_eval_url').value;
-        }
+      try {
+        const response = await fetch(`${config.url}/rest/v1/evaluations?id=eq.${id}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': config.key,
+            'Authorization': `Bearer ${config.key}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error('เกิดข้อผิดพลาดในการแก้ไข');
+
+        closeEditModal();
+        await fetchEvaluations();
+      } catch (err) {
+        alert("ไม่สามารถบันทึกการแก้ไขได้: " + err.message);
       }
-
-      closeEditModal();
-      filterEvaluations();
-      renderStaffTable();
     }
 
-    // Delete Modal Handlers
     function openDeleteModal(id) {
-      deleteTargetId = id;
-      document.getElementById('delete-item-id').innerText = id;
-      document.getElementById('delete-modal').classList.remove('hidden');
+      pendingDeleteId = id;
+      document.getElementById('delete-item-id').textContent = id;
+      document.getElementById('delete-modal')?.classList.remove('hidden');
     }
 
     function closeDeleteModal() {
-      document.getElementById('delete-modal').classList.add('hidden');
-      deleteTargetId = null;
+      pendingDeleteId = null;
+      document.getElementById('delete-modal')?.classList.add('hidden');
     }
 
-    function confirmDelete() {
-      if (deleteTargetId) {
-        evaluationsData = evaluationsData.filter(d => d.id !== deleteTargetId);
-        filterEvaluations();
-        renderStaffTable();
+    async function confirmDelete() {
+      if (!pendingDeleteId) return;
+
+      const config = getSupabaseConfig();
+      try {
+        const response = await fetch(`${config.url}/rest/v1/evaluations?id=eq.${pendingDeleteId}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': config.key,
+            'Authorization': `Bearer ${config.key}`
+          }
+        });
+
+        if (!response.ok) throw new Error('เกิดข้อผิดพลาดในการลบ');
+
+        closeDeleteModal();
+        await fetchEvaluations();
+      } catch (err) {
+        alert("ไม่สามารถลบรายการได้: " + err.message);
       }
-      closeDeleteModal();
     }
 
-    // View Details Modal Handlers
-    function viewDetails(id) {
-      const item = evaluationsData.find(d => d.id === id);
+    function showDetails(id) {
+      const item = allEvaluations.find(x => x.id === id);
       if (!item) return;
 
-      const content = document.getElementById('details-content');
-      content.innerHTML = `
-        <div class="grid grid-cols-2 gap-2">
-          <div><b class="text-slate-800">รหัสเอกสาร:</b> ${item.id}</div>
-          <div><b class="text-slate-800">ปีที่ประเมิน:</b> ${item.year}</div>
-          <div><b class="text-slate-800">ประเภทผลงาน:</b> ${item.workType}</div>
-          <div><b class="text-slate-800">ภาควิชา:</b> ${item.department}</div>
-          <div class="col-span-2"><b class="text-slate-800">ชื่อเรื่อง:</b> ${item.bookTitle}</div>
-          <div class="col-span-2"><b class="text-slate-800">ผู้เขียน:</b> ${item.academicPos} ${item.authorName} (${item.applicantEmail})</div>
-          <div><b class="text-slate-800">สถานะจัดพิมพ์:</b> ${item.printStatus}</div>
-          <div><b class="text-slate-800">ISBN:</b> ${item.isbn || '-'}</div>
-          <div class="col-span-2"><b class="text-slate-800">สถานะการประเมิน:</b> ${item.status}</div>
-          <div class="col-span-2"><b class="text-slate-800">หมายเหตุ:</b> ${item.notes || '-'}</div>
-        </div>
-      `;
-      document.getElementById('details-modal').classList.remove('hidden');
+      const detailsContainer = document.getElementById('details-content');
+      if (detailsContainer) {
+        detailsContainer.innerHTML = `
+          <p><b>รหัสรายการ:</b> ${item.id}</p>
+          <p><b>ชื่อผลงาน:</b> ${item.book_title || '-'}</p>
+          <p><b>ผู้เขียน:</b> ${item.academic_position || ''}${item.author_name || '-'}</p>
+          <p><b>อีเมล:</b> ${item.applicant_email || '-'}</p>
+          <p><b>ภาควิชา:</b> ${item.department || '-'}</p>
+          <p><b>สถานะ:</b> ${item.status || '-'}</p>
+          <p><b>สถานะพิมพ์:</b> ${item.print_status || '-'}</p>
+          <p><b>ISBN:</b> ${item.isbn || '-'}</p>
+          <p><b>หมายเหตุ:</b> ${item.remarks || '-'}</p>
+        `;
+      }
+      document.getElementById('details-modal')?.classList.remove('hidden');
     }
 
-    function closeDetailsModal() {
-      document.getElementById('details-modal').classList.add('hidden');
-    }
-
-    // GAS Modal Handlers
-    function openGasModal() {
-      document.getElementById('gas-api-modal').classList.remove('hidden');
-    }
-
-    function closeGasModal() {
-      document.getElementById('gas-api-modal').classList.add('hidden');
-    }
-
-    // Export to CSV Function
     function exportCSV() {
-      let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-      csvContent += "ID,Year,AcademicPos,AuthorName,Email,WorkType,BookTitle,Department,Status,PrintStatus,ISBN,KMITLEng,Notes\n";
-
-      evaluationsData.forEach(row => {
-        let line = [
-          `"${row.id}"`,
-          `"${row.year}"`,
-          `"${row.academicPos}"`,
-          `"${row.authorName}"`,
-          `"${row.applicantEmail}"`,
-          `"${row.workType}"`,
-          `"${row.bookTitle}"`,
-          `"${row.department}"`,
-          `"${row.status}"`,
-          `"${row.printStatus}"`,
-          `"${row.isbn}"`,
-          `"${row.kmitlEng}"`,
-          `"${row.notes}"`
-        ].join(",");
-        csvContent += line + "\n";
+      if (allEvaluations.length === 0) {
+        alert("ไม่มีข้อมูลส่งออก");
+        return;
+      }
+      let csvContent = "\uFEFF" + "ID,ปีการประเมิน,ผู้เขียน,อีเมล,ชื่อผลงาน,ภาควิชา,สถานะ,สถานะจัดพิมพ์,ISBN\n";
+      allEvaluations.forEach(row => {
+        csvContent += `"${row.id}","${row.evaluation_year || ''}","${row.author_name || ''}","${row.applicant_email || ''}","${row.book_title || ''}","${row.department || ''}","${row.status || ''}","${row.print_status || ''}","${row.isbn || ''}"\n`;
       });
 
-      const encodedUri = encodeURI(csvContent);
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `evaluation_data_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
+      link.href = URL.createObjectURL(blob);
+      link.download = `evaluations_${new Date().toISOString().slice(0,10)}.csv`;
       link.click();
-      document.body.removeChild(link);
     }
-
-    // On load initialization
-    window.onload = function () {
-      filterEvaluations();
-    };
   </script>
 </body>
 </html>
