@@ -90,7 +90,7 @@
         <div class="hidden md:flex items-center space-x-3 ml-auto">
           <!-- Supabase Config Button -->
           <button onclick="openSupabaseModal()" class="px-4 py-2 rounded-full border border-slate-700/80 bg-slate-800/40 hover:bg-slate-800/80 text-slate-200 text-xs font-semibold flex items-center space-x-2 transition shadow-sm" title="ตั้งค่าการเชื่อมต่อ Supabase">
-            <i class="fa-solid fa-database text-emerald-400 text-xs" id="db-status-icon"></i>
+            <i class="fa-solid fa-database text-amber-400 text-xs" id="db-status-icon"></i>
             <span id="supabase-status-btn">Supabase DB</span>
           </button>
 
@@ -287,7 +287,7 @@
           </div>
           <div class="flex items-center gap-3">
             <button onclick="fetchEvaluations()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
-              <i class="fa-solid fa-arrows-rotate text-[10px]"></i> ดึงข้อมูลล่าสุด (Supabase)
+              <i class="fa-solid fa-arrows-rotate text-[10px]"></i> รีเฟรชข้อมูล (Supabase)
             </button>
             <span class="text-xs text-slate-500">พบข้อมูล <b id="result-count" class="text-blue-600">0</b> รายการ</span>
           </div>
@@ -297,7 +297,7 @@
 
         <div id="loading-spinner" class="py-12 text-center text-slate-400">
           <i class="fa-solid fa-spinner fa-spin text-3xl text-blue-600 mb-2"></i>
-          <p class="text-xs">กำลังเชื่อมต่อ Supabase เพื่อโหลดข้อมูล...</p>
+          <p class="text-xs" id="loading-spinner-msg">กำลังเชื่อมต่อ Supabase เพื่อโหลดข้อมูล...</p>
         </div>
       </div>
     </section>
@@ -466,7 +466,7 @@
       <form onsubmit="saveSupabaseSettings(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Supabase API URL</label>
-          <input type="url" id="supabase-url-input" required placeholder="https://xyzcompany.supabase.co" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+          <input type="url" id="supabase-url-input" required placeholder="https://your-project.supabase.co" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
         </div>
 
         <div>
@@ -486,7 +486,7 @@
             ปิด
           </button>
           <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-semibold text-xs rounded-xl shadow-md transition">
-            บันทึกการเชื่อมต่อ
+            บันทึกและเชื่อมต่อ
           </button>
         </div>
       </form>
@@ -795,17 +795,26 @@
   <!-- JAVASCRIPT LOGIC & SUPABASE INTEGRATION    -->
   <!-- ========================================== -->
   <script>
-
     // Supabase Configuration Keys (Stored in localStorage or customizable via DB Modal)
-    let SUPABASE_URL = localStorage.getItem('sb_url') || 'https://xyzcompany.supabase.co';
-    let SUPABASE_KEY = localStorage.getItem('sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6...';
+    let SUPABASE_URL = localStorage.getItem('sb_url') || '';
+    let SUPABASE_KEY = localStorage.getItem('sb_key') || '';
     let SUPABASE_TABLE = localStorage.getItem('sb_table') || 'evaluations';
 
     let supabaseClient = null;
 
+    // Helper: Verify if user configured valid Supabase keys
+    function isSupabaseConfigured() {
+      return (
+        SUPABASE_URL && 
+        SUPABASE_KEY && 
+        !SUPABASE_URL.includes('xyzcompany.supabase.co') &&
+        !SUPABASE_KEY.includes('...')
+      );
+    }
+
     // Initialize Supabase Client
     function initSupabase() {
-      if (SUPABASE_URL && SUPABASE_KEY && window.supabase) {
+      if (isSupabaseConfigured() && window.supabase) {
         try {
           supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
           const btnText = document.getElementById('supabase-status-btn');
@@ -814,10 +823,19 @@
           if (icon) {
             icon.className = 'fa-solid fa-database text-emerald-400 text-xs';
           }
+          return true;
         } catch (e) {
-          console.warn('Supabase initialization failed:', e);
+          console.error('Supabase Init Error:', e);
         }
       }
+      
+      const btnText = document.getElementById('supabase-status-btn');
+      const icon = document.getElementById('db-status-icon');
+      if (btnText) btnText.innerText = 'ตั้งค่า Supabase';
+      if (icon) {
+        icon.className = 'fa-solid fa-database text-amber-400 text-xs';
+      }
+      return false;
     }
 
     // Application Global State
@@ -826,67 +844,6 @@
     let filteredStaffData = [];
     let statusChartInstance = null;
     let currentUser = null; // { role: 'professor' | 'staff', email: '...' }
-
-    // Initial Mock Data Fallback if Supabase is empty or not yet connected
-    const initialMockData = [
-      {
-        id: 1,
-        evaluation_year: '2569',
-        academic_position: 'ผศ.ดร.',
-        author_name: 'สมชาย สายเทค',
-        applicant_email: 'somchai@kmitl.ac.th',
-        work_type: 'ตำราเรียน',
-        book_code: 'TEXT-2569-001',
-        department: 'คอมพิวเตอร์',
-        title: 'การวิเคราะห์และออกแบบอัลกอริทึมขั้นสูง',
-        evaluation_status: 'ผ่านการประเมิน',
-        publication_status: 'นำไปจัดพิมพ์ได้',
-        isbn: '978-616-1234-56-7',
-        vps_no: '001',
-        note: 'ผ่านการประเมินจากผู้ทรงคุณวุฒิเรียบร้อย',
-        file_originals_url: 'https://drive.google.com/uc?export=download&id=1ExAMPlePDF1',
-        file_covers_url: 'https://placehold.co/400x560/2563eb/ffffff?text=Algorithm+Book',
-        file_evaluation_url: 'https://drive.google.com/uc?export=download&id=1ExAMPleEval1'
-      },
-      {
-        id: 2,
-        evaluation_year: '2569',
-        academic_position: 'รศ.ดร.',
-        author_name: 'วิภาวี มีสุข',
-        applicant_email: 'wipavee@kmitl.ac.th',
-        work_type: 'หนังสือ',
-        book_code: 'TEXT-2569-002',
-        department: 'ไฟฟ้า',
-        title: 'ระบบวิศวกรรมไฟฟ้ากำลังและการประยุกต์',
-        evaluation_status: 'ส่งเอกสารผู้ทรง รอบ 1',
-        publication_status: 'อยู่ระหว่างการประเมิน',
-        isbn: '978-616-9876-54-3',
-        vps_no: '002',
-        note: 'กำลังรอผลประเมินจากผู้ทรงรอบที่ 1',
-        file_originals_url: 'https://drive.google.com/uc?export=download&id=1ExAMPlePDF2',
-        file_covers_url: 'https://placehold.co/400x560/10b981/ffffff?text=Electrical+Eng',
-        file_evaluation_url: ''
-      },
-      {
-        id: 3,
-        evaluation_year: '2568',
-        academic_position: 'ผศ.',
-        author_name: 'กิตติศักดิ์ ชัยชนะ',
-        applicant_email: 'kittisak@kmitl.ac.th',
-        work_type: 'ตำราเรียน',
-        book_code: 'TEXT-2568-015',
-        department: 'ชีวการแพทย์',
-        title: 'เครื่องมือและอุปกรณ์การแพทย์เบื้องต้น',
-        evaluation_status: 'รอการแก้ไข รอบ 1',
-        publication_status: 'อยู่ระหว่างการประเมิน',
-        isbn: '978-616-5555-44-1',
-        vps_no: '015',
-        note: 'ผู้เขียนอยู่ระหว่างการแก้ไขบทที่ 3 ตามข้อเสนอแนะ',
-        file_originals_url: 'https://drive.google.com/uc?export=download&id=1ExAMPlePDF3',
-        file_covers_url: 'https://placehold.co/400x560/f59e0b/ffffff?text=Biomedical+Book',
-        file_evaluation_url: ''
-      }
-    ];
 
     // Helper: Convert Google Drive Link to Direct Download / Image View URL
     function convertDriveUrl(url, type = 'download') {
@@ -906,7 +863,7 @@
         fileId = url;
       }
 
-      if (!fileId) return url; // If not a recognized GDrive URL, return original URL
+      if (!fileId) return url;
 
       if (type === 'image') {
         return `https://drive.google.com/thumbnail?id=${fileId}&sz=s1000`;
@@ -975,36 +932,60 @@
       }, 3500);
     }
 
-    // FETCH DATA FROM SUPABASE
+    // FETCH DATA DIRECTLY FROM SUPABASE WITH TIMEOUT CONTROL
     async function fetchEvaluations() {
       const spinner = document.getElementById('loading-spinner');
+      const spinnerMsg = document.getElementById('loading-spinner-msg');
+
       if (spinner) spinner.style.display = 'block';
 
-      if (supabaseClient) {
-        try {
-          const { data, error } = await supabaseClient
-            .from(SUPABASE_TABLE)
-            .select('*')
-            .order('id', { ascending: false });
-
-          if (!error && data && data.length > 0) {
-            evaluationsData = data;
-          } else {
-            if (error) {
-              console.warn('Supabase fetch query error:', error.message);
-            }
-            if (evaluationsData.length === 0) evaluationsData = [...initialMockData];
-          }
-        } catch (e) {
-          console.error('Fetch exception:', e);
-          if (evaluationsData.length === 0) evaluationsData = [...initialMockData];
+      if (!isSupabaseConfigured() || !supabaseClient) {
+        if (spinnerMsg) {
+          spinnerMsg.innerHTML = '<span class="text-amber-600 font-medium">ยังไม่ได้เชื่อมต่อ Supabase Database</span><br><button onclick="openSupabaseModal()" class="mt-2 text-xs text-blue-600 hover:underline"><i class="fa-solid fa-plug"></i> คลิกที่นี่เพื่อตั้งค่า API URL และ Key</button>';
         }
-      } else {
-        // Fallback to local memory/mock data if no Supabase credentials
-        if (evaluationsData.length === 0) evaluationsData = [...initialMockData];
+        evaluationsData = [];
+        renderMainDashboard();
+        renderProfessorPage();
+        renderStaffPage();
+        return;
       }
 
-      if (spinner) spinner.style.display = 'none';
+      if (spinnerMsg) spinnerMsg.innerText = 'กำลังดึงข้อมูลล่าสุดจาก Supabase...';
+
+      // 5-second timeout to prevent infinite hanging
+      const fetchPromise = supabaseClient
+        .from(SUPABASE_TABLE)
+        .select('*')
+        .order('id', { ascending: false });
+
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('การเชื่อมต่อตอบสนองช้าเกินไป (Timeout 5s)')), 5000)
+      );
+
+      try {
+        const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+
+        if (error) {
+          console.error('Supabase Query Error:', error);
+          showToast('ไม่สามารถดึงข้อมูลได้: ' + error.message, 'error');
+          evaluationsData = [];
+        } else {
+          evaluationsData = data || [];
+        }
+      } catch (e) {
+        console.error('Fetch Exception:', e);
+        showToast(e.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ Supabase', 'error');
+        if (spinnerMsg) {
+          spinnerMsg.innerHTML = `<span class="text-rose-600">${e.message || 'การเชื่อมต่อขัดข้อง'}</span><br><button onclick="openSupabaseModal()" class="mt-2 text-xs text-blue-600 hover:underline">ตรวจสอบการตั้งค่า Supabase</button>`;
+        }
+      } finally {
+        if (spinner && evaluationsData.length > 0) {
+          spinner.style.display = 'none';
+        } else if (spinner && evaluationsData.length === 0 && isSupabaseConfigured()) {
+          spinnerMsg.innerText = 'ไม่พบรายการข้อมูลในตาราง Supabase';
+        }
+      }
+
       renderMainDashboard();
       renderProfessorPage();
       renderStaffPage();
@@ -1012,62 +993,57 @@
 
     // INSERT NEW EVALUATION ITEM TO SUPABASE
     async function insertEvaluationItem(itemObj) {
-      if (supabaseClient) {
-        try {
-          const { data, error } = await supabaseClient
-            .from(SUPABASE_TABLE)
-            .insert([itemObj])
-            .select();
-
-          if (error) {
-            console.error('Supabase Insert Error:', error);
-            showToast('เกิดข้อผิดพลาดในการบันทึก: ' + error.message, 'error');
-            return false;
-          }
-          showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
-          return true;
-        } catch (e) {
-          console.error(e);
-          showToast('ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
-        }
+      if (!supabaseClient) {
+        showToast('กรุณาตั้งค่าเชื่อมต่อ Supabase ก่อนใช้งาน', 'error');
+        openSupabaseModal();
+        return false;
       }
-      
-      // Local fallback
-      itemObj.id = Date.now();
-      evaluationsData.unshift(itemObj);
-      showToast('บันทึกข้อมูลเข้าหน่วยความจำชั่วคราวแล้ว', 'success');
-      return true;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from(SUPABASE_TABLE)
+          .insert([itemObj])
+          .select();
+
+        if (error) {
+          console.error('Supabase Insert Error:', error);
+          showToast('บันทึกไม่สำเร็จ: ' + error.message, 'error');
+          return false;
+        }
+        showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+        return true;
+      } catch (e) {
+        console.error(e);
+        showToast('เกิดข้อผิดพลาดขณะเชื่อมต่อฐานข้อมูล', 'error');
+        return false;
+      }
     }
 
     // UPDATE EVALUATION ITEM IN SUPABASE
     async function updateEvaluationItem(id, itemObj) {
-      if (supabaseClient) {
-        try {
-          const { error } = await supabaseClient
-            .from(SUPABASE_TABLE)
-            .update(itemObj)
-            .eq('id', id);
+      if (!supabaseClient) {
+        showToast('กรุณาตั้งค่าเชื่อมต่อ Supabase ก่อนใช้งาน', 'error');
+        return false;
+      }
 
-          if (error) {
-            console.error('Supabase Update Error:', error);
-            showToast('เกิดข้อผิดพลาดในการแก้ไข: ' + error.message, 'error');
-            return false;
-          }
-          showToast('อัปเดตข้อมูลเรียบร้อยแล้ว', 'success');
-          return true;
-        } catch (e) {
-          console.error(e);
-          showToast('ไม่สามารถแก้ไขข้อมูลได้', 'error');
+      try {
+        const { error } = await supabaseClient
+          .from(SUPABASE_TABLE)
+          .update(itemObj)
+          .eq('id', id);
+
+        if (error) {
+          console.error('Supabase Update Error:', error);
+          showToast('แก้ไขไม่สำเร็จ: ' + error.message, 'error');
+          return false;
         }
+        showToast('อัปเดตข้อมูลเรียบร้อยแล้ว', 'success');
+        return true;
+      } catch (e) {
+        console.error(e);
+        showToast('ไม่สามารถแก้ไขข้อมูลได้', 'error');
+        return false;
       }
-
-      // Local fallback
-      const idx = evaluationsData.findIndex(x => x.id == id);
-      if (idx !== -1) {
-        evaluationsData[idx] = { ...evaluationsData[idx], ...itemObj };
-      }
-      showToast('อัปเดตข้อมูลหน่วยความจำเรียบร้อยแล้ว', 'success');
-      return true;
     }
 
     // DELETE EVALUATION ITEM FROM SUPABASE
@@ -1084,26 +1060,28 @@
       const id = document.getElementById('delete-target-id').value;
       closeDeleteModal();
 
-      if (supabaseClient) {
-        try {
-          const { error } = await supabaseClient
-            .from(SUPABASE_TABLE)
-            .delete()
-            .eq('id', id);
-
-          if (error) {
-            showToast('ไม่สามารถลบข้อมูลจาก Supabase ได้: ' + error.message, 'error');
-            return;
-          }
-        } catch (e) {
-          console.error(e);
-          showToast('เกิดข้อผิดพลาดขณะลบข้อมูล', 'error');
-        }
+      if (!supabaseClient) {
+        showToast('กรุณาตั้งค่าเชื่อมต่อ Supabase', 'error');
+        return;
       }
 
-      evaluationsData = evaluationsData.filter(item => item.id != id);
-      showToast('ลบรายการเรียบร้อยแล้ว', 'success');
-      await fetchEvaluations();
+      try {
+        const { error } = await supabaseClient
+          .from(SUPABASE_TABLE)
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          showToast('ไม่สามารถลบข้อมูลจาก Supabase ได้: ' + error.message, 'error');
+          return;
+        }
+
+        showToast('ลบรายการเรียบร้อยแล้ว', 'success');
+        await fetchEvaluations();
+      } catch (e) {
+        console.error(e);
+        showToast('เกิดข้อผิดพลาดขณะลบข้อมูล', 'error');
+      }
     }
 
     // Render Main Dashboard Metrics and Charts
@@ -1194,9 +1172,19 @@
     // Render Evaluation Card List in Page 1
     function renderEvaluationList() {
       const container = document.getElementById('evaluation-list-container');
+      const spinner = document.getElementById('loading-spinner');
+
       if (!container) return;
 
       if (filteredData.length === 0) {
+        if (!isSupabaseConfigured()) {
+          container.innerHTML = '';
+          return;
+        }
+        if (spinner && spinner.style.display !== 'none') {
+          container.innerHTML = '';
+          return;
+        }
         container.innerHTML = `
           <div class="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
             <i class="fa-solid fa-folder-open text-3xl text-slate-300 mb-2"></i>
@@ -1205,6 +1193,8 @@
         `;
         return;
       }
+
+      if (spinner) spinner.style.display = 'none';
 
       container.innerHTML = filteredData.map(item => {
         const isPass = item.evaluation_status && item.evaluation_status.includes('ผ่านการประเมิน');
@@ -1381,7 +1371,7 @@
       if (filteredStaffData.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="py-8 text-center text-slate-400">ไม่พบข้อมูลรายการในระบบ</td>
+            <td colspan="6" class="py-8 text-center text-slate-400">ไม่พบข้อมูลรายการในระบบ Supabase</td>
           </tr>
         `;
         return;
@@ -1407,10 +1397,10 @@
           <td class="py-3 px-5 text-slate-500">${item.note || '-'}</td>
           <td class="py-3 px-4 text-center">
             <div class="flex items-center justify-center space-x-2">
-              <button onclick="editEvaluationItem(${item.id})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="แก้ไขข้อมูล">
+              <button onclick="editEvaluationItem('${item.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="แก้ไขข้อมูล">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
-              <button onclick="deleteEvaluationItem(${item.id})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบข้อมูล">
+              <button onclick="deleteEvaluationItem('${item.id}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบข้อมูล">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
             </div>
@@ -1551,10 +1541,15 @@
       localStorage.setItem('sb_key', SUPABASE_KEY);
       localStorage.setItem('sb_table', SUPABASE_TABLE);
 
-      initSupabase();
+      const connected = initSupabase();
       closeSupabaseModal();
-      showToast('บันทึกการตั้งค่า Supabase เรียบร้อยแล้ว', 'success');
-      fetchEvaluations();
+
+      if (connected) {
+        showToast('ตั้งค่าและเชื่อมต่อ Supabase สำเร็จแล้ว', 'success');
+        fetchEvaluations();
+      } else {
+        showToast('กรุณาระบุ URL และ Anon Key ของ Supabase ให้ถูกต้อง', 'error');
+      }
     }
 
     // Login Modal Logic
@@ -1710,8 +1705,12 @@
 
     // Application Window OnLoad Initialization
     window.onload = function() {
-      initSupabase();
-      fetchEvaluations();
+      const configured = initSupabase();
+      if (configured) {
+        fetchEvaluations();
+      } else {
+        renderMainDashboard();
+      }
     };
   </script>
 </body>
