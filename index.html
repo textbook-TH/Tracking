@@ -972,13 +972,8 @@
                     </td>
                     <td class="py-4 px-4 align-top">
                         <div class="space-y-2">
-                            <!-- แถวบน: ป้ายรหัสหนังสือ (ถ้ามี) + ชื่อเรื่อง (เน้นตัวหนา ใหญ่พอเหมาะ) -->
+                            <!-- แถวบน: ชื่อเรื่อง (เน้นตัวหนา ใหญ่พอเหมาะ) -->
                             <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
-                                ${item.book_code ? `
-                                    <span class="px-2.5 py-0.5 bg-slate-100 border border-slate-200/80 text-slate-700 font-bold rounded-md font-mono text-xs tracking-wide shadow-2xs">
-                                        ${item.book_code}
-                                    </span>
-                                ` : ''}
                                 <span class="font-bold text-slate-900 text-base leading-snug">
                                     ${item.title || '-'}
                                 </span>
@@ -1011,13 +1006,6 @@
                                     <span class="inline-flex items-center space-x-1.5 font-mono">
                                         <i class="fa-solid fa-barcode text-slate-400 text-xs"></i>
                                         <span>ISBN: ${item.isbn}</span>
-                                    </span>
-                                ` : ''}
-
-                                ${item.vps_no ? `
-                                    <span class="inline-flex items-center space-x-1.5 font-mono">
-                                        <i class="fa-solid fa-hashtag text-slate-400 text-xs"></i>
-                                        <span>เลข วศ.สจล.: ${item.vps_no}</span>
                                     </span>
                                 ` : ''}
                             </div>
