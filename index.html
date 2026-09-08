@@ -201,7 +201,7 @@
                                 </div>
                             </div>
 
-                            <!-- Single Row Filter Dropdowns (ปีที่ทำการประเมิน, ภาควิชา, สถานะการประเมิน) -->
+                            <!-- Single Row Filter Dropdowns -->
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div>
                                     <label class="block text-xs font-medium text-slate-600 mb-1">ปีที่ทำการประเมิน</label>
@@ -261,14 +261,13 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50/80 border-b border-slate-100 text-slate-600 text-xs font-semibold">
-                                <th class="py-3.5 px-4">รหัสหนังสือ</th>
-                                <th class="py-3.5 px-4">สถานะประเมิน</th>
-                                <th class="py-3.5 px-4">สถานะการจัดพิมพ์</th>
-                                <th class="py-3.5 px-4">ผู้เขียน / ชื่อเรื่อง</th>
+                                <th class="py-3.5 px-4 w-32">รหัสหนังสือ</th>
+                                <th class="py-3.5 px-4 w-44">สถานะประเมิน</th>
+                                <th class="py-3.5 px-4">รายละเอียดการประเมิน</th>
                             </tr>
                         </thead>
                         <tbody id="homeTableBody" class="divide-y divide-slate-100 text-sm">
-                            <!-- Injected dynamically -->
+                            <!-- Injected dynamically via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -826,7 +825,9 @@
                 const matchSearch = !search || 
                     (item.title && item.title.toLowerCase().includes(search)) ||
                     (item.author_name && item.author_name.toLowerCase().includes(search)) ||
-                    (item.book_code && item.book_code.toLowerCase().includes(search));
+                    (item.book_code && item.book_code.toLowerCase().includes(search)) ||
+                    (item.isbn && item.isbn.toLowerCase().includes(search)) ||
+                    (item.vps_no && item.vps_no.toLowerCase().includes(search));
 
                 const matchYear = !year || String(item.evaluation_year) === String(year);
                 const matchDept = !dept || item.department === dept;
@@ -946,7 +947,7 @@
 
         /**
          * Render Main Public Table
-         * Columns: รหัสหนังสือ | สถานะประเมิน | สถานะการจัดพิมพ์ | ผู้เขียน / ชื่อเรื่อง
+         * Columns: รหัสหนังสือ | สถานะประเมิน | รายละเอียดการประเมิน
          */
         function renderHomeTable() {
             const tbody = document.getElementById('homeTableBody');
@@ -954,27 +955,76 @@
             document.getElementById('homeFilterCountText').innerText = `กำลังแสดงผลลัพธ์ ${filteredData.length} จาก ${evaluationsData.length} รายการ`;
 
             if (filteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filteredData.map(item => `
+            tbody.innerHTML = filteredData.map(item => {
+                const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
+
+                return `
                 <tr class="hover:bg-slate-50/80 transition-colors">
-                    <td class="py-3.5 px-4 font-bold text-blue-600 font-mono text-xs">
+                    <td class="py-4 px-4 font-bold text-blue-600 font-mono text-xs align-top">
                         ${item.book_code || '-'}
                     </td>
-                    <td class="py-3.5 px-4">
+                    <td class="py-4 px-4 align-top">
                         ${getStatusBadge(item.evaluation_status)}
                     </td>
-                    <td class="py-3.5 px-4">
-                        ${getPublicationStatusBadge(item.publication_status)}
-                    </td>
-                    <td class="py-3.5 px-4">
-                        <p class="font-bold text-slate-800 text-sm">${item.title || '-'}</p>
-                        <p class="text-xs text-slate-500">${item.academic_position || ''} ${item.author_name || '-'} ${item.department ? '| ภาควิชา ' + item.department : ''}</p>
+                    <td class="py-4 px-4 align-top">
+                        <div class="space-y-2">
+                            <!-- แถวบน: ป้ายรหัสหนังสือ (ถ้ามี) + ชื่อเรื่อง (เน้นตัวหนา ใหญ่พอเหมาะ) -->
+                            <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
+                                ${item.book_code ? `
+                                    <span class="px-2.5 py-0.5 bg-slate-100 border border-slate-200/80 text-slate-700 font-bold rounded-md font-mono text-xs tracking-wide shadow-2xs">
+                                        ${item.book_code}
+                                    </span>
+                                ` : ''}
+                                <span class="font-bold text-slate-900 text-base leading-snug">
+                                    ${item.title || '-'}
+                                </span>
+                            </div>
+
+                            <!-- แถวล่าง: แสดงข้อมูล metadata ประกอบพร้อมไอคอนในรูปแบบแนวตั้ง/แนวนอนอย่างประณีต -->
+                            <div class="flex items-center flex-wrap gap-x-5 gap-y-1.5 text-xs text-slate-600">
+                                ${authorFull ? `
+                                    <span class="inline-flex items-center space-x-1.5 font-medium">
+                                        <i class="fa-solid fa-user-pen text-slate-400 text-xs"></i>
+                                        <span>${authorFull}</span>
+                                    </span>
+                                ` : ''}
+
+                                ${item.department ? `
+                                    <span class="inline-flex items-center space-x-1.5">
+                                        <i class="fa-solid fa-landmark text-slate-400 text-xs"></i>
+                                        <span>${item.department}</span>
+                                    </span>
+                                ` : ''}
+
+                                ${item.evaluation_year ? `
+                                    <span class="inline-flex items-center space-x-1.5">
+                                        <i class="fa-regular fa-calendar-days text-slate-400 text-xs"></i>
+                                        <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
+                                    </span>
+                                ` : ''}
+
+                                ${item.isbn ? `
+                                    <span class="inline-flex items-center space-x-1.5 font-mono">
+                                        <i class="fa-solid fa-barcode text-slate-400 text-xs"></i>
+                                        <span>ISBN: ${item.isbn}</span>
+                                    </span>
+                                ` : ''}
+
+                                ${item.vps_no ? `
+                                    <span class="inline-flex items-center space-x-1.5 font-mono">
+                                        <i class="fa-solid fa-hashtag text-slate-400 text-xs"></i>
+                                        <span>เลข วศ.สจล.: ${item.vps_no}</span>
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         function filterStaffData() {
@@ -1095,9 +1145,6 @@
             return `<span class="inline-flex items-center px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-clock mr-1.5 text-2xs"></i>${status}</span>`;
         }
 
-        /**
-         * Render badge for Publication Status styled similarly to evaluation status
-         */
         function getPublicationStatusBadge(status) {
             if (!status) return `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-medium">ไม่ระบุ</span>`;
             if (status === 'นำไปจัดพิมพ์ได้' || status === 'จัดพิมพ์เอง') {
