@@ -197,7 +197,7 @@
                                 <label class="block text-xs font-medium text-slate-600 mb-1">พิมพ์ค้นหา</label>
                                 <div class="relative">
                                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                                    <input type="text" id="homeSearchInput" oninput="filterData()" placeholder="พิมพ์รายละเอียด (ชื่อหนังสือ, ชื่ออาจารย์, รหัสหนังสือ Text-XXX)..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                    <input type="text" id="homeSearchInput" oninput="filterData()" placeholder="พิมพ์รายละเอียด..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                                 </div>
                             </div>
 
@@ -220,7 +220,7 @@
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 mb-1">สถานะการประเมิน</label>
                                 <select id="homeStatusFilter" onchange="filterData()" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                                    <option value="">สถานะทั้งหมด (ตั้งค่าเริ่มต้น)</option>
+                                    <option value="">สถานะทั้งหมด</option>
                                     <option value="กำลังดำเนินการประเมิน">กำลังดำเนินการประเมิน</option>
                                     <option value="ผ่านการประเมิน">ผ่านการประเมิน</option>
                                     <option value="ไม่ผ่านการประเมิน">ไม่ผ่านการประเมิน</option>
@@ -766,7 +766,7 @@
                     </button>
                     <button onclick="switchView('staff')" class="px-3.5 py-1.5 rounded-full text-xs transition-all flex items-center space-x-1.5 ${staffClass}">
                         <i class="fa-solid fa-user-gear"></i>
-                        <span>หน้าเจ้าหน้าที่</span>
+                        <span>เจ้าหน้าที่</span>
                     </button>
                     <button onclick="handleLogout()" class="px-3.5 py-1.5 border border-rose-500/50 hover:bg-rose-500/20 text-rose-300 rounded-full text-xs font-medium transition-colors flex items-center space-x-1.5">
                         <i class="fa-solid fa-power-off"></i>
@@ -788,7 +788,7 @@
                     </button>
                     <button onclick="switchView('teacher')" class="px-3.5 py-1.5 rounded-full text-xs transition-all flex items-center space-x-1.5 ${teacherClass}">
                         <i class="fa-solid fa-chalkboard-user"></i>
-                        <span>หน้าอาจารย์</span>
+                        <span>อาจารย์</span>
                     </button>
                     <button onclick="handleLogout()" class="px-3.5 py-1.5 border border-rose-500/50 hover:bg-rose-500/20 text-rose-300 rounded-full text-xs font-medium transition-colors flex items-center space-x-1.5">
                         <i class="fa-solid fa-power-off"></i>
