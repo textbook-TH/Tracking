@@ -87,12 +87,6 @@
 
             <!-- Navbar Actions -->
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <!-- Database Indicator -->
-                <div class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800/80 border border-slate-700/60 rounded-full text-xs text-slate-300">
-                    <i class="fa-solid fa-database text-amber-400 text-2xs"></i>
-                    <span class="font-medium">ตั้งค่า Supabase</span>
-                </div>
-
                 <!-- Capsule Navigation Bar -->
                 <div class="bg-slate-900/90 p-1.5 rounded-full border border-slate-800 flex items-center space-x-1" id="navCapsule">
                     <!-- Nav items injected via JS based on login state -->
@@ -110,9 +104,9 @@
                 <!-- Card 1: ผู้ประเมินทั้งหมด -->
                 <div onclick="applyQuickFilter('all')" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between cursor-pointer hover:shadow-md transition-all duration-200 group">
                     <div>
-                        <p class="text-xs font-semibold text-slate-500 mb-1">ผู้ขอประเมินทั้งหมด</p>
+                        <p class="text-sm font-bold text-slate-700 mb-1">ผู้ขอประเมินทั้งหมด</p>
                         <h2 class="text-3xl font-bold text-slate-800" id="kpiTotal">0</h2>
-                        <span class="text-2xs text-slate-400 group-hover:text-blue-600 transition-colors flex items-center mt-2">
+                        <span class="text-[11px] text-slate-400 group-hover:text-blue-600 transition-colors flex items-center mt-2">
                             <i class="fa-solid fa-list-ul mr-1"></i> คลิกเพื่อดูทั้งหมด
                         </span>
                     </div>
@@ -124,9 +118,9 @@
                 <!-- Card 2: ผ่านการประเมิน -->
                 <div onclick="applyQuickFilter('passed')" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between cursor-pointer hover:shadow-md transition-all duration-200 group">
                     <div>
-                        <p class="text-xs font-semibold text-emerald-600 mb-1">ผ่านการประเมิน</p>
+                        <p class="text-sm font-bold text-emerald-600 mb-1">ผ่านการประเมิน</p>
                         <h2 class="text-3xl font-bold text-emerald-600" id="kpiPassed">0</h2>
-                        <span class="text-2xs text-emerald-500 group-hover:underline flex items-center mt-2">
+                        <span class="text-[11px] text-emerald-500 group-hover:underline flex items-center mt-2">
                             <i class="fa-solid fa-filter mr-1"></i> คลิกเพื่อคัดกรอง
                         </span>
                     </div>
@@ -138,9 +132,9 @@
                 <!-- Card 3: กำลังดำเนินการประเมิน -->
                 <div onclick="applyQuickFilter('pending')" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between cursor-pointer hover:shadow-md transition-all duration-200 group">
                     <div>
-                        <p class="text-xs font-semibold text-amber-600 mb-1">กำลังดำเนินการประเมิน</p>
+                        <p class="text-sm font-bold text-amber-600 mb-1">กำลังดำเนินการประเมิน</p>
                         <h2 class="text-3xl font-bold text-amber-500" id="kpiPending">0</h2>
-                        <span class="text-2xs text-amber-500 group-hover:underline flex items-center mt-2">
+                        <span class="text-[11px] text-amber-500 group-hover:underline flex items-center mt-2">
                             <i class="fa-solid fa-filter mr-1"></i> คลิกเพื่อคัดกรอง
                         </span>
                     </div>
@@ -152,9 +146,9 @@
                 <!-- Card 4: ไม่ผ่านการประเมิน -->
                 <div onclick="applyQuickFilter('failed')" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between cursor-pointer hover:shadow-md transition-all duration-200 group">
                     <div>
-                        <p class="text-xs font-semibold text-rose-600 mb-1">ไม่ผ่านการประเมิน</p>
+                        <p class="text-sm font-bold text-rose-600 mb-1">ไม่ผ่านการประเมิน</p>
                         <h2 class="text-3xl font-bold text-rose-600" id="kpiFailed">0</h2>
-                        <span class="text-2xs text-rose-500 group-hover:underline flex items-center mt-2">
+                        <span class="text-[11px] text-rose-500 group-hover:underline flex items-center mt-2">
                             <i class="fa-solid fa-filter mr-1"></i> คลิกเพื่อคัดกรอง
                         </span>
                     </div>
@@ -226,7 +220,10 @@
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 mb-1">สถานะการประเมิน</label>
                                 <select id="homeStatusFilter" onchange="filterData()" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                                    <option value="">สถานะทั้งหมด</option>
+                                    <option value="">สถานะทั้งหมด (ตั้งค่าเริ่มต้น)</option>
+                                    <option value="กำลังดำเนินการประเมิน">กำลังดำเนินการประเมิน</option>
+                                    <option value="ผ่านการประเมิน">ผ่านการประเมิน</option>
+                                    <option value="ไม่ผ่านการประเมิน">ไม่ผ่านการประเมิน</option>
                                 </select>
                             </div>
                         </div>
@@ -662,6 +659,7 @@
         let currentUser = null; // { email: '', role: 'guest' | 'teacher' | 'staff' }
         let currentRoleSelection = 'teacher';
         let currentAuthMode = 'login'; // 'login' | 'signup' | 'forgot'
+        let currentActiveView = 'home'; // Tracks active view state ('home', 'staff', 'teacher')
         let statusChartInstance = null;
 
         /**
@@ -737,11 +735,14 @@
             if (currentUser?.role === 'teacher') filterTeacherData();
         }
 
+        /**
+         * Renders navbar with color switching logic for active tabs (Yellow for Staff, Blue for Teacher)
+         */
         function renderNavbar() {
             const capsule = document.getElementById('navCapsule');
             if (!currentUser || currentUser.role === 'guest') {
                 capsule.innerHTML = `
-                    <button onclick="switchView('home')" class="px-4 py-1.5 rounded-full text-xs font-medium text-white hover:bg-slate-800 transition-colors flex items-center space-x-1.5">
+                    <button onclick="switchView('home')" class="px-4 py-1.5 rounded-full text-xs font-medium ${currentActiveView === 'home' ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800'} transition-all flex items-center space-x-1.5">
                         <i class="fa-solid fa-house"></i>
                         <span>หน้าหลัก</span>
                     </button>
@@ -751,12 +752,19 @@
                     </button>
                 `;
             } else if (currentUser.role === 'staff') {
+                const homeClass = currentActiveView === 'home' 
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/30' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800 font-medium';
+                const staffClass = currentActiveView === 'staff' 
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/30' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800 font-medium';
+
                 capsule.innerHTML = `
-                    <button onclick="switchView('home')" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center space-x-1.5">
+                    <button onclick="switchView('home')" class="px-3.5 py-1.5 rounded-full text-xs transition-all flex items-center space-x-1.5 ${homeClass}">
                         <i class="fa-solid fa-house"></i>
                         <span>หน้าหลัก</span>
                     </button>
-                    <button onclick="switchView('staff')" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-full text-xs transition-colors flex items-center space-x-1.5">
+                    <button onclick="switchView('staff')" class="px-3.5 py-1.5 rounded-full text-xs transition-all flex items-center space-x-1.5 ${staffClass}">
                         <i class="fa-solid fa-user-gear"></i>
                         <span>หน้าเจ้าหน้าที่</span>
                     </button>
@@ -766,12 +774,19 @@
                     </button>
                 `;
             } else if (currentUser.role === 'teacher') {
+                const homeClass = currentActiveView === 'home' 
+                    ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800 font-medium';
+                const teacherClass = currentActiveView === 'teacher' 
+                    ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800 font-medium';
+
                 capsule.innerHTML = `
-                    <button onclick="switchView('home')" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center space-x-1.5">
+                    <button onclick="switchView('home')" class="px-3.5 py-1.5 rounded-full text-xs transition-all flex items-center space-x-1.5 ${homeClass}">
                         <i class="fa-solid fa-house"></i>
                         <span>หน้าหลัก</span>
                     </button>
-                    <button onclick="switchView('teacher')" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full text-xs transition-colors flex items-center space-x-1.5">
+                    <button onclick="switchView('teacher')" class="px-3.5 py-1.5 rounded-full text-xs transition-all flex items-center space-x-1.5 ${teacherClass}">
                         <i class="fa-solid fa-chalkboard-user"></i>
                         <span>หน้าอาจารย์</span>
                     </button>
@@ -784,6 +799,7 @@
         }
 
         function switchView(viewName) {
+            currentActiveView = viewName;
             document.getElementById('homeView').classList.add('hidden');
             document.getElementById('staffView').classList.add('hidden');
             document.getElementById('teacherView').classList.add('hidden');
@@ -795,8 +811,10 @@
             } else if (viewName === 'teacher' && currentUser?.role === 'teacher') {
                 document.getElementById('teacherView').classList.remove('hidden');
             } else {
+                currentActiveView = 'home';
                 document.getElementById('homeView').classList.remove('hidden');
             }
+            renderNavbar();
         }
 
         function filterData() {
@@ -813,7 +831,16 @@
 
                 const matchYear = !year || String(item.evaluation_year) === String(year);
                 const matchDept = !dept || item.department === dept;
-                const matchStatus = !status || item.evaluation_status === status;
+                
+                // Status Filtering Logic based on Requirement 3
+                let matchStatus = true;
+                if (status === 'ผ่านการประเมิน') {
+                    matchStatus = item.evaluation_status === 'ผ่านการประเมิน';
+                } else if (status === 'ไม่ผ่านการประเมิน') {
+                    matchStatus = item.evaluation_status === 'ไม่ผ่านการประเมิน';
+                } else if (status === 'กำลังดำเนินการประเมิน') {
+                    matchStatus = item.evaluation_status !== 'ผ่านการประเมิน' && item.evaluation_status !== 'ไม่ผ่านการประเมิน';
+                }
 
                 return matchSearch && matchYear && matchDept && matchStatus;
             });
@@ -880,7 +907,6 @@
 
             populateOptions('homeYearFilter', years, 'ปีทั้งหมด');
             populateOptions('homeDeptFilter', depts, 'ภาควิชาทั้งหมด');
-            populateOptions('homeStatusFilter', statuses, 'สถานะทั้งหมด');
 
             populateOptions('staffYearFilter', years, 'ปีทั้งหมด');
             populateOptions('staffDeptFilter', depts, 'ภาควิชาทั้งหมด');
@@ -905,7 +931,7 @@
             } else if (type === 'failed') {
                 document.getElementById('homeStatusFilter').value = 'ไม่ผ่านการประเมิน';
             } else if (type === 'pending') {
-                document.getElementById('homeStatusFilter').value = '';
+                document.getElementById('homeStatusFilter').value = 'กำลังดำเนินการประเมิน';
             } else {
                 document.getElementById('homeStatusFilter').value = '';
             }
@@ -945,9 +971,9 @@
                     </td>
                     <td class="py-3 px-4">
                         <div class="flex items-center space-x-1.5">
-                            ${getFileButton(item.file_original_url, 'ต้นฉบับ', 'fa-file-lines', 'blue')}
-                            ${getFileButton(item.file_cover_url, 'ปก', 'fa-image', 'indigo')}
-                            ${getFileButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-file-pdf', 'emerald')}
+                            ${getFileButton(item.file_original_url, 'ต้นฉบับ')}
+                            ${getFileButton(item.file_cover_url, 'ปก')}
+                            ${getFileButton(item.file_eval_report_url, 'ผลประเมิน')}
                         </div>
                     </td>
                     <td class="py-3 px-4 text-xs text-slate-500">${item.note || '-'}</td>
@@ -1000,9 +1026,9 @@
                     </td>
                     <td class="py-3 px-4">
                         <div class="flex items-center space-x-1.5">
-                            ${getFileButton(item.file_original_url, 'ต้นฉบับ', 'fa-file-lines', 'blue')}
-                            ${getFileButton(item.file_cover_url, 'ปก', 'fa-image', 'indigo')}
-                            ${getFileButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-file-pdf', 'emerald')}
+                            ${getFileButton(item.file_original_url, 'ต้นฉบับ')}
+                            ${getFileButton(item.file_cover_url, 'ปก')}
+                            ${getFileButton(item.file_eval_report_url, 'ผลประเมิน')}
                         </div>
                     </td>
                     <td class="py-3 px-4 text-xs text-slate-500">${item.note || '-'}</td>
@@ -1054,16 +1080,15 @@
                     <td class="py-3 px-4 text-xs text-slate-600 font-medium">${item.publication_status || '-'}</td>
                     <td class="py-3 px-4">
                         <div class="flex items-center space-x-1.5">
-                            ${getFileButton(item.file_original_url, 'ต้นฉบับ', 'fa-file-lines', 'blue')}
-                            ${getFileButton(item.file_cover_url, 'ปก', 'fa-image', 'indigo')}
-                            ${getFileButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-file-pdf', 'emerald')}
+                            ${getFileButton(item.file_original_url, 'ต้นฉบับ')}
+                            ${getFileButton(item.file_cover_url, 'ปก')}
+                            ${getFileButton(item.file_eval_report_url, 'ผลประเมิน')}
                         </div>
                     </td>
                 </tr>
             `).join('');
         }
 
-        // Badge & Link Helper Buttons
         function getStatusBadge(status) {
             if (!status) return `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-medium">ไม่ระบุ</span>`;
             if (status === 'ผ่านการประเมิน') {
@@ -1075,11 +1100,33 @@
             return `<span class="inline-flex items-center px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-clock mr-1.5 text-2xs"></i>${status}</span>`;
         }
 
-        function getFileButton(url, label, icon, color) {
-            if (!url) return `<span class="text-2xs text-slate-300 italic">ไม่มี</span>`;
+        /**
+         * Requirement 4: Render Icon button instead of text label matching Image 03 design
+         */
+        function getFileButton(url, label) {
+            let colorStyle = "";
+            let iconClass = "";
+            
+            if (label === 'ต้นฉบับ') {
+                iconClass = "fa-solid fa-file-lines";
+                colorStyle = "bg-blue-50 text-blue-600 border-blue-100/80 hover:bg-blue-100 hover:text-blue-700";
+            } else if (label === 'ปก') {
+                iconClass = "fa-solid fa-image";
+                colorStyle = "bg-indigo-50 text-indigo-600 border-indigo-100/80 hover:bg-indigo-100 hover:text-indigo-700";
+            } else if (label === 'ผลประเมิน') {
+                iconClass = "fa-solid fa-file-pdf";
+                colorStyle = "bg-emerald-50 text-emerald-600 border-emerald-100/80 hover:bg-emerald-100 hover:text-emerald-700";
+            }
+
+            if (!url) {
+                return `<span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 text-slate-300 text-xs border border-slate-200/50 cursor-not-allowed opacity-50" title="ไม่มี${label}">
+                    <i class="${iconClass}"></i>
+                </span>`;
+            }
+
             return `
-                <a href="${url}" target="_blank" download class="inline-flex items-center px-2 py-1 bg-${color}-50 hover:bg-${color}-100 text-${color}-600 rounded-md text-2xs font-semibold transition-colors">
-                    <i class="fa-solid ${icon} mr-1"></i>${label}
+                <a href="${url}" target="_blank" download title="ดาวน์โหลด ${label}" class="inline-flex items-center justify-center w-8 h-8 rounded-xl ${colorStyle} border text-sm transition-all shadow-sm hover:scale-105 active:scale-95">
+                    <i class="${iconClass}"></i>
                 </a>
             `;
         }
@@ -1098,9 +1145,6 @@
             }
         }
 
-        /**
-         * Switch modal view mode between Login, Register, and Forgot Password
-         */
         function switchAuthMode(mode) {
             currentAuthMode = mode;
             const errorMsg = document.getElementById('loginErrorMsg');
@@ -1149,9 +1193,6 @@
             }
         }
 
-        /**
-         * Handle Auth Submit (Supabase Auth Integration)
-         */
         async function handleAuthSubmit(e) {
             e.preventDefault();
             const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -1173,7 +1214,6 @@
 
             try {
                 if (currentAuthMode === 'login') {
-                    // --- 1. LOGIN WITH SUPABASE AUTH ---
                     if (!passwordInput) {
                         throw new Error('กรุณากรอกรหัสผ่าน');
                     }
@@ -1195,12 +1235,10 @@
                     };
 
                     closeModal('loginModal');
-                    updateUI();
                     switchView(currentUser.role === 'staff' ? 'staff' : 'teacher');
                     showToast(`เข้าสู่ระบบสำเร็จ (${currentUser.email})`);
 
                 } else if (currentAuthMode === 'signup') {
-                    // --- 2. SIGN UP WITH SUPABASE AUTH ---
                     if (!passwordInput || passwordInput.length < 6) {
                         throw new Error('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
                     }
@@ -1224,7 +1262,6 @@
                     switchAuthMode('login');
 
                 } else if (currentAuthMode === 'forgot') {
-                    // --- 3. FORGOT PASSWORD WITH SUPABASE AUTH ---
                     const { data, error } = await supabaseClient.auth.resetPasswordForEmail(emailInput, {
                         redirectTo: window.location.href,
                     });
@@ -1247,7 +1284,6 @@
         function handleLogout() {
             supabaseClient.auth.signOut();
             currentUser = { email: '', role: 'guest' };
-            updateUI();
             switchView('home');
             showToast('ออกจากระบบเรียบร้อยแล้ว');
         }
@@ -1256,7 +1292,6 @@
             document.getElementById('formModalTitle').innerText = 'เพิ่มผลงานใหม่';
             document.getElementById('formEditId').value = '';
             
-            // Reset fields
             document.getElementById('formYear').value = new Date().getFullYear() + 543;
             document.getElementById('formAcademicPos').value = '';
             document.getElementById('formAuthorName').value = '';
@@ -1308,7 +1343,6 @@
             e.preventDefault();
             const editId = document.getElementById('formEditId').value;
 
-            // Extract & Convert Drive Links to Direct Download URLs
             const fileOriginal = convertGoogleDriveLink(document.getElementById('formFileOriginal').value);
             const fileCover = convertGoogleDriveLink(document.getElementById('formFileCover').value);
             const fileReport = convertGoogleDriveLink(document.getElementById('formFileEvalReport').value);
@@ -1334,7 +1368,6 @@
 
             try {
                 if (editId) {
-                    // UPDATE
                     const { error } = await supabaseClient
                         .from('evaluation')
                         .update(payload)
@@ -1342,7 +1375,6 @@
                     if (error) throw error;
                     showToast('แก้ไขข้อมูลเรียบร้อยแล้ว');
                 } else {
-                    // INSERT
                     const { error } = await supabaseClient
                         .from('evaluation')
                         .insert([payload]);
@@ -1377,7 +1409,6 @@
             }
         }
 
-        // CSV Export Helper
         function exportToCSV() {
             if (evaluationsData.length === 0) {
                 showToast('ไม่มีข้อมูลสำหรับส่งออก', 'error');
@@ -1409,7 +1440,6 @@
             document.body.removeChild(link);
         }
 
-        // Modal Open/Close Utilities
         function openModal(id) {
             document.getElementById(id).classList.remove('hidden');
             if (id === 'loginModal') {
@@ -1424,10 +1454,10 @@
             }
         }
 
+        // Window Load Initializer
         window.onload = async function() {
             currentUser = { email: '', role: 'guest' };
 
-            // Check existing Supabase Session
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session && session.user) {
                 const user = session.user;
