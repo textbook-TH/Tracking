@@ -282,7 +282,7 @@
         </section>
 
         <section id="staffView" class="hidden space-y-6">
-            <!-- Admin Header Banner (Dark Banner matching 05.png) -->
+            <!-- Admin Header Banner -->
             <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
                 <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
@@ -403,7 +403,7 @@
 
     </main>
 
-    <!-- 1. LOGIN MODAL (Matching 03.png with added Register & Forgot Password buttons) -->
+    <!-- 1. AUTHENTICATION MODAL (Supabase Auth Integration) -->
     <div id="loginModal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 sm:p-8 relative animate-in fade-in zoom-in duration-200">
             <button onclick="closeModal('loginModal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
@@ -411,15 +411,15 @@
             </button>
 
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-blue-500/30">
+                <div id="authHeaderIcon" class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-blue-500/30">
                     <i class="fa-solid fa-user-shield text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-slate-800">เข้าสู่ระบบผู้ใช้งาน</h3>
-                <p class="text-xs text-slate-400 mt-1">กรุณากรอกอีเมลสถาบัน @kmitl.ac.th เพื่อเข้าสู่ระบบ</p>
+                <h3 class="text-xl font-bold text-slate-800" id="authTitle">เข้าสู่ระบบผู้ใช้งาน</h3>
+                <p class="text-xs text-slate-400 mt-1" id="authSubtitle">กรุณากรอกอีเมลสถาบัน @kmitl.ac.th เพื่อเข้าสู่ระบบ</p>
             </div>
 
             <!-- Role Selector Tabs -->
-            <div class="mb-5">
+            <div class="mb-5" id="roleSelectorContainer">
                 <label class="block text-xs font-semibold text-slate-700 mb-2">บทบาทผู้ใช้งาน</label>
                 <div class="grid grid-cols-2 gap-3">
                     <button type="button" id="roleBtnTeacher" onclick="selectLoginRole('teacher')" class="py-3 px-4 rounded-xl border-2 font-medium text-xs flex items-center justify-center space-x-2 transition-all border-blue-600 bg-blue-50/50 text-blue-600">
@@ -433,28 +433,47 @@
                 </div>
             </div>
 
-            <!-- Email Input Form -->
-            <form onsubmit="handleLogin(event)" class="space-y-4">
+            <!-- Auth Input Form -->
+            <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">อีเมล KMITL</label>
                     <input type="email" id="loginEmail" required placeholder="example@kmitl.ac.th" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
                 </div>
 
+                <div id="passwordFieldContainer">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสผ่าน</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+                </div>
+
+                <div id="confirmPasswordFieldContainer" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ยืนยันรหัสผ่าน</label>
+                    <input type="password" id="loginConfirmPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
+                </div>
+
                 <p id="loginErrorMsg" class="text-xs text-rose-500 font-medium hidden text-center"></p>
 
-                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/30 text-sm transition-all">
-                    เข้าสู่ระบบ
+                <!-- Main Action Button -->
+                <button type="submit" id="authSubmitBtn" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/30 text-sm transition-all flex items-center justify-center space-x-2">
+                    <span id="authSubmitText">เข้าสู่ระบบ</span>
                 </button>
 
-                <!-- Additional 2 Buttons: Register & Forgot Password -->
-                <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-500 mt-4">
-                    <button type="button" onclick="handleSignUp()" class="hover:text-blue-600 transition-colors flex items-center space-x-1.5 py-1 px-2 rounded-lg hover:bg-slate-50">
-                        <i class="fa-solid fa-user-plus text-blue-500"></i>
+                <!-- Sub-action Buttons: 2 Buttons under Login (Register & Forgot Password) -->
+                <div id="loginSubActions" class="grid grid-cols-2 gap-3 pt-2">
+                    <button type="button" onclick="switchAuthMode('signup')" class="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-user-plus text-slate-500"></i>
                         <span>สมัครสมาชิก</span>
                     </button>
-                    <button type="button" onclick="handleForgotPassword()" class="hover:text-blue-600 transition-colors flex items-center space-x-1.5 py-1 px-2 rounded-lg hover:bg-slate-50">
-                        <i class="fa-solid fa-key text-amber-500"></i>
-                        <span>ลืมรหัสผ่าน?</span>
+                    <button type="button" onclick="switchAuthMode('forgot')" class="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-key text-slate-500"></i>
+                        <span>ลืมรหัสผ่าน</span>
+                    </button>
+                </div>
+
+                <!-- Back to Login Link (Visible when in SignUp/Forgot Mode) -->
+                <div id="backToLoginContainer" class="hidden text-center pt-2">
+                    <button type="button" onclick="switchAuthMode('login')" class="text-xs font-medium text-blue-600 hover:underline flex items-center justify-center mx-auto space-x-1">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>กลับไปยังหน้าเข้าสู่ระบบ</span>
                     </button>
                 </div>
             </form>
@@ -634,7 +653,7 @@
         const SUPABASE_KEY = "sb_publishable_TK-m_pMcUSnq9h2Lf1T3bQ_bUrSpd4H";
         const STAFF_EMAIL = "textbook@kmitl.ac.th"; // Hidden Staff Master Email
 
-        // Initialize Supabase Client (Renamed to supabaseClient to avoid name collision with CDN global)
+        // Initialize Supabase Client
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // --- 2. Application State ---
@@ -642,6 +661,7 @@
         let filteredData = [];
         let currentUser = null; // { email: '', role: 'guest' | 'teacher' | 'staff' }
         let currentRoleSelection = 'teacher';
+        let currentAuthMode = 'login'; // 'login' | 'signup' | 'forgot'
         let statusChartInstance = null;
 
         /**
@@ -653,12 +673,10 @@
             if (!trimmed.includes('drive.google.com')) return trimmed;
 
             let fileId = null;
-            // Match pattern /file/d/FILE_ID/
             const matchPath = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
             if (matchPath && matchPath[1]) {
                 fileId = matchPath[1];
             } else {
-                // Match pattern ?id=FILE_ID
                 const matchParam = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
                 if (matchParam && matchParam[1]) {
                     fileId = matchParam[1];
@@ -1080,10 +1098,69 @@
             }
         }
 
-        function handleLogin(e) {
+        /**
+         * Switch modal view mode between Login, Register, and Forgot Password
+         */
+        function switchAuthMode(mode) {
+            currentAuthMode = mode;
+            const errorMsg = document.getElementById('loginErrorMsg');
+            errorMsg.classList.add('hidden');
+
+            const title = document.getElementById('authTitle');
+            const subtitle = document.getElementById('authSubtitle');
+            const icon = document.getElementById('authHeaderIcon');
+            const roleContainer = document.getElementById('roleSelectorContainer');
+            const pwdContainer = document.getElementById('passwordFieldContainer');
+            const confirmPwdContainer = document.getElementById('confirmPasswordFieldContainer');
+            const submitText = document.getElementById('authSubmitText');
+            const subActions = document.getElementById('loginSubActions');
+            const backContainer = document.getElementById('backToLoginContainer');
+
+            if (mode === 'login') {
+                title.innerText = 'เข้าสู่ระบบผู้ใช้งาน';
+                subtitle.innerText = 'กรุณากรอกอีเมลสถาบัน @kmitl.ac.th เพื่อเข้าสู่ระบบ';
+                icon.innerHTML = '<i class="fa-solid fa-user-shield text-2xl"></i>';
+                roleContainer.classList.remove('hidden');
+                pwdContainer.classList.remove('hidden');
+                confirmPwdContainer.classList.add('hidden');
+                submitText.innerText = 'เข้าสู่ระบบ';
+                subActions.classList.remove('hidden');
+                backContainer.classList.add('hidden');
+            } else if (mode === 'signup') {
+                title.innerText = 'สมัครสมาชิกใหม่';
+                subtitle.innerText = 'ลงทะเบียนเข้าใช้งานด้วยอีเมลสถาบัน @kmitl.ac.th';
+                icon.innerHTML = '<i class="fa-solid fa-user-plus text-2xl"></i>';
+                roleContainer.classList.remove('hidden');
+                pwdContainer.classList.remove('hidden');
+                confirmPwdContainer.classList.remove('hidden');
+                submitText.innerText = 'ยืนยันการสมัครสมาชิก';
+                subActions.classList.add('hidden');
+                backContainer.classList.remove('hidden');
+            } else if (mode === 'forgot') {
+                title.innerText = 'ลืมรหัสผ่าน';
+                subtitle.innerText = 'กรอกอีเมลสถาบันเพื่อรับลิงก์สำหรับรีเซ็ตรหัสผ่าน';
+                icon.innerHTML = '<i class="fa-solid fa-key text-2xl"></i>';
+                roleContainer.classList.add('hidden');
+                pwdContainer.classList.add('hidden');
+                confirmPwdContainer.classList.add('hidden');
+                submitText.innerText = 'ส่งลิงก์รีเซ็ตรหัสผ่าน';
+                subActions.classList.add('hidden');
+                backContainer.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Handle Auth Submit (Supabase Auth Integration)
+         */
+        async function handleAuthSubmit(e) {
             e.preventDefault();
             const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const passwordInput = document.getElementById('loginPassword').value;
+            const confirmPasswordInput = document.getElementById('loginConfirmPassword').value;
             const errorMsg = document.getElementById('loginErrorMsg');
+            const submitBtn = document.getElementById('authSubmitBtn');
+
+            errorMsg.classList.add('hidden');
 
             if (!emailInput.endsWith('@kmitl.ac.th')) {
                 errorMsg.innerText = 'กรุณาใช้อีเมลสถาบันที่ลงท้ายด้วย @kmitl.ac.th เท่านั้น';
@@ -1091,99 +1168,84 @@
                 return;
             }
 
-            if (currentRoleSelection === 'staff') {
-                if (emailInput === STAFF_EMAIL) {
-                    currentUser = { email: emailInput, role: 'staff' };
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-70');
+
+            try {
+                if (currentAuthMode === 'login') {
+                    // --- 1. LOGIN WITH SUPABASE AUTH ---
+                    if (!passwordInput) {
+                        throw new Error('กรุณากรอกรหัสผ่าน');
+                    }
+
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: emailInput,
+                        password: passwordInput,
+                    });
+
+                    if (error) throw error;
+
+                    const user = data.user;
+                    const userRole = user.user_metadata?.role || (emailInput === STAFF_EMAIL ? 'staff' : currentRoleSelection);
+
+                    currentUser = {
+                        email: user.email,
+                        role: userRole,
+                        id: user.id
+                    };
+
                     closeModal('loginModal');
                     updateUI();
-                    switchView('staff');
-                    showToast('เข้าสู่ระบบสิทธิ์เจ้าหน้าที่สำเร็จ');
-                } else {
-                    errorMsg.innerText = 'อีเมลเจ้าหน้าที่ไม่ถูกต้อง';
-                    errorMsg.classList.remove('hidden');
-                }
-            } else {
-                // Teacher Role
-                currentUser = { email: emailInput, role: 'teacher' };
-                closeModal('loginModal');
-                updateUI();
-                switchView('teacher');
-                showToast(`เข้าสู่ระบบอาจารย์สำเร็จ (${emailInput})`);
-            }
-        }
+                    switchView(currentUser.role === 'staff' ? 'staff' : 'teacher');
+                    showToast(`เข้าสู่ระบบสำเร็จ (${currentUser.email})`);
 
-        // --- Supabase Sign Up Handler ---
-        async function handleSignUp() {
-            const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const errorMsg = document.getElementById('loginErrorMsg');
-
-            if (!emailInput) {
-                errorMsg.innerText = 'กรุณากรอกอีเมล @kmitl.ac.th เพื่อทำการสมัครสมาชิก';
-                errorMsg.classList.remove('hidden');
-                return;
-            }
-
-            if (!emailInput.endsWith('@kmitl.ac.th')) {
-                errorMsg.innerText = 'กรุณาใช้อีเมลสถาบันที่ลงท้ายด้วย @kmitl.ac.th เท่านั้น';
-                errorMsg.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                errorMsg.classList.add('hidden');
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email: emailInput,
-                    options: {
-                        emailRedirectTo: window.location.href
+                } else if (currentAuthMode === 'signup') {
+                    // --- 2. SIGN UP WITH SUPABASE AUTH ---
+                    if (!passwordInput || passwordInput.length < 6) {
+                        throw new Error('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
                     }
-                });
+                    if (passwordInput !== confirmPasswordInput) {
+                        throw new Error('รหัสผ่านยืนยันไม่ตรงกัน');
+                    }
 
-                if (error) throw error;
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email: emailInput,
+                        password: passwordInput,
+                        options: {
+                            data: {
+                                role: currentRoleSelection
+                            }
+                        }
+                    });
 
-                showToast(`ส่งลิงก์ยืนยันการสมัครสมาชิกไปยัง ${emailInput} เรียบร้อยแล้ว`);
-                closeModal('loginModal');
+                    if (error) throw error;
+
+                    showToast('สมัครสมาชิกสำเร็จ! หากมีระบบยืนยันอีเมล กรุณาตรวจสอบอีเมลของคุณก่อนเข้าสู่ระบบ');
+                    switchAuthMode('login');
+
+                } else if (currentAuthMode === 'forgot') {
+                    // --- 3. FORGOT PASSWORD WITH SUPABASE AUTH ---
+                    const { data, error } = await supabaseClient.auth.resetPasswordForEmail(emailInput, {
+                        redirectTo: window.location.href,
+                    });
+
+                    if (error) throw error;
+
+                    showToast('ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณเรียบร้อยแล้ว');
+                    switchAuthMode('login');
+                }
             } catch (err) {
-                console.error('SignUp error:', err);
-                errorMsg.innerText = 'ไม่สามารถสมัครสมาชิกได้: ' + (err.message || 'เกิดข้อผิดพลาด');
+                console.error('Auth error:', err);
+                errorMsg.innerText = err.message || 'เกิดข้อผิดพลาดในการทำรายการ';
                 errorMsg.classList.remove('hidden');
-            }
-        }
-
-        // --- Supabase Forgot Password Handler ---
-        async function handleForgotPassword() {
-            const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const errorMsg = document.getElementById('loginErrorMsg');
-
-            if (!emailInput) {
-                errorMsg.innerText = 'กรุณากรอกอีเมลเพื่อขอรีเซ็ตรหัสผ่าน';
-                errorMsg.classList.remove('hidden');
-                return;
-            }
-
-            if (!emailInput.endsWith('@kmitl.ac.th')) {
-                errorMsg.innerText = 'กรุณาใช้อีเมลสถาบันที่ลงท้ายด้วย @kmitl.ac.th เท่านั้น';
-                errorMsg.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                errorMsg.classList.add('hidden');
-                const { data, error } = await supabaseClient.auth.resetPasswordForEmail(emailInput, {
-                    redirectTo: window.location.href
-                });
-
-                if (error) throw error;
-
-                showToast(`ส่งลิงก์ตั้งรหัสผ่านใหม่ไปยัง ${emailInput} เรียบร้อยแล้ว`);
-                closeModal('loginModal');
-            } catch (err) {
-                console.error('ForgotPassword error:', err);
-                errorMsg.innerText = 'ไม่สามารถส่งอีเมลรีเซ็ตรหัสผ่านได้: ' + (err.message || 'เกิดข้อผิดพลาด');
-                errorMsg.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70');
             }
         }
 
         function handleLogout() {
+            supabaseClient.auth.signOut();
             currentUser = { email: '', role: 'guest' };
             updateUI();
             switchView('home');
@@ -1350,6 +1412,9 @@
         // Modal Open/Close Utilities
         function openModal(id) {
             document.getElementById(id).classList.remove('hidden');
+            if (id === 'loginModal') {
+                switchAuthMode('login');
+            }
         }
 
         function closeModal(id) {
@@ -1359,8 +1424,21 @@
             }
         }
 
-        window.onload = function() {
+        window.onload = async function() {
             currentUser = { email: '', role: 'guest' };
+
+            // Check existing Supabase Session
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session && session.user) {
+                const user = session.user;
+                const userRole = user.user_metadata?.role || (user.email === STAFF_EMAIL ? 'staff' : 'teacher');
+                currentUser = {
+                    email: user.email,
+                    role: userRole,
+                    id: user.id
+                };
+            }
+
             renderNavbar();
             fetchEvaluations();
         };
