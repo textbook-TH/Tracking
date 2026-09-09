@@ -99,7 +99,6 @@
 
         <!-- ================= PAGE 1: HOME VIEW ================= -->
         <section id="homeView" class="space-y-6">
-            <!-- KPI Summary Cards Grid (4 Cards) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Card 1: ผู้ประเมินทั้งหมด -->
                 <div onclick="applyQuickFilter('all')" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between cursor-pointer hover:shadow-md transition-all duration-200 group">
@@ -182,7 +181,6 @@
                     </div>
                 </div>
 
-                <!-- Right Search & Filters Card -->
                 <div class="lg:col-span-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center space-x-2 text-blue-600 font-bold mb-4">
@@ -255,7 +253,7 @@
                     </div>
                 </div>
 
-                <!-- Desktop Table View -->
+                <!-- Desktop Table View (visible on sm screen sizes and up >= 640px) -->
                 <div class="hidden sm:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -271,7 +269,6 @@
                     </table>
                 </div>
 
-                <!-- Mobile Card View -->
                 <div id="homeMobileCardContainer" class="block sm:hidden p-3.5 sm:p-4 space-y-3.5 bg-slate-50/30">
                     <!-- Injected dynamically via JS -->
                 </div>
@@ -403,9 +400,9 @@
     </main>
 
     <!-- 1. AUTHENTICATION MODAL -->
-    <div id="loginModal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 sm:p-8 relative animate-in fade-in zoom-in duration-200">
-            <button onclick="closeModal('loginModal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
+    <div id="loginModal" onclick="closeModalOnBackdrop(event, 'loginModal')" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white w-[95%] sm:w-[90%] md:w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 relative my-auto max-h-[90vh] overflow-y-auto transform transition-all duration-200">
+            <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 sm:top-5 sm:right-5 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors z-10">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
 
@@ -480,9 +477,9 @@
     </div>
 
     <!-- 2. ADD / EDIT WORK MODAL -->
-    <div id="editModal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl p-6 sm:p-8 my-8 relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('editModal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
+    <div id="editModal" onclick="closeModalOnBackdrop(event, 'editModal')" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white w-[95%] sm:w-[90%] md:w-full max-w-3xl rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 my-auto max-h-[90vh] overflow-y-auto transform transition-all duration-200">
+            <button onclick="closeModal('editModal')" class="absolute top-4 right-4 sm:top-5 sm:right-5 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors z-10">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
 
@@ -643,12 +640,12 @@
         </div>
     </div>
 
-    <!-- 3. EVALUATION DETAIL POPUP MODAL -->
-    <div id="detailModal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl p-6 sm:p-8 relative my-8 max-h-[92vh] overflow-y-auto">
+    <!-- 3. EVALUATION DETAIL POPUP MODAL (ภาพ 04 / ภาพ 06) -->
+    <div id="detailModal" onclick="closeModalOnBackdrop(event, 'detailModal')" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto">
+        <div class="bg-white w-[95%] sm:w-[90%] md:w-full max-w-3xl rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-6 md:p-8 relative my-auto max-h-[90vh] overflow-y-auto transform transition-all duration-200">
             <!-- Close Button Top Right -->
-            <button onclick="closeModal('detailModal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors">
-                <i class="fa-solid fa-xmark text-xl"></i>
+            <button onclick="closeModal('detailModal')" class="absolute top-4 right-4 sm:top-6 sm:right-6 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors z-10">
+                <i class="fa-solid fa-xmark text-lg sm:text-xl"></i>
             </button>
 
             <!-- Popup Header Info -->
@@ -670,7 +667,7 @@
                 </p>
             </div>
 
-            <!-- Flow Section Container -->
+            <!-- Flow Section Container (ภาพ 04) -->
             <div class="border-t border-slate-100 pt-5 mb-6">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm sm:text-base">
@@ -725,9 +722,20 @@
                 <!-- Card 4: สถานะจัดพิมพ์ -->
                 <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100/90">
                     <p class="text-2xs sm:text-xs font-semibold text-slate-400 mb-1">สถานะจัดพิมพ์</p>
-                    <div id="popupPubBadge" class="mt-0.5">
-                        <p id="popupPubStatus" class="text-sm sm:text-base font-bold text-slate-800">-</p>
-                    </div>
+                    <p id="popupPubStatus" class="text-sm sm:text-base font-bold text-slate-800">
+                        -
+                    </p>
+                </div>
+            </div>
+
+            <!-- Bottom Warning / Alert Box -->
+            <div id="popupAlertBox" class="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 text-xs font-medium text-amber-900 flex items-start space-x-2.5 mb-6">
+                <i class="fa-solid fa-circle-info text-amber-600 text-base mt-0.5"></i>
+                <div>
+                    <strong class="font-bold text-amber-950">หมายเหตุ / แจ้งเตือน:</strong>
+                    <p id="popupNoteText" class="mt-0.5 text-amber-800 font-normal">
+                        -
+                    </p>
                 </div>
             </div>
 
@@ -791,6 +799,7 @@
          */
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
+            if (!container) return;
             const toast = document.createElement('div');
             const bgClass = type === 'success' ? 'bg-slate-900 text-emerald-400 border-emerald-500/30' : 'bg-slate-900 text-rose-400 border-rose-500/30';
             const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
@@ -810,6 +819,8 @@
             const btnTeacher = document.getElementById('roleBtnTeacher');
             const btnStaff = document.getElementById('roleBtnStaff');
 
+            if (!btnTeacher || !btnStaff) return;
+
             if (role === 'teacher') {
                 btnTeacher.className = "py-3 px-4 rounded-xl border-2 font-medium text-xs flex items-center justify-center space-x-2 transition-all border-blue-600 bg-blue-50/50 text-blue-600";
                 btnStaff.className = "py-3 px-4 rounded-xl border-2 font-medium text-xs flex items-center justify-center space-x-2 transition-all border-slate-200 text-slate-500 hover:border-slate-300";
@@ -819,20 +830,10 @@
             }
         }
 
-        function openModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) modal.classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) modal.classList.add('hidden');
-        }
-
         function switchAuthMode(mode) {
             currentAuthMode = mode;
             const errorMsg = document.getElementById('loginErrorMsg');
-            errorMsg.classList.add('hidden');
+            if (errorMsg) errorMsg.classList.add('hidden');
 
             const title = document.getElementById('authTitle');
             const subtitle = document.getElementById('authSubtitle');
@@ -847,74 +848,78 @@
             const backContainer = document.getElementById('backToLoginContainer');
 
             if (mode === 'login') {
-                title.innerText = 'เข้าสู่ระบบผู้ใช้งาน';
-                subtitle.innerText = 'กรุณากรอกอีเมลสถาบัน @kmitl.ac.th เพื่อเข้าสู่ระบบ';
-                icon.innerHTML = '<i class="fa-solid fa-user-shield text-2xl"></i>';
-                roleContainer.classList.remove('hidden');
+                if (title) title.innerText = 'เข้าสู่ระบบผู้ใช้งาน';
+                if (subtitle) subtitle.innerText = 'กรุณากรอกอีเมลสถาบัน @kmitl.ac.th เพื่อเข้าสู่ระบบ';
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-user-shield text-2xl"></i>';
+                if (roleContainer) roleContainer.classList.remove('hidden');
                 if (emailContainer) emailContainer.classList.remove('hidden');
-                emailInput.required = true;
-                pwdContainer.classList.remove('hidden');
-                confirmPwdContainer.classList.add('hidden');
-                submitText.innerText = 'เข้าสู่ระบบ';
-                subActions.classList.remove('hidden');
-                backContainer.classList.add('hidden');
+                if (emailInput) emailInput.required = true;
+                if (pwdContainer) pwdContainer.classList.remove('hidden');
+                if (confirmPwdContainer) confirmPwdContainer.classList.add('hidden');
+                if (submitText) submitText.innerText = 'เข้าสู่ระบบ';
+                if (subActions) subActions.classList.remove('hidden');
+                if (backContainer) backContainer.classList.add('hidden');
             } else if (mode === 'signup') {
-                title.innerText = 'สมัครสมาชิกใหม่';
-                subtitle.innerText = 'ลงทะเบียนเข้าใช้งานด้วยอีเมลสถาบัน @kmitl.ac.th';
-                icon.innerHTML = '<i class="fa-solid fa-user-plus text-2xl"></i>';
-                roleContainer.classList.remove('hidden');
+                if (title) title.innerText = 'สมัครสมาชิกใหม่';
+                if (subtitle) subtitle.innerText = 'ลงทะเบียนเข้าใช้งานด้วยอีเมลสถาบัน @kmitl.ac.th';
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-user-plus text-2xl"></i>';
+                if (roleContainer) roleContainer.classList.remove('hidden');
                 if (emailContainer) emailContainer.classList.remove('hidden');
-                emailInput.required = true;
-                pwdContainer.classList.remove('hidden');
-                confirmPwdContainer.classList.remove('hidden');
-                submitText.innerText = 'ยืนยันการสมัครสมาชิก';
-                subActions.classList.add('hidden');
-                backContainer.classList.remove('hidden');
+                if (emailInput) emailInput.required = true;
+                if (pwdContainer) pwdContainer.classList.remove('hidden');
+                if (confirmPwdContainer) confirmPwdContainer.classList.remove('hidden');
+                if (submitText) submitText.innerText = 'ยืนยันการสมัครสมาชิก';
+                if (subActions) subActions.classList.add('hidden');
+                if (backContainer) backContainer.classList.remove('hidden');
             } else if (mode === 'forgot') {
-                title.innerText = 'ลืมรหัสผ่าน';
-                subtitle.innerText = 'กรอกอีเมลสถาบันเพื่อรับลิงก์สำหรับรีเซ็ตรหัสผ่าน';
-                icon.innerHTML = '<i class="fa-solid fa-key text-2xl"></i>';
-                roleContainer.classList.add('hidden');
+                if (title) title.innerText = 'ลืมรหัสผ่าน';
+                if (subtitle) subtitle.innerText = 'กรอกอีเมลสถาบันเพื่อรับลิงก์สำหรับรีเซ็ตรหัสผ่าน';
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-key text-2xl"></i>';
+                if (roleContainer) roleContainer.classList.add('hidden');
                 if (emailContainer) emailContainer.classList.remove('hidden');
-                emailInput.required = true;
-                pwdContainer.classList.add('hidden');
-                confirmPwdContainer.classList.add('hidden');
-                submitText.innerText = 'ส่งลิงก์รีเซ็ตรหัสผ่าน';
-                subActions.classList.add('hidden');
-                backContainer.classList.remove('hidden');
+                if (emailInput) emailInput.required = true;
+                if (pwdContainer) pwdContainer.classList.add('hidden');
+                if (confirmPwdContainer) confirmPwdContainer.classList.add('hidden');
+                if (submitText) submitText.innerText = 'ส่งลิงก์รีเซ็ตรหัสผ่าน';
+                if (subActions) subActions.classList.add('hidden');
+                if (backContainer) backContainer.classList.remove('hidden');
             } else if (mode === 'reset') {
-                title.innerText = 'ตั้งรหัสผ่านใหม่';
-                subtitle.innerText = 'กรุณากรอกรหัสผ่านใหม่ที่คุณต้องการใช้งาน';
-                icon.innerHTML = '<i class="fa-solid fa-lock text-2xl"></i>';
-                roleContainer.classList.add('hidden');
+                if (title) title.innerText = 'ตั้งรหัสผ่านใหม่';
+                if (subtitle) subtitle.innerText = 'กรุณากรอกรหัสผ่านใหม่ที่คุณต้องการใช้งาน';
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-lock text-2xl"></i>';
+                if (roleContainer) roleContainer.classList.add('hidden');
                 if (emailContainer) emailContainer.classList.add('hidden');
-                emailInput.required = false;
-                pwdContainer.classList.remove('hidden');
-                confirmPwdContainer.classList.remove('hidden');
-                submitText.innerText = 'บันทึกรหัสผ่านใหม่';
-                subActions.classList.add('hidden');
-                backContainer.classList.remove('hidden');
+                if (emailInput) emailInput.required = false;
+                if (pwdContainer) pwdContainer.classList.remove('hidden');
+                if (confirmPwdContainer) confirmPwdContainer.classList.remove('hidden');
+                if (submitText) submitText.innerText = 'บันทึกรหัสผ่านใหม่';
+                if (subActions) subActions.classList.add('hidden');
+                if (backContainer) backContainer.classList.remove('hidden');
             }
         }
 
         async function handleAuthSubmit(e) {
             e.preventDefault();
-            const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const passwordInput = document.getElementById('loginPassword').value;
-            const confirmPasswordInput = document.getElementById('loginConfirmPassword').value;
+            const emailInput = document.getElementById('loginEmail')?.value.trim().toLowerCase() || '';
+            const passwordInput = document.getElementById('loginPassword')?.value || '';
+            const confirmPasswordInput = document.getElementById('loginConfirmPassword')?.value || '';
             const errorMsg = document.getElementById('loginErrorMsg');
             const submitBtn = document.getElementById('authSubmitBtn');
 
-            errorMsg.classList.add('hidden');
+            if (errorMsg) errorMsg.classList.add('hidden');
 
             if (currentAuthMode !== 'reset' && !emailInput.endsWith('@kmitl.ac.th')) {
-                errorMsg.innerText = 'กรุณาใช้อีเมลสถาบันที่ลงท้ายด้วย @kmitl.ac.th เท่านั้น';
-                errorMsg.classList.remove('hidden');
+                if (errorMsg) {
+                    errorMsg.innerText = 'กรุณาใช้อีเมลสถาบันที่ลงท้ายด้วย @kmitl.ac.th เท่านั้น';
+                    errorMsg.classList.remove('hidden');
+                }
                 return;
             }
 
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-70');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70');
+            }
 
             try {
                 if (currentAuthMode === 'login') {
@@ -1001,11 +1006,15 @@
                 }
             } catch (err) {
                 console.error('Auth error:', err);
-                errorMsg.innerText = err.message || 'เกิดข้อผิดพลาดในการทำรายการ';
-                errorMsg.classList.remove('hidden');
+                if (errorMsg) {
+                    errorMsg.innerText = err.message || 'เกิดข้อผิดพลาดในการทำรายการ';
+                    errorMsg.classList.remove('hidden');
+                }
             } finally {
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-70');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70');
+                }
             }
         }
 
@@ -1047,6 +1056,8 @@
 
         function renderNavbar() {
             const capsule = document.getElementById('navCapsule');
+            if (!capsule) return;
+
             if (!currentUser || currentUser.role === 'guest') {
                 capsule.innerHTML = `
                     <button onclick="switchView('home')" class="px-4 py-1.5 rounded-full text-xs font-medium ${currentActiveView === 'home' ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800'} transition-all flex items-center space-x-1.5">
@@ -1107,22 +1118,26 @@
 
         function switchView(viewName) {
             currentActiveView = viewName;
-            document.getElementById('homeView').classList.add('hidden');
-            document.getElementById('staffView').classList.add('hidden');
-            document.getElementById('teacherView').classList.add('hidden');
+            const homeView = document.getElementById('homeView');
+            const staffView = document.getElementById('staffView');
+            const teacherView = document.getElementById('teacherView');
+
+            if (homeView) homeView.classList.add('hidden');
+            if (staffView) staffView.classList.add('hidden');
+            if (teacherView) teacherView.classList.add('hidden');
 
             if (viewName === 'home') {
-                document.getElementById('homeView').classList.remove('hidden');
+                if (homeView) homeView.classList.remove('hidden');
                 filterData();
             } else if (viewName === 'staff' && currentUser?.role === 'staff') {
-                document.getElementById('staffView').classList.remove('hidden');
+                if (staffView) staffView.classList.remove('hidden');
                 filterStaffData();
             } else if (viewName === 'teacher' && currentUser?.role === 'teacher') {
-                document.getElementById('teacherView').classList.remove('hidden');
+                if (teacherView) teacherView.classList.remove('hidden');
                 filterTeacherData();
             } else {
                 currentActiveView = 'home';
-                document.getElementById('homeView').classList.remove('hidden');
+                if (homeView) homeView.classList.remove('hidden');
                 filterData();
             }
             renderNavbar();
@@ -1168,23 +1183,36 @@
             const failed = evaluationsData.filter(i => i.evaluation_status === 'ไม่ผ่านการประเมิน').length;
             const pending = total - (passed + failed);
 
-            document.getElementById('kpiTotal').innerText = total;
-            document.getElementById('kpiPassed').innerText = passed;
-            document.getElementById('kpiPending').innerText = pending;
-            document.getElementById('kpiFailed').innerText = failed;
+            const elemTotal = document.getElementById('kpiTotal');
+            const elemPassed = document.getElementById('kpiPassed');
+            const elemPending = document.getElementById('kpiPending');
+            const elemFailed = document.getElementById('kpiFailed');
 
-            document.getElementById('legendPassed').innerText = passed;
-            document.getElementById('legendPending').innerText = pending;
-            document.getElementById('legendFailed').innerText = failed;
-            document.getElementById('chartCenterTotal').innerText = total;
+            if (elemTotal) elemTotal.innerText = total;
+            if (elemPassed) elemPassed.innerText = passed;
+            if (elemPending) elemPending.innerText = pending;
+            if (elemFailed) elemFailed.innerText = failed;
+
+            const legPassed = document.getElementById('legendPassed');
+            const legPending = document.getElementById('legendPending');
+            const legFailed = document.getElementById('legendFailed');
+            const chartCenter = document.getElementById('chartCenterTotal');
+
+            if (legPassed) legPassed.innerText = passed;
+            if (legPending) legPending.innerText = pending;
+            if (legFailed) legFailed.innerText = failed;
+            if (chartCenter) chartCenter.innerText = total;
         }
 
         function renderChart() {
+            const chartCanvas = document.getElementById('statusChart');
+            if (!chartCanvas) return;
+
             const passed = evaluationsData.filter(i => i.evaluation_status === 'ผ่านการประเมิน').length;
             const failed = evaluationsData.filter(i => i.evaluation_status === 'ไม่ผ่านการประเมิน').length;
             const pending = evaluationsData.length - (passed + failed);
 
-            const ctx = document.getElementById('statusChart').getContext('2d');
+            const ctx = chartCanvas.getContext('2d');
             if (statusChartInstance) {
                 statusChartInstance.destroy();
             }
@@ -1235,39 +1263,57 @@
         }
 
         function applyQuickFilter(type) {
-            document.getElementById('homeSearchInput').value = '';
-            document.getElementById('homeYearFilter').value = '';
-            document.getElementById('homeDeptFilter').value = '';
+            const searchInput = document.getElementById('homeSearchInput');
+            const yearFilter = document.getElementById('homeYearFilter');
+            const deptFilter = document.getElementById('homeDeptFilter');
+            const statusFilter = document.getElementById('homeStatusFilter');
 
-            if (type === 'passed') {
-                document.getElementById('homeStatusFilter').value = 'ผ่านการประเมิน';
-            } else if (type === 'failed') {
-                document.getElementById('homeStatusFilter').value = 'ไม่ผ่านการประเมิน';
-            } else if (type === 'pending') {
-                document.getElementById('homeStatusFilter').value = 'กำลังดำเนินการประเมิน';
-            } else {
-                document.getElementById('homeStatusFilter').value = '';
+            if (searchInput) searchInput.value = '';
+            if (yearFilter) yearFilter.value = '';
+            if (deptFilter) deptFilter.value = '';
+
+            if (statusFilter) {
+                if (type === 'passed') {
+                    statusFilter.value = 'ผ่านการประเมิน';
+                } else if (type === 'failed') {
+                    statusFilter.value = 'ไม่ผ่านการประเมิน';
+                } else if (type === 'pending') {
+                    statusFilter.value = 'กำลังดำเนินการประเมิน';
+                } else {
+                    statusFilter.value = '';
+                }
             }
             filterData();
         }
 
         function resetHomeFilters() {
-            document.getElementById('homeSearchInput').value = '';
-            document.getElementById('homeYearFilter').value = '';
-            document.getElementById('homeDeptFilter').value = '';
-            document.getElementById('homeStatusFilter').value = '';
+            const searchInput = document.getElementById('homeSearchInput');
+            const yearFilter = document.getElementById('homeYearFilter');
+            const deptFilter = document.getElementById('homeDeptFilter');
+            const statusFilter = document.getElementById('homeStatusFilter');
+
+            if (searchInput) searchInput.value = '';
+            if (yearFilter) yearFilter.value = '';
+            if (deptFilter) deptFilter.value = '';
+            if (statusFilter) statusFilter.value = '';
             filterData();
         }
 
+        /**
+         * Render Main Public Table / Mobile View Cards
+         */
         function renderHomeTable() {
             const tbody = document.getElementById('homeTableBody');
             const mobileContainer = document.getElementById('homeMobileCardContainer');
 
-            document.getElementById('homeTableCount').innerText = filteredData.length;
-            document.getElementById('homeFilterCountText').innerText = `กำลังแสดงผลลัพธ์ ${filteredData.length} จาก ${evaluationsData.length} รายการ`;
+            const tableCount = document.getElementById('homeTableCount');
+            const filterText = document.getElementById('homeFilterCountText');
+
+            if (tableCount) tableCount.innerText = filteredData.length;
+            if (filterText) filterText.innerText = `กำลังแสดงผลลัพธ์ ${filteredData.length} จาก ${evaluationsData.length} รายการ`;
 
             if (filteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
                 if (mobileContainer) {
                     mobileContainer.innerHTML = `<div class="text-center py-12 text-slate-400 font-light bg-white rounded-2xl border border-slate-100">ไม่พบข้อมูลในระบบ</div>`;
                 }
@@ -1275,58 +1321,60 @@
             }
 
             // 1. DESKTOP VIEW
-            tbody.innerHTML = filteredData.map(item => {
-                const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
+            if (tbody) {
+                tbody.innerHTML = filteredData.map(item => {
+                    const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
-                return `
-                <tr class="hover:bg-slate-50/80 transition-colors">
-                    <td class="py-4 px-4 font-bold text-blue-600 font-mono text-xs align-top cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
-                        ${item.book_code || '-'}
-                    </td>
-                    <td class="py-4 px-4 align-top cursor-pointer" onclick="openDetailModal(${item.id})">
-                        ${getStatusBadge(item.evaluation_status)}
-                    </td>
-                    <td class="py-4 px-4 align-top cursor-pointer group" onclick="openDetailModal(${item.id})">
-                        <div class="space-y-2">
-                            <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
-                                <span class="font-bold text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
-                                    ${item.title || '-'}
-                                </span>
+                    return `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-4 px-4 font-bold text-blue-600 font-mono text-xs align-top cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
+                            ${item.book_code || '-'}
+                        </td>
+                        <td class="py-4 px-4 align-top cursor-pointer" onclick="openDetailModal(${item.id})">
+                            ${getStatusBadge(item.evaluation_status)}
+                        </td>
+                        <td class="py-4 px-4 align-top cursor-pointer group" onclick="openDetailModal(${item.id})">
+                            <div class="space-y-2">
+                                <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
+                                    <span class="font-bold text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
+                                        ${item.title || '-'}
+                                    </span>
+                                </div>
+
+                                <div class="flex items-center flex-wrap gap-x-4 gap-y-1.5 text-slate-500">
+                                    ${authorFull ? `
+                                        <span class="inline-flex items-center space-x-1.5 text-xs font-medium text-slate-600">
+                                            <i class="fa-solid fa-user-pen text-slate-400 text-xs"></i>
+                                            <span>${authorFull}</span>
+                                        </span>
+                                    ` : ''}
+
+                                    ${item.department ? `
+                                        <span class="inline-flex items-center space-x-1 text-[11px]">
+                                            <i class="fa-solid fa-landmark text-slate-400 text-[10px]"></i>
+                                            <span>${item.department}</span>
+                                        </span>
+                                    ` : ''}
+
+                                    ${item.evaluation_year ? `
+                                        <span class="inline-flex items-center space-x-1 text-[11px]">
+                                            <i class="fa-regular fa-calendar-days text-slate-400 text-[10px]"></i>
+                                            <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
+                                        </span>
+                                    ` : ''}
+
+                                    ${item.isbn ? `
+                                        <span class="inline-flex items-center space-x-1 text-[11px] font-mono">
+                                            <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
+                                            <span>ISBN: ${item.isbn}</span>
+                                        </span>
+                                    ` : ''}
+                                </div>
                             </div>
-
-                            <div class="flex items-center flex-wrap gap-x-4 gap-y-1.5 text-slate-500">
-                                ${authorFull ? `
-                                    <span class="inline-flex items-center space-x-1.5 text-xs font-medium text-slate-600">
-                                        <i class="fa-solid fa-user-pen text-slate-400 text-xs"></i>
-                                        <span>${authorFull}</span>
-                                    </span>
-                                ` : ''}
-
-                                ${item.department ? `
-                                    <span class="inline-flex items-center space-x-1 text-[11px]">
-                                        <i class="fa-solid fa-landmark text-slate-400 text-[10px]"></i>
-                                        <span>${item.department}</span>
-                                    </span>
-                                ` : ''}
-
-                                ${item.evaluation_year ? `
-                                    <span class="inline-flex items-center space-x-1 text-[11px]">
-                                        <i class="fa-regular fa-calendar-days text-slate-400 text-[10px]"></i>
-                                        <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
-                                    </span>
-                                ` : ''}
-
-                                ${item.isbn ? `
-                                    <span class="inline-flex items-center space-x-1 text-[11px] font-mono">
-                                        <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
-                                        <span>ISBN: ${item.isbn}</span>
-                                    </span>
-                                ` : ''}
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
+                        </td>
+                    </tr>
+                `}).join('');
+            }
 
             // 2. MOBILE VIEW
             if (mobileContainer) {
@@ -1335,15 +1383,18 @@
 
                     return `
                     <div onclick="openDetailModal(${item.id})" class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-3 transition-all cursor-pointer hover:shadow-md">
+                        <!-- Distinct Light Gray Box Header for "รายละเอียดการประเมิน" -->
                         <div class="w-full bg-slate-100/90 border border-slate-200/70 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-600 tracking-tight text-center flex items-center justify-between">
                             <span>รายละเอียดการประเมิน</span>
                             <i class="fa-solid fa-circle-info text-blue-500 text-xs"></i>
                         </div>
 
+                        <!-- Main Book Title -->
                         <h3 class="text-base sm:text-lg font-bold text-slate-800 leading-snug px-1">
                             ${item.title || '-'}
                         </h3>
 
+                        <!-- Author Line -->
                         ${authorFull ? `
                             <div class="flex items-center justify-center space-x-2 text-xs sm:text-sm text-slate-500 font-medium">
                                 <i class="fa-solid fa-user-pen text-slate-400"></i>
@@ -1351,6 +1402,7 @@
                             </div>
                         ` : ''}
 
+                        <!-- Department & Evaluation Year Row -->
                         <div class="flex items-center justify-center flex-wrap gap-x-3.5 gap-y-1 text-[11px] text-slate-400 font-normal">
                             ${item.department ? `
                                 <div class="flex items-center space-x-1">
@@ -1366,6 +1418,7 @@
                             ` : ''}
                         </div>
 
+                        <!-- ISBN Line -->
                         ${item.isbn ? `
                             <div class="flex items-center justify-center space-x-1 text-[11px] text-slate-400 font-mono">
                                 <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
@@ -1373,6 +1426,7 @@
                             </div>
                         ` : ''}
 
+                        <!-- Status Badge -->
                         <div class="pt-1 w-full flex justify-center">
                             ${getMobileStatusBadge(item.evaluation_status)}
                         </div>
@@ -1383,7 +1437,7 @@
         }
 
         /**
-         * Calculates step progress based on status rules (Step 1 = 5%)
+         * Calculates step progress (1 to 6) based on status group rules
          */
         function getEvaluationStepInfo(status) {
             const steps = [
@@ -1395,7 +1449,7 @@
                 { id: 6, title: 'จัดพิมพ์', icon: 'fa-print' }
             ];
 
-            let activeStepIndex = 1; // Default step 1
+            let activeStepIndex = 1;
 
             const step1List = ['รับเอกสารการประเมิน'];
             const step2List = ['สรรหาผู้ทรงคุณวุฒิ', 'เข้ากรรมการคณะ'];
@@ -1418,17 +1472,7 @@
                 activeStepIndex = 1;
             }
 
-            // Custom Percentage Mapping (Step 1 = 5%)
-            const percentageMap = {
-                1: 5,
-                2: 20,
-                3: 40,
-                4: 60,
-                5: 80,
-                6: 100
-            };
-
-            const percentage = percentageMap[activeStepIndex] || 5;
+            const percentage = Math.round((activeStepIndex / 6) * 100);
 
             return {
                 steps,
@@ -1438,7 +1482,7 @@
         }
 
         /**
-         * Opens Popup displaying Evaluation Details and 6 Step Progress
+         * Opens Popup displaying Evaluation Details and 6 Step Progress (ภาพ 04 / ภาพ 06)
          */
         function openDetailModal(id) {
             const item = evaluationsData.find(i => i.id === id);
@@ -1446,72 +1490,69 @@
 
             const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
-            document.getElementById('popupBookCode').innerText = item.book_code || 'Text-000';
-            document.getElementById('popupYear').innerText = `ปีประเมิน: ${item.evaluation_year || '-'}`;
-            document.getElementById('popupTitle').innerText = item.title || '-';
-            document.getElementById('popupAuthor').innerText = `ผู้เขียน: ${authorFull || '-'}`;
-            document.getElementById('popupDept').innerText = item.department || '-';
-            document.getElementById('popupIsbn').innerText = item.isbn || '-';
-            document.getElementById('popupPubStatus').innerText = item.publication_status || '-';
-            document.getElementById('popupEvalBadge').innerHTML = getStatusBadge(item.evaluation_status);
-            document.getElementById('popupPubBadge').innerHTML = getPublicationStatusBadge(item.publication_status);
+            const pCode = document.getElementById('popupBookCode');
+            const pYear = document.getElementById('popupYear');
+            const pTitle = document.getElementById('popupTitle');
+            const pAuthor = document.getElementById('popupAuthor');
+            const pDept = document.getElementById('popupDept');
+            const pIsbn = document.getElementById('popupIsbn');
+            const pPubStatus = document.getElementById('popupPubStatus');
+            const pBadge = document.getElementById('popupEvalBadge');
+            const pNote = document.getElementById('popupNoteText');
+
+            if (pCode) pCode.innerText = item.book_code || 'Text-000';
+            if (pYear) pYear.innerText = `ปีประเมิน: ${item.evaluation_year || '-'}`;
+            if (pTitle) pTitle.innerText = item.title || '-';
+            if (pAuthor) pAuthor.innerText = `ผู้เขียน: ${authorFull || '-'}`;
+            if (pDept) pDept.innerText = item.department || '-';
+            if (pIsbn) pIsbn.innerText = item.isbn || '-';
+            if (pPubStatus) pPubStatus.innerText = item.publication_status || '-';
+            if (pBadge) pBadge.innerHTML = getStatusBadge(item.evaluation_status);
+            if (pNote) pNote.innerText = item.note || item.evaluation_status || 'ไม่มีข้อมูลเพิ่มเติม';
 
             // Calculate Step Flow Info
             const stepInfo = getEvaluationStepInfo(item.evaluation_status);
-            document.getElementById('popupProgressText').innerText = `${stepInfo.percentage}%`;
+            const pProgress = document.getElementById('popupProgressText');
+            if (pProgress) pProgress.innerText = `${stepInfo.percentage}%`;
 
             // Render 6 Steps horizontal timeline nodes
             const stepsContainer = document.getElementById('popupFlowStepsContainer');
-            stepsContainer.innerHTML = stepInfo.steps.map(step => {
-                const isCompleted = step.id < stepInfo.activeStepIndex || (stepInfo.activeStepIndex === 6);
-                const isCurrent = step.id === stepInfo.activeStepIndex && stepInfo.activeStepIndex !== 6;
-                
-                let circleClass = "bg-slate-200 text-slate-400"; // Pending / Inactive
-                let checkBadge = "";
+            if (stepsContainer) {
+                stepsContainer.innerHTML = stepInfo.steps.map(step => {
+                    const isCompleted = step.id < stepInfo.activeStepIndex || (stepInfo.activeStepIndex === 6);
+                    const isCurrent = step.id === stepInfo.activeStepIndex && stepInfo.activeStepIndex !== 6;
+                    
+                    let circleClass = "bg-slate-200 text-slate-400";
+                    let checkBadge = "";
 
-                // Logic for Step 6 (จัดพิมพ์) based on publication status
-                if (step.id === 6) {
-                    if (item.publication_status === 'นำไปจัดพิมพ์ไม่ได้') {
-                        circleClass = "bg-rose-500 text-white shadow-md shadow-rose-500/30";
-                        checkBadge = `<div class="absolute -top-1 -right-1 bg-rose-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-white"><i class="fa-solid fa-xmark"></i></div>`;
-                    } else if (item.publication_status === 'จัดพิมพ์เอง') {
-                        circleClass = "bg-amber-400 text-white shadow-md shadow-amber-400/30";
-                        checkBadge = `<div class="absolute -top-1 -right-1 bg-amber-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-white"><i class="fa-solid fa-print"></i></div>`;
-                    } else if (isCompleted) {
-                        circleClass = "bg-emerald-500 text-white shadow-md shadow-emerald-500/20";
-                        checkBadge = `<div class="absolute -top-1 -right-1 bg-emerald-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-white"><i class="fa-solid fa-check"></i></div>`;
-                    } else if (isCurrent) {
-                        circleClass = "bg-emerald-500 text-white ring-4 ring-emerald-100 shadow-md shadow-emerald-500/30 animate-pulse";
-                        checkBadge = `<div class="absolute -top-1 -right-1 bg-amber-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-white"><i class="fa-solid fa-clock"></i></div>`;
-                    }
-                } else {
                     if (isCompleted) {
                         circleClass = "bg-emerald-500 text-white shadow-md shadow-emerald-500/20";
-                        checkBadge = `<div class="absolute -top-1 -right-1 bg-emerald-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-white"><i class="fa-solid fa-check"></i></div>`;
+                        checkBadge = `<div class="absolute -top-1 -right-1 bg-emerald-600 text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] border-2 border-white"><i class="fa-solid fa-check"></i></div>`;
                     } else if (isCurrent) {
                         circleClass = "bg-emerald-500 text-white ring-4 ring-emerald-100 shadow-md shadow-emerald-500/30 animate-pulse";
-                        checkBadge = `<div class="absolute -top-1 -right-1 bg-amber-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-white"><i class="fa-solid fa-clock"></i></div>`;
+                        checkBadge = `<div class="absolute -top-1 -right-1 bg-amber-500 text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] border-2 border-white"><i class="fa-solid fa-clock"></i></div>`;
                     }
-                }
 
-                return `
-                    <div class="flex flex-col items-center group relative">
-                        <div class="relative w-11 h-11 sm:w-14 sm:h-14 rounded-full ${circleClass} flex items-center justify-center text-sm sm:text-xl transition-all duration-300">
-                            <i class="fa-solid ${step.icon}"></i>
-                            ${checkBadge}
+                    return `
+                        <div class="flex flex-col items-center group relative">
+                            <div class="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full ${circleClass} flex items-center justify-center text-xs sm:text-base md:text-xl transition-all duration-300">
+                                <i class="fa-solid ${step.icon}"></i>
+                                ${checkBadge}
+                            </div>
+                            <span class="mt-2 text-[10px] sm:text-xs font-bold text-slate-700 leading-tight">
+                                ${step.title}
+                            </span>
                         </div>
-                        <span class="mt-2 text-2xs sm:text-xs font-bold text-slate-700 leading-tight">
-                            ${step.title}
-                        </span>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }
 
             openModal('detailModal');
         }
 
         function copyIsbnText() {
-            const isbnText = document.getElementById('popupIsbn').innerText;
+            const isbnElem = document.getElementById('popupIsbn');
+            const isbnText = isbnElem ? isbnElem.innerText : '';
             if (isbnText && isbnText !== '-') {
                 navigator.clipboard.writeText(isbnText);
                 showToast(`คัดลอก ISBN (${isbnText}) เรียบร้อยแล้ว`);
@@ -1563,7 +1604,7 @@
                     </td>
                     <td class="py-3 px-4">
                         ${getStatusBadge(item.evaluation_status)}
-                        <div class="mt-1">${getPublicationStatusBadge(item.publication_status)}</div>
+                        <p class="text-2xs text-slate-400 mt-1">จัดพิมพ์: ${item.publication_status || '-'}</p>
                     </td>
                     <td class="py-3 px-4">
                         <div class="flex items-center space-x-1.5">
@@ -1644,50 +1685,65 @@
             return `<span class="inline-flex items-center px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-clock mr-1.5 text-2xs"></i>${status}</span>`;
         }
 
-        function getPublicationStatusBadge(status) {
-            if (!status) return `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-medium">ไม่ระบุ</span>`;
-            if (status === 'นำไปจัดพิมพ์ไม่ได้') {
-                return `<span class="inline-flex items-center px-2.5 py-1 bg-rose-100 text-rose-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-circle-xmark mr-1 text-2xs"></i>นำไปจัดพิมพ์ไม่ได้</span>`;
-            }
-            if (status === 'จัดพิมพ์เอง') {
-                return `<span class="inline-flex items-center px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-bold"><i class="fa-solid fa-print mr-1 text-2xs"></i>จัดพิมพ์เอง</span>`;
-            }
-            if (status === 'นำไปจัดพิมพ์ได้') {
-                return `<span class="inline-flex items-center px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-circle-check mr-1 text-2xs"></i>นำไปจัดพิมพ์ได้</span>`;
-            }
-            if (status === 'กำลังจัดพิมพ์') {
-                return `<span class="inline-flex items-center px-2.5 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-spinner fa-spin mr-1 text-2xs"></i>กำลังจัดพิมพ์</span>`;
-            }
-            return `<span class="inline-flex items-center px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium">${status}</span>`;
-        }
-
         function getMobileStatusBadge(status) {
             if (!status) return `<span class="px-3.5 py-1.5 bg-slate-100 text-slate-500 rounded-full text-xs font-medium">ไม่ระบุ</span>`;
             if (status === 'ผ่านการประเมิน') {
-                return `<span class="inline-flex items-center px-3.5 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold"><i class="fa-solid fa-circle-check mr-1.5 text-xs"></i>ผ่านการประเมิน</span>`;
+                return `<span class="inline-flex items-center px-4 py-1.5 bg-emerald-100/90 text-emerald-700 rounded-full text-xs sm:text-sm font-bold shadow-sm"><i class="fa-solid fa-circle-check mr-1.5 text-xs"></i>ผ่านการประเมิน</span>`;
             }
             if (status === 'ไม่ผ่านการประเมิน') {
-                return `<span class="inline-flex items-center px-3.5 py-1.5 bg-rose-100 text-rose-700 rounded-full text-xs font-bold"><i class="fa-solid fa-circle-xmark mr-1.5 text-xs"></i>ไม่ผ่านการประเมิน</span>`;
+                return `<span class="inline-flex items-center px-4 py-1.5 bg-rose-100/90 text-rose-700 rounded-full text-xs sm:text-sm font-bold shadow-sm"><i class="fa-solid fa-circle-xmark mr-1.5 text-xs"></i>ไม่ผ่านการประเมิน</span>`;
             }
-            return `<span class="inline-flex items-center px-3.5 py-1.5 bg-amber-100 text-amber-700 rounded-full text-xs font-bold"><i class="fa-solid fa-clock mr-1.5 text-xs"></i>${status}</span>`;
+            return `<span class="inline-flex items-center px-4 py-1.5 bg-amber-100/90 text-amber-700 rounded-full text-xs sm:text-sm font-bold shadow-sm"><i class="fa-solid fa-clock mr-1.5 text-xs"></i>${status}</span>`;
+        }
+
+        function getPublicationStatusBadge(status) {
+            if (!status) return `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-medium">ไม่ระบุ</span>`;
+            if (status === 'นำไปจัดพิมพ์ได้' || status === 'จัดพิมพ์เอง') {
+                return `<span class="inline-flex items-center px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-print mr-1.5 text-2xs"></i>${status}</span>`;
+            }
+            if (status === 'นำไปจัดพิมพ์ไม่ได้') {
+                return `<span class="inline-flex items-center px-2.5 py-1 bg-rose-100 text-rose-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-ban mr-1.5 text-2xs"></i>${status}</span>`;
+            }
+            return `<span class="inline-flex items-center px-2.5 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-book-open mr-1.5 text-2xs"></i>${status}</span>`;
         }
 
         function getFileButton(url, label) {
-            if (!url) return `<span class="text-2xs text-slate-300 italic">ไม่มี${label}</span>`;
-            const directUrl = convertGoogleDriveLink(url);
-            return `<a href="${directUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1">
-                <i class="fa-solid fa-download text-2xs"></i>
-                <span>${label}</span>
-            </a>`;
+            let colorStyle = "";
+            let iconClass = "";
+            
+            if (label === 'ต้นฉบับ') {
+                iconClass = "fa-solid fa-file-lines";
+                colorStyle = "bg-blue-50 text-blue-600 border-blue-100/80 hover:bg-blue-100 hover:text-blue-700";
+            } else if (label === 'ปก') {
+                iconClass = "fa-solid fa-image";
+                colorStyle = "bg-indigo-50 text-indigo-600 border-indigo-100/80 hover:bg-indigo-100 hover:text-indigo-700";
+            } else if (label === 'ผลประเมิน') {
+                iconClass = "fa-solid fa-file-pdf";
+                colorStyle = "bg-emerald-50 text-emerald-600 border-emerald-100/80 hover:bg-emerald-100 hover:text-emerald-700";
+            }
+
+            if (!url) {
+                return `<span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 text-slate-300 text-xs border border-slate-200/50 cursor-not-allowed opacity-50" title="ไม่มี${label}">
+                    <i class="${iconClass}"></i>
+                </span>`;
+            }
+
+            return `
+                <a href="${url}" target="_blank" download title="ดาวน์โหลด ${label}" class="inline-flex items-center justify-center w-8 h-8 rounded-xl ${colorStyle} border text-sm transition-all shadow-sm hover:scale-105 active:scale-95">
+                    <i class="${iconClass}"></i>
+                </a>
+            `;
         }
 
         function openAddModal() {
+            document.getElementById('formModalTitle').innerText = 'เพิ่มผลงานใหม่';
             document.getElementById('formEditId').value = '';
+            
             document.getElementById('formYear').value = new Date().getFullYear() + 543;
             document.getElementById('formAcademicPos').value = '';
             document.getElementById('formAuthorName').value = '';
             document.getElementById('formAuthorEmail').value = '';
-            document.getElementById('formWorkType').value = '';
+            document.getElementById('formWorkType').value = 'หนังสือ';
             document.getElementById('formBookCode').value = '';
             document.getElementById('formDepartment').value = '';
             document.getElementById('formTitle').value = '';
@@ -1700,7 +1756,6 @@
             document.getElementById('formFileCover').value = '';
             document.getElementById('formFileEvalReport').value = '';
 
-            document.getElementById('formModalTitle').innerText = 'เพิ่มผลงานใหม่';
             openModal('editModal');
         }
 
@@ -1708,7 +1763,9 @@
             const item = evaluationsData.find(i => i.id === id);
             if (!item) return;
 
+            document.getElementById('formModalTitle').innerText = `แก้ไขข้อมูลผลงาน #${item.id}`;
             document.getElementById('formEditId').value = item.id;
+
             document.getElementById('formYear').value = item.evaluation_year || '';
             document.getElementById('formAcademicPos').value = item.academic_position || '';
             document.getElementById('formAuthorName').value = item.author_name || '';
@@ -1726,31 +1783,34 @@
             document.getElementById('formFileCover').value = item.file_cover_url || '';
             document.getElementById('formFileEvalReport').value = item.file_eval_report_url || '';
 
-            document.getElementById('formModalTitle').innerText = 'แก้ไขข้อมูลผลงาน';
             openModal('editModal');
         }
 
         async function handleFormSubmit(e) {
             e.preventDefault();
-            const editId = document.getElementById('formEditId').value;
+            const editId = document.getElementById('formEditId')?.value;
+
+            const fileOriginal = convertGoogleDriveLink(document.getElementById('formFileOriginal')?.value || '');
+            const fileCover = convertGoogleDriveLink(document.getElementById('formFileCover')?.value || '');
+            const fileReport = convertGoogleDriveLink(document.getElementById('formFileEvalReport')?.value || '');
 
             const payload = {
-                evaluation_year: Number(document.getElementById('formYear').value),
-                academic_position: document.getElementById('formAcademicPos').value.trim(),
-                author_name: document.getElementById('formAuthorName').value.trim(),
-                email: document.getElementById('formAuthorEmail').value.trim(),
-                work_type: document.getElementById('formWorkType').value,
-                book_code: document.getElementById('formBookCode').value.trim(),
-                department: document.getElementById('formDepartment').value.trim(),
-                title: document.getElementById('formTitle').value.trim(),
-                evaluation_status: document.getElementById('formEvalStatus').value,
-                publication_status: document.getElementById('formPubStatus').value,
-                isbn: document.getElementById('formIsbn').value.trim(),
-                vps_no: document.getElementById('formVpsNo').value.trim(),
-                note: document.getElementById('formNote').value.trim(),
-                file_original_url: document.getElementById('formFileOriginal').value.trim(),
-                file_cover_url: document.getElementById('formFileCover').value.trim(),
-                file_eval_report_url: document.getElementById('formFileEvalReport').value.trim()
+                evaluation_year: parseInt(document.getElementById('formYear')?.value) || null,
+                academic_position: document.getElementById('formAcademicPos')?.value.trim() || '',
+                author_name: document.getElementById('formAuthorName')?.value.trim() || '',
+                email: document.getElementById('formAuthorEmail')?.value.trim() || '',
+                work_type: document.getElementById('formWorkType')?.value || '',
+                book_code: document.getElementById('formBookCode')?.value.trim() || '',
+                department: document.getElementById('formDepartment')?.value.trim() || '',
+                title: document.getElementById('formTitle')?.value.trim() || '',
+                evaluation_status: document.getElementById('formEvalStatus')?.value || '',
+                publication_status: document.getElementById('formPubStatus')?.value || '',
+                isbn: document.getElementById('formIsbn')?.value.trim() || '',
+                vps_no: document.getElementById('formVpsNo')?.value.trim() || '',
+                note: document.getElementById('formNote')?.value.trim() || '',
+                file_original_url: fileOriginal,
+                file_cover_url: fileCover,
+                file_eval_report_url: fileReport
             };
 
             try {
@@ -1760,26 +1820,24 @@
                         .update(payload)
                         .eq('id', editId);
                     if (error) throw error;
-                    showToast('บันทึกการแก้ไขข้อมูลเรียบร้อยแล้ว');
+                    showToast('แก้ไขข้อมูลเรียบร้อยแล้ว');
                 } else {
                     const { error } = await supabaseClient
                         .from('evaluation')
                         .insert([payload]);
                     if (error) throw error;
-                    showToast('เพิ่มผลงานใหม่เรียบร้อยแล้ว');
+                    showToast('บันทึกผลงานใหม่ลง Supabase เรียบร้อยแล้ว');
                 }
 
                 closeModal('editModal');
                 fetchEvaluations();
             } catch (err) {
-                console.error('Save error:', err);
-                showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message, 'error');
+                console.error('Submit error:', err);
+                showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
             }
         }
 
         async function deleteRecord(id) {
-            if (!confirm(`คุณต้องการลบข้อมูลรายการ #${id} ใช่หรือไม่?`)) return;
-
             try {
                 const { error } = await supabaseClient
                     .from('evaluation')
@@ -1787,7 +1845,8 @@
                     .eq('id', id);
 
                 if (error) throw error;
-                showToast(`ลบข้อมูลรายการ #${id} เรียบร้อยแล้ว`);
+
+                showToast(`ลบรายการ #${id} สำเร็จ`);
                 fetchEvaluations();
             } catch (err) {
                 console.error('Delete error:', err);
@@ -1796,29 +1855,26 @@
         }
 
         function exportToCSV() {
-            if (!evaluationsData || evaluationsData.length === 0) {
-                showToast('ไม่มีข้อมูลสำหรับส่งออก CSV', 'error');
+            if (evaluationsData.length === 0) {
+                showToast('ไม่มีข้อมูลสำหรับส่งออก', 'error');
                 return;
             }
 
-            const headers = ['ID', 'ปี', 'ตำแหน่ง', 'ผู้เขียน', 'อีเมล', 'ประเภท', 'รหัสหนังสือ', 'ภาควิชา', 'ชื่อเรื่อง', 'สถานะประเมิน', 'สถานะพิมพ์', 'ISBN', 'วศ.สจล.'];
+            const headers = ["ID", "ปีประเมิน", "รหัสหนังสือ", "ผู้เขียน", "อีเมล", "ประเภท", "ชื่อเรื่อง", "ภาควิชา", "สถานะประเมิน", "สถานะจัดพิมพ์"];
             const rows = evaluationsData.map(i => [
                 i.id,
-                i.evaluation_year || '',
-                `"${i.academic_position || ''}"`,
+                i.evaluation_year,
+                `"${i.book_code || ''}"`,
                 `"${i.author_name || ''}"`,
                 `"${i.email || ''}"`,
                 `"${i.work_type || ''}"`,
-                `"${i.book_code || ''}"`,
-                `"${i.department || ''}"`,
                 `"${i.title || ''}"`,
+                `"${i.department || ''}"`,
                 `"${i.evaluation_status || ''}"`,
-                `"${i.publication_status || ''}"`,
-                `"${i.isbn || ''}"`,
-                `"${i.vps_no || ''}"`
+                `"${i.publication_status || ''}"`
             ]);
 
-            const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -1829,26 +1885,97 @@
             document.body.removeChild(link);
         }
 
-        // Initialize Application on Window Load
-        window.onload = function() {
-            renderNavbar();
-            fetchEvaluations();
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            if (id === 'loginModal' && currentAuthMode !== 'reset') {
+                switchAuthMode('login');
+            }
+        }
 
-            // Listen for Supabase auth state change
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                if (session && session.user) {
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.add('hidden');
+
+            const openModals = document.querySelectorAll('.modal-backdrop:not(.hidden)');
+            if (openModals.length === 0) {
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            if (id === 'loginModal') {
+                const err = document.getElementById('loginErrorMsg');
+                if (err) err.classList.add('hidden');
+            }
+        }
+
+        function closeModalOnBackdrop(event, id) {
+            if (event.target && event.target.id === id) {
+                closeModal(id);
+            }
+        }
+
+        // Close active modal on Escape key press
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                ['detailModal', 'editModal', 'loginModal'].forEach(id => {
+                    const modal = document.getElementById(id);
+                    if (modal && !modal.classList.contains('hidden')) {
+                        closeModal(id);
+                    }
+                });
+            }
+        });
+
+        // Listen to Auth state changes including PASSWORD_RECOVERY
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                openModal('loginModal');
+                switchAuthMode('reset');
+                showToast('กรุณากรอกรหัสผ่านใหม่ที่คุณต้องการใช้งาน');
+            } else if (event === 'SIGNED_IN' && session?.user) {
+                if (currentAuthMode !== 'reset') {
                     const user = session.user;
-                    const role = user.user_metadata?.role || (user.email === STAFF_EMAIL ? 'staff' : 'teacher');
+                    const userRole = user.user_metadata?.role || (user.email === STAFF_EMAIL ? 'staff' : 'teacher');
                     currentUser = {
                         email: user.email,
-                        role: role,
+                        role: userRole,
                         id: user.id
                     };
-                } else {
-                    currentUser = { email: '', role: 'guest' };
+                    updateUI();
+                    if (currentActiveView !== 'staff' && currentActiveView !== 'teacher') {
+                        switchView(currentUser.role === 'staff' ? 'staff' : 'teacher');
+                    }
                 }
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = { email: '', role: 'guest' };
                 updateUI();
-            });
+            }
+        });
+
+        // Window Load Initializer
+        window.onload = async function() {
+            currentUser = { email: '', role: 'guest' };
+
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    const user = session.user;
+                    const userRole = user.user_metadata?.role || (user.email === STAFF_EMAIL ? 'staff' : 'teacher');
+                    currentUser = {
+                        email: user.email,
+                        role: userRole,
+                        id: user.id
+                    };
+                }
+            } catch (err) {
+                console.error("Session check error:", err);
+            }
+
+            updateUI();
+            await fetchEvaluations();
         };
     </script>
 </body>
