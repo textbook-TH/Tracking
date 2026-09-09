@@ -451,22 +451,12 @@
 
                 <div id="passwordFieldContainer">
                     <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสผ่าน</label>
-                    <div class="relative">
-                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
-                        <button type="button" onclick="togglePasswordVisibility('loginPassword', 'eyeIconLogin')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none">
-                            <i class="fa-regular fa-eye" id="eyeIconLogin"></i>
-                        </button>
-                    </div>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
                 </div>
 
                 <div id="confirmPasswordFieldContainer" class="hidden">
                     <label class="block text-xs font-semibold text-slate-700 mb-1">ยืนยันรหัสผ่าน</label>
-                    <div class="relative">
-                        <input type="password" id="loginConfirmPassword" placeholder="••••••••" class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
-                        <button type="button" onclick="togglePasswordVisibility('loginConfirmPassword', 'eyeIconConfirm')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none">
-                            <i class="fa-regular fa-eye" id="eyeIconConfirm"></i>
-                        </button>
-                    </div>
+                    <input type="password" id="loginConfirmPassword" placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white">
                 </div>
 
                 <p id="loginErrorMsg" class="text-xs text-rose-500 font-medium hidden text-center"></p>
@@ -501,7 +491,7 @@
 
     <!-- 2. ADD / EDIT WORK MODAL -->
     <div id="editModal" onclick="closeModalOnBackdrop(event, 'editModal')" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div class="bg-white w-[95%] sm:w-[90%] md:w-full max-w-3xl rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 my-auto max-h-[90vh] overflow-y-auto transform transition-all duration-200 relative">
+        <div class="bg-white w-[95%] sm:w-[90%] md:w-full max-w-3xl rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 my-auto max-h-[90vh] overflow-y-auto transform transition-all duration-200">
             <button onclick="closeModal('editModal')" class="absolute top-4 right-4 sm:top-5 sm:right-5 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors z-10">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -799,25 +789,6 @@
         }
 
         /**
-         * Toggle Password Visibility (Eye Icon)
-         */
-        function togglePasswordVisibility(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (!input || !icon) return;
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        /**
          * Show floating Toast message
          */
         function showToast(message, type = 'success') {
@@ -848,8 +819,7 @@
         }
 
         function closeModalOnBackdrop(e, id) {
-            // Updated strict target check to prevent auto-closing when clicking/dragging inside inputs
-            if (e.target === e.currentTarget) closeModal(id);
+            if (e.target.id === id) closeModal(id);
         }
 
         function selectLoginRole(role) {
@@ -1006,7 +976,7 @@
 
                     if (error) throw error;
 
-                    showToast('สมัครสมาชิกสำเร็จ! หากมีระบบยืนยันอีเมล กรุณาตรวจสอบอีเมลของคุณก่อนเข้าสู่ระบบ');
+                    showToast('สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลของคุณเพื่อยืนยันบัญชี');
                     switchAuthMode('login');
 
                 } else if (currentAuthMode === 'forgot') {
@@ -1036,6 +1006,7 @@
                     if (error) throw error;
 
                     showToast('ตั้งรหัสผ่านใหม่สำเร็จแล้ว กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่');
+                    closeModal('loginModal');
                     switchAuthMode('login');
 
                     if (window.history && window.history.replaceState) {
@@ -1056,8 +1027,8 @@
             }
         }
 
-        function handleLogout() {
-            supabaseClient.auth.signOut();
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
             currentUser = { email: '', role: 'guest' };
             switchView('home');
             showToast('ออกจากระบบเรียบร้อยแล้ว');
@@ -1907,44 +1878,37 @@
                 }).join('');
             }
 
-            /* 2. Mobile View for Teacher Page */
+            /* 2. Teacher Mobile View */
             if (mobileContainer) {
                 mobileContainer.innerHTML = books.map(item => {
                     const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
-
                     return `
                     <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-3.5 transition-all">
-                        
                         <div class="w-full bg-slate-100/90 border border-slate-200/70 py-2 px-3 rounded-xl text-xs font-bold text-slate-700 tracking-tight flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-graduation-cap text-blue-500 text-xs"></i>
                             <span>เอกสารการประเมินของคุณ</span>
                         </div>
-
                         ${item.book_code ? `
                             <span class="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-200/60 rounded-full text-xs font-bold font-mono tracking-wide cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
                                 ${item.book_code}
                             </span>
                         ` : ''}
-
                         <h3 class="text-base font-bold text-slate-900 leading-snug px-2 cursor-pointer hover:text-blue-600 transition-colors" onclick="openDetailModal(${item.id})">
                             ${item.title || '-'}
                         </h3>
-
                         ${authorFull ? `
                             <div class="flex items-center justify-center space-x-1.5 text-xs text-slate-600 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
                                 <i class="fa-solid fa-user-pen text-blue-500 text-xs"></i>
                                 <span>${authorFull}</span>
                             </div>
                         ` : ''}
-
                         <div class="pt-1 w-full flex justify-center">
                             ${getMobileStatusBadge(item.evaluation_status)}
                         </div>
-
                         <div class="w-full pt-3 border-t border-slate-100 flex items-center justify-between">
                             <span class="text-xs font-bold text-slate-600 flex items-center space-x-1">
                                 <i class="fa-solid fa-download text-slate-400"></i>
-                                <span>ดาวน์โหลดเอกสาร</span>
+                                <span>ไฟล์ดาวน์โหลด</span>
                             </span>
                             <div class="flex items-center space-x-2">
                                 ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
@@ -1958,10 +1922,149 @@
             }
         }
 
-        // Initialize App on DOM Content Loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchEvaluations();
-            renderNavbar();
+        // --- CRUD Modal Actions ---
+        function openAddModal() {
+            document.getElementById('formModalTitle').innerText = 'เพิ่มผลงานใหม่';
+            document.getElementById('formEditId').value = '';
+            document.getElementById('formYear').value = new Date().getFullYear() + 543;
+            document.getElementById('formAcademicPos').value = '';
+            document.getElementById('formAuthorName').value = '';
+            document.getElementById('formAuthorEmail').value = '';
+            document.getElementById('formWorkType').value = '';
+            document.getElementById('formBookCode').value = '';
+            document.getElementById('formDepartment').value = '';
+            document.getElementById('formTitle').value = '';
+            document.getElementById('formEvalStatus').value = '';
+            document.getElementById('formPubStatus').value = '';
+            document.getElementById('formIsbn').value = '';
+            document.getElementById('formVpsNo').value = '';
+            document.getElementById('formNote').value = '';
+            document.getElementById('formFileOriginal').value = '';
+            document.getElementById('formFileCover').value = '';
+            document.getElementById('formFileEvalReport').value = '';
+            openModal('editModal');
+        }
+
+        function openEditModal(id) {
+            const item = evaluationsData.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('formModalTitle').innerText = 'แก้ไขข้อมูลผลงาน';
+            document.getElementById('formEditId').value = item.id;
+            document.getElementById('formYear').value = item.evaluation_year || '';
+            document.getElementById('formAcademicPos').value = item.academic_position || '';
+            document.getElementById('formAuthorName').value = item.author_name || '';
+            document.getElementById('formAuthorEmail').value = item.email || '';
+            document.getElementById('formWorkType').value = item.work_type || '';
+            document.getElementById('formBookCode').value = item.book_code || '';
+            document.getElementById('formDepartment').value = item.department || '';
+            document.getElementById('formTitle').value = item.title || '';
+            document.getElementById('formEvalStatus').value = item.evaluation_status || '';
+            document.getElementById('formPubStatus').value = item.publication_status || '';
+            document.getElementById('formIsbn').value = item.isbn || '';
+            document.getElementById('formVpsNo').value = item.vps_no || '';
+            document.getElementById('formNote').value = item.note || '';
+            document.getElementById('formFileOriginal').value = item.file_original_url || '';
+            document.getElementById('formFileCover').value = item.file_cover_url || '';
+            document.getElementById('formFileEvalReport').value = item.file_eval_report_url || '';
+            openModal('editModal');
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('formEditId').value;
+            const payload = {
+                evaluation_year: parseInt(document.getElementById('formYear').value) || null,
+                academic_position: document.getElementById('formAcademicPos').value,
+                author_name: document.getElementById('formAuthorName').value,
+                email: document.getElementById('formAuthorEmail').value,
+                work_type: document.getElementById('formWorkType').value,
+                book_code: document.getElementById('formBookCode').value,
+                department: document.getElementById('formDepartment').value,
+                title: document.getElementById('formTitle').value,
+                evaluation_status: document.getElementById('formEvalStatus').value,
+                publication_status: document.getElementById('formPubStatus').value,
+                isbn: document.getElementById('formIsbn').value,
+                vps_no: document.getElementById('formVpsNo').value,
+                note: document.getElementById('formNote').value,
+                file_original_url: document.getElementById('formFileOriginal').value,
+                file_cover_url: document.getElementById('formFileCover').value,
+                file_eval_report_url: document.getElementById('formFileEvalReport').value
+            };
+
+            try {
+                if (editId) {
+                    const { error } = await supabaseClient.from('evaluation').update(payload).eq('id', editId);
+                    if (error) throw error;
+                    showToast('อัปเดตข้อมูลสำเร็จ');
+                } else {
+                    const { error } = await supabaseClient.from('evaluation').insert([payload]);
+                    if (error) throw error;
+                    showToast('เพิ่มข้อมูลใหม่สำเร็จ');
+                }
+                closeModal('editModal');
+                await fetchEvaluations();
+            } catch (err) {
+                console.error('Save error:', err);
+                showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message, 'error');
+            }
+        }
+
+        async function deleteRecord(id) {
+            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?')) return;
+            try {
+                const { error } = await supabaseClient.from('evaluation').delete().eq('id', id);
+                if (error) throw error;
+                showToast('ลบข้อมูลสำเร็จ');
+                await fetchEvaluations();
+            } catch (err) {
+                console.error('Delete error:', err);
+                showToast('เกิดข้อผิดพลาดในการลบข้อมูล: ' + err.message, 'error');
+            }
+        }
+
+        function exportToCSV() {
+            if (!evaluationsData || evaluationsData.length === 0) {
+                showToast('ไม่มีข้อมูลสำหรับส่งออก', 'error');
+                return;
+            }
+            const headers = ['id', 'book_code', 'title', 'author_name', 'email', 'department', 'evaluation_year', 'evaluation_status', 'publication_status', 'isbn'];
+            const rows = evaluationsData.map(item => headers.map(h => `"${(item[h] || '').toString().replace(/"/g, '""')}"`).join(','));
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `evaluations_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- App Initialization & Auth Listener ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check current auth session
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session && session.user) {
+                const user = session.user;
+                const userRole = user.user_metadata?.role || (user.email === STAFF_EMAIL ? 'staff' : 'teacher');
+                currentUser = { email: user.email, role: userRole, id: user.id };
+            } else {
+                currentUser = { email: '', role: 'guest' };
+            }
+
+            // Listen for Auth Events (including PASSWORD_RECOVERY)
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event === 'PASSWORD_RECOVERY') {
+                    openModal('loginModal');
+                    switchAuthMode('reset');
+                    showToast('กรุณากรอกรหัสผ่านใหม่ที่คุณต้องการใช้งาน');
+                } else if (event === 'SIGNED_OUT') {
+                    currentUser = { email: '', role: 'guest' };
+                    switchView('home');
+                }
+            });
+
+            await fetchEvaluations();
         });
     </script>
 </body>
