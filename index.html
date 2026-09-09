@@ -292,7 +292,6 @@
                             <i class="fa-solid fa-file-csv text-sm"></i>
                             <span>ส่งออก CSV</span>
                         </button>
-                        <!-- Updated button text to '+ เพิ่มผลงานใหม่' without '*' -->
                         <button onclick="openAddModal()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 flex items-center space-x-2 transition-all">
                             <i class="fa-solid fa-plus text-sm"></i>
                             <span>+ เพิ่มผลงานใหม่</span>
@@ -333,9 +332,10 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50/80 border-b border-slate-100 text-slate-600 text-xs font-semibold">
-                                <th class="py-3.5 px-4">รหัสหนังสือ</th>
-                                <th class="py-3.5 px-4">สถานะประเมิน</th>
-                                <th class="py-3.5 px-4">ไฟล์ดาวน์โหลด</th>
+                                <th class="py-3.5 px-4 w-28">รหัสหนังสือ</th>
+                                <th class="py-3.5 px-4 w-44">สถานะประเมิน</th>
+                                <th class="py-3.5 px-4">ชื่อเรื่อง</th>
+                                <th class="py-3.5 px-4 w-36">ไฟล์ดาวน์โหลด</th>
                                 <th class="py-3.5 px-4 text-center w-36">จัดการ</th>
                             </tr>
                         </thead>
@@ -475,7 +475,7 @@
         </div>
     </div>
 
-    <!-- 2. ADD / EDIT WORK MODAL (Set to Auto Responsive sizing) -->
+    <!-- 2. ADD / EDIT WORK MODAL -->
     <div id="editModal" onclick="closeModalOnBackdrop(event, 'editModal')" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-white w-[95%] sm:w-[90%] md:w-full max-w-3xl rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 my-auto max-h-[90vh] overflow-y-auto transform transition-all duration-200">
             <button onclick="closeModal('editModal')" class="absolute top-4 right-4 sm:top-5 sm:right-5 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors z-10">
@@ -1547,11 +1547,27 @@
         }
 
         /**
-         * Render Staff Table without ID column and in order:
-         * 1. รหัสหนังสือ / รายละเอียด
+         * Helper function to render file download buttons as compact icon buttons
+         */
+        function getFileIconButton(url, label, iconClass, colorClasses) {
+            if (!url) {
+                return `<span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-300 flex items-center justify-center text-xs cursor-not-allowed" title="ไม่มีไฟล์${label}">
+                    <i class="${iconClass}"></i>
+                </span>`;
+            }
+            const directUrl = convertGoogleDriveLink(url);
+            return `<a href="${directUrl}" target="_blank" rel="noopener noreferrer" title="ดาวน์โหลด${label}" class="w-8 h-8 rounded-lg ${colorClasses} flex items-center justify-center transition-all hover:scale-105 shadow-sm">
+                <i class="${iconClass} text-sm"></i>
+            </a>`;
+        }
+
+        /**
+         * Render Staff Table strictly ordered as:
+         * 1. รหัสหนังสือ
          * 2. สถานะประเมิน
-         * 3. ไฟล์ดาวน์โหลด
-         * 4. จัดการ (เปิดดูรายละเอียด, แก้ไข, ลบ)
+         * 3. ชื่อเรื่อง
+         * 4. ไฟล์ดาวน์โหลด (ไอคอนสัญลักษณ์)
+         * 5. จัดการ
          */
         function renderStaffTable(dataList) {
             const tbody = document.getElementById('staffTableBody');
@@ -1561,37 +1577,41 @@
             if (!tbody) return;
 
             if (dataList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = dataList.map(item => `
                 <tr class="hover:bg-slate-50/80 transition-colors">
-                    <!-- Column 1: รหัสหนังสือ / รายละเอียด -->
-                    <td class="py-3.5 px-4">
-                        <span class="font-bold text-blue-600 font-mono text-xs block mb-0.5">${item.book_code || '-'}</span>
-                        <p class="font-bold text-slate-800 text-sm leading-snug">${item.title || '-'}</p>
-                        <p class="text-xs text-slate-500 mt-0.5">${item.academic_position || ''} ${item.author_name || '-'} (${item.email || '-'})</p>
-                        <p class="text-2xs text-slate-400 mt-0.5">ภาควิชา: ${item.department || '-'}</p>
+                    <!-- Column 1: รหัสหนังสือ -->
+                    <td class="py-3.5 px-4 font-bold text-blue-600 font-mono text-xs align-top">
+                        ${item.book_code || '-'}
                     </td>
 
                     <!-- Column 2: สถานะประเมิน -->
-                    <td class="py-3.5 px-4">
+                    <td class="py-3.5 px-4 align-top">
                         ${getStatusBadge(item.evaluation_status)}
                         <p class="text-2xs text-slate-400 mt-1">จัดพิมพ์: ${item.publication_status || '-'}</p>
                     </td>
 
-                    <!-- Column 3: ไฟล์ดาวน์โหลด -->
-                    <td class="py-3.5 px-4">
-                        <div class="flex items-center space-x-1.5 flex-wrap gap-y-1">
-                            ${getFileButton(item.file_original_url, 'ต้นฉบับ')}
-                            ${getFileButton(item.file_cover_url, 'ปก')}
-                            ${getFileButton(item.file_eval_report_url, 'ผลประเมิน')}
+                    <!-- Column 3: ชื่อเรื่อง -->
+                    <td class="py-3.5 px-4 align-top">
+                        <p class="font-bold text-slate-800 text-sm leading-snug">${item.title || '-'}</p>
+                        <p class="text-xs text-slate-500 mt-0.5">${item.academic_position || ''} ${item.author_name || '-'} (${item.email || '-'})</p>
+                        <p class="text-2xs text-slate-400 mt-0.5">ภาควิชา: ${item.department || '-'} | ปีประเมิน: ${item.evaluation_year || '-'}</p>
+                    </td>
+
+                    <!-- Column 4: ไฟล์ดาวน์โหลด (ไอคอนสัญลักษณ์: ต้นฉบับ, ปก, ผลประเมิน) -->
+                    <td class="py-3.5 px-4 align-top">
+                        <div class="flex items-center space-x-1.5">
+                            ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
+                            ${getFileIconButton(item.file_cover_url, 'ปกหนังสือ', 'fa-solid fa-image', 'bg-purple-50 hover:bg-purple-100 text-purple-600')}
+                            ${getFileIconButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-solid fa-file-circle-check', 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600')}
                         </div>
                     </td>
 
-                    <!-- Column 4: จัดการ (ตา, ดินสอ, ถังขยะ) -->
-                    <td class="py-3.5 px-4 text-center">
+                    <!-- Column 5: จัดการ -->
+                    <td class="py-3.5 px-4 text-center align-top">
                         <div class="flex items-center justify-center space-x-1.5">
                             <button onclick="openDetailModal(${item.id})" title="ดูขั้นตอนการดำเนินงาน" class="w-8 h-8 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-600 flex items-center justify-center transition-colors">
                                 <i class="fa-solid fa-eye"></i>
@@ -1868,7 +1888,8 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session && session.user) {
                 const user = session.user;
@@ -1881,14 +1902,21 @@
                 currentUser = { email: '', role: 'guest' };
             }
 
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                if (event === 'PASSWORD_RECOVERY') {
-                    openModal('loginModal');
-                    switchAuthMode('reset');
-                }
-            });
+            fetchEvaluations();
 
-            await fetchEvaluations();
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (session && session.user) {
+                    const user = session.user;
+                    currentUser = {
+                        email: user.email,
+                        role: user.user_metadata?.role || (user.email === STAFF_EMAIL ? 'staff' : 'teacher'),
+                        id: user.id
+                    };
+                } else {
+                    currentUser = { email: '', role: 'guest' };
+                }
+                updateUI();
+            });
         });
     </script>
 </body>
