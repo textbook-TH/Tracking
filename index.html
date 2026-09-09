@@ -385,9 +385,7 @@
                         พบข้อมูล <strong id="teacherTableCount" class="text-blue-600">0</strong> รายการ
                     </span>
                 </div>
-
-                <!-- Desktop Table View (Hidden on Mobile) -->
-                <div class="hidden sm:block overflow-x-auto">
+                <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50/80 border-b border-slate-100 text-slate-600 text-xs font-semibold">
@@ -398,14 +396,9 @@
                             </tr>
                         </thead>
                         <tbody id="teacherTableBody" class="divide-y divide-slate-100 text-sm">
-                            <!-- Injected dynamically via JS -->
+                            <!-- Injected dynamically -->
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Mobile Card Container for Teacher View (Visible ONLY on Mobile) -->
-                <div id="teacherMobileCardContainer" class="block sm:hidden p-3.5 sm:p-4 space-y-3.5 bg-slate-50/30">
-                    <!-- Injected dynamically via JS matching clean teacher mobile design -->
                 </div>
             </div>
         </section>
@@ -1337,7 +1330,7 @@
             if (filteredData.length === 0) {
                 if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
                 if (mobileContainer) {
-                    mobileContainer.innerHTML = `<div class="text-center py-12 text-slate-400 font-light bg-white rounded-2xl border border-slate-100 p-8">ไม่พบข้อมูลในระบบ</div>`;
+                    mobileContainer.innerHTML = `<div class="text-center py-12 text-slate-400 font-light bg-white rounded-2xl border border-slate-100">ไม่พบข้อมูลในระบบ</div>`;
                 }
                 return;
             }
@@ -1405,6 +1398,7 @@
                     return `
                     <div onclick="openDetailModal(${item.id})" class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-3.5 transition-all cursor-pointer hover:shadow-md active:scale-[0.99]">
                         
+                        <!-- Center Header Badge: "รายละเอียดการประเมิน" -->
                         <div class="w-full bg-slate-100/90 border border-slate-200/70 py-2 px-3 rounded-xl text-xs font-bold text-slate-700 tracking-tight flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-circle-info text-blue-500 text-xs"></i>
                             <span>รายละเอียดการประเมิน</span>
@@ -1416,10 +1410,12 @@
                             </span>
                         ` : ''}
 
+                        <!-- Book Title -->
                         <h3 class="text-base font-bold text-slate-900 leading-snug px-2">
                             ${item.title || '-'}
                         </h3>
 
+                        <!-- Author Name -->
                         ${authorFull ? `
                             <div class="flex items-center justify-center space-x-1.5 text-xs text-slate-600 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
                                 <i class="fa-solid fa-user-pen text-blue-500 text-xs"></i>
@@ -1427,6 +1423,7 @@
                             </div>
                         ` : ''}
 
+                        <!-- Details Pills (Dept, Year, ISBN) -->
                         <div class="flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-slate-500 font-normal w-full">
                             ${item.department ? `
                                 <span class="inline-flex items-center space-x-1 bg-slate-100/80 px-2.5 py-1 rounded-lg text-slate-600">
@@ -1448,6 +1445,7 @@
                             ` : ''}
                         </div>
 
+                        <!-- Status Badge -->
                         <div class="pt-1 w-full flex justify-center">
                             ${getMobileStatusBadge(item.evaluation_status)}
                         </div>
@@ -1613,7 +1611,7 @@
             </a>`;
         }
 
-        /* STAFF TABLE RENDER */
+        /* --- STAFF TABLE RENDER (Mobile Card specific updates applied) --- */
         function renderStaffTable(dataList) {
             const tbody = document.getElementById('staffTableBody');
             const mobileContainer = document.getElementById('staffMobileCardContainer');
@@ -1622,7 +1620,7 @@
 
             if (dataList.length === 0) {
                 if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
-                if (mobileContainer) mobileContainer.innerHTML = `<div class="text-center py-12 text-slate-400 font-light bg-white rounded-2xl border border-slate-100 p-8">ไม่พบข้อมูลในระบบ</div>`;
+                if (mobileContainer) mobileContainer.innerHTML = `<div class="text-center py-12 text-slate-400 font-light bg-white rounded-2xl border border-slate-100">ไม่พบข้อมูลในระบบ</div>`;
                 return;
             }
 
@@ -1702,136 +1700,22 @@
                 `}).join('');
             }
 
-            /* 2. Staff Mobile View */
+            /* 2. Staff Mobile View (Customized Specifically for Staff View Mobile Cards) */
             if (mobileContainer) {
                 mobileContainer.innerHTML = dataList.map(item => {
                     const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
                     return `
                     <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-3.5 transition-all">
-                        <div class="w-full bg-slate-100/90 border border-slate-200/70 py-2 px-3 rounded-xl text-xs font-bold text-slate-700 tracking-tight flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-user-gear text-amber-500 text-xs"></i>
-                            <span>จัดการผลงาน (สำหรับเจ้าหน้าที่)</span>
-                        </div>
-
-                        ${item.book_code ? `
-                            <span class="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200/60 rounded-full text-xs font-bold font-mono tracking-wide">
-                                ${item.book_code}
-                            </span>
-                        ` : ''}
-
-                        <h3 class="text-base font-bold text-slate-900 leading-snug px-2 cursor-pointer hover:text-blue-600 transition-colors" onclick="openDetailModal(${item.id})">
-                            ${item.title || '-'}
-                        </h3>
-
-                        ${authorFull ? `
-                            <div class="flex items-center justify-center space-x-1.5 text-xs text-slate-600 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                                <i class="fa-solid fa-user-pen text-amber-500 text-xs"></i>
-                                <span>${authorFull}</span>
-                            </div>
-                        ` : ''}
-
-                        <div class="pt-1 w-full flex justify-center">
-                            ${getMobileStatusBadge(item.evaluation_status)}
-                        </div>
-
-                        <!-- Actions bar for Staff -->
-                        <div class="w-full pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                            <div class="flex items-center space-x-1">
-                                ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
-                                ${getFileIconButton(item.file_cover_url, 'ปกหนังสือ', 'fa-solid fa-image', 'bg-purple-50 hover:bg-purple-100 text-purple-600')}
-                                ${getFileIconButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-solid fa-file-circle-check', 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600')}
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <button onclick="openDetailModal(${item.id})" class="px-2.5 py-1.5 bg-sky-50 text-sky-600 rounded-lg text-xs font-medium flex items-center space-x-1">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                                <button onclick="openEditModal(${item.id})" class="px-2.5 py-1.5 bg-amber-50 text-amber-600 rounded-lg text-xs font-medium flex items-center space-x-1">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-xs font-medium flex items-center space-x-1">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    `;
-                }).join('');
-            }
-        }
-
-        /* --- 3. TEACHER VIEW SPECIFIC RENDERERS --- */
-        function filterTeacherData() {
-            if (!currentUser || currentUser.role !== 'teacher') return;
-
-            const teacherEmail = (currentUser.email || '').toLowerCase().trim();
-            const teacherList = evaluationsData.filter(item => {
-                return item.author_email && item.author_email.toLowerCase().trim() === teacherEmail;
-            });
-
-            const emailElem = document.getElementById('teacherLoggedInEmail');
-            if (emailElem) emailElem.innerText = currentUser.email;
-
-            renderTeacherTable(teacherList);
-        }
-
-        function renderTeacherTable(dataList) {
-            const tbody = document.getElementById('teacherTableBody');
-            const mobileContainer = document.getElementById('teacherMobileCardContainer');
-            const countElem = document.getElementById('teacherTableCount');
-
-            if (countElem) countElem.innerText = dataList.length;
-
-            if (dataList.length === 0) {
-                if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-slate-400 font-light">ไม่พบรายการผลงานของคุณในระบบ</td></tr>`;
-                if (mobileContainer) mobileContainer.innerHTML = `<div class="text-center py-12 text-slate-400 font-light bg-white rounded-2xl border border-slate-100 p-8">ไม่พบรายการผลงานของคุณในระบบ</div>`;
-                return;
-            }
-
-            /* 1. Desktop Table View for Teacher */
-            if (tbody) {
-                tbody.innerHTML = dataList.map(item => `
-                    <tr class="hover:bg-slate-50/80 transition-colors">
-                        <td class="py-4 px-4 font-bold text-blue-600 font-mono text-xs align-top cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
-                            ${item.book_code || '-'}
-                        </td>
-                        <td class="py-4 px-4 align-top cursor-pointer" onclick="openDetailModal(${item.id})">
-                            ${getStatusBadge(item.evaluation_status)}
-                        </td>
-                        <td class="py-4 px-4 align-top cursor-pointer group" onclick="openDetailModal(${item.id})">
-                            <div class="space-y-1.5">
-                                <div class="font-bold text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
-                                    ${item.title || '-'}
-                                </div>
-                                <div class="text-xs text-slate-500 font-medium">
-                                    ผู้เขียน: ${item.academic_position || ''} ${item.author_name || '-'}
-                                </div>
-                            </div>
-                        </td>
-                        <td class="py-4 px-4 align-top">
-                            <div class="flex items-center space-x-1.5">
-                                ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
-                                ${getFileIconButton(item.file_cover_url, 'ปกหนังสือ', 'fa-solid fa-image', 'bg-purple-50 hover:bg-purple-100 text-purple-600')}
-                                ${getFileIconButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-solid fa-file-circle-check', 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600')}
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
-            /* 2. Mobile Card View for Teacher (Optimized & Clean: Hides Dept, Year, ISBN as requested) */
-            if (mobileContainer) {
-                mobileContainer.innerHTML = dataList.map(item => `
-                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-3.5 transition-all">
                         
-                        <!-- Header Tag Badge -->
-                        <div class="w-full bg-blue-50/80 border border-blue-100/80 py-1.5 px-3 rounded-xl text-xs font-bold text-blue-700 tracking-tight flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-graduation-cap text-blue-600 text-xs"></i>
-                            <span>รายละเอียดการประเมิน</span>
+                        <!-- Header Badge Changed to: "รายการข้อมูลในระบบทั้งหมด" -->
+                        <div class="w-full bg-slate-100/90 border border-slate-200/70 py-2 px-3 rounded-xl text-xs font-bold text-slate-700 tracking-tight flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-database text-blue-500 text-xs"></i>
+                            <span>รายการข้อมูลในระบบทั้งหมด</span>
                         </div>
 
                         ${item.book_code ? `
-                            <span class="px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200/80 rounded-full text-xs font-bold font-mono tracking-wide">
+                            <span class="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-200/60 rounded-full text-xs font-bold font-mono tracking-wide cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
                                 ${item.book_code}
                             </span>
                         ` : ''}
@@ -1841,68 +1725,165 @@
                             ${item.title || '-'}
                         </h3>
 
-                        <!-- Evaluation Status Badge -->
-                        <div class="w-full flex justify-center cursor-pointer" onclick="openDetailModal(${item.id})">
+                        <!-- Author Name -->
+                        ${authorFull ? `
+                            <div class="flex items-center justify-center space-x-1.5 text-xs text-slate-600 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                <i class="fa-solid fa-user-pen text-blue-500 text-xs"></i>
+                                <span>${authorFull}</span>
+                            </div>
+                        ` : ''}
+
+                        <!-- Status Badge -->
+                        <div class="pt-1 w-full flex justify-center">
                             ${getMobileStatusBadge(item.evaluation_status)}
                         </div>
 
-                        <!-- Prominent Mobile Download Buttons Section -->
-                        <div class="w-full pt-3 border-t border-slate-100 space-y-2">
-                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">ดาวน์โหลดเอกสาร</p>
-                            <div class="grid grid-cols-1 gap-2">
-                                ${getTeacherMobileDownloadButton(item.file_original_url, 'ต้นฉบับหนังสือ', 'fa-solid fa-file-lines', 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100')}
-                                ${getTeacherMobileDownloadButton(item.file_cover_url, 'ปกหนังสือ', 'fa-solid fa-image', 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100')}
-                                ${getTeacherMobileDownloadButton(item.file_eval_report_url, 'ผลการประเมิน', 'fa-solid fa-file-circle-check', 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100')}
+                        <!-- File Downloads Section (ไฟล์ดาวน์โหลด) -->
+                        <div class="w-full pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-600 flex items-center space-x-1">
+                                <i class="fa-solid fa-download text-slate-400"></i>
+                                <span>ไฟล์ดาวน์โหลด</span>
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
+                                ${getFileIconButton(item.file_cover_url, 'ปกหนังสือ', 'fa-solid fa-image', 'bg-purple-50 hover:bg-purple-100 text-purple-600')}
+                                ${getFileIconButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-solid fa-file-circle-check', 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600')}
                             </div>
                         </div>
 
-                        <!-- Action to Open Full Detailed Progress Modal -->
-                        <button onclick="openDetailModal(${item.id})" class="w-full py-2 text-xs font-medium text-slate-500 hover:text-blue-600 flex items-center justify-center space-x-1.5 transition-colors">
-                            <i class="fa-solid fa-circle-info text-slate-400"></i>
-                            <span>ดูขั้นตอนการประเมินอย่างละเอียด</span>
-                        </button>
+                        <!-- Actions Section (จัดการ) -->
+                        <div class="w-full pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-600 flex items-center space-x-1">
+                                <i class="fa-solid fa-sliders text-slate-400"></i>
+                                <span>จัดการ</span>
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="openDetailModal(${item.id})" title="ดูขั้นตอนการดำเนินงาน" class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs font-medium flex items-center space-x-1 transition-colors">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>ดู</span>
+                                </button>
+                                <button onclick="openEditModal(${item.id})" title="แก้ไขข้อมูล" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-600 text-xs font-medium flex items-center space-x-1 transition-colors">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>แก้ไข</span>
+                                </button>
+                                <button onclick="deleteRecord(${item.id})" title="ลบข้อมูล" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-medium flex items-center space-x-1 transition-colors">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    <span>ลบ</span>
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
-                `).join('');
+                    `;
+                }).join('');
             }
         }
 
-        /* Helper to construct clean touch-friendly mobile download buttons */
-        function getTeacherMobileDownloadButton(url, label, iconClass, colorClasses) {
-            if (!url) {
-                return `
-                    <div class="w-full py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-400 text-xs font-medium flex items-center justify-center space-x-2 cursor-not-allowed">
-                        <i class="${iconClass} text-slate-300"></i>
-                        <span>ไม่มีไฟล์${label}</span>
-                    </div>
-                `;
+        function filterTeacherData() {
+            if (!currentUser || currentUser.role !== 'teacher') return;
+            const teacherEmail = (currentUser.email || '').toLowerCase().trim();
+
+            const emailElem = document.getElementById('teacherLoggedInEmail');
+            if (emailElem) emailElem.innerText = teacherEmail;
+
+            const teacherBooks = evaluationsData.filter(i => i.email && i.email.toLowerCase().trim() === teacherEmail);
+            renderTeacherTable(teacherBooks);
+        }
+
+        function renderTeacherTable(books) {
+            const tbody = document.getElementById('teacherTableBody');
+            const countElem = document.getElementById('teacherTableCount');
+            if (countElem) countElem.innerText = books.length;
+
+            if (!tbody) return;
+
+            if (books.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-slate-400 font-light">ไม่พบรายการหนังสือ/ตำราเรียนที่ผูกกับอีเมลนี้</td></tr>`;
+                return;
             }
-            const directUrl = convertGoogleDriveLink(url);
-            return `
-                <a href="${directUrl}" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center space-x-2 shadow-xs transition-all active:scale-[0.98] ${colorClasses}">
-                    <i class="${iconClass}"></i>
-                    <span>ดาวน์โหลด${label}</span>
-                    <i class="fa-solid fa-arrow-down-long text-[10px] ml-1 opacity-70"></i>
-                </a>
-            `;
+
+            tbody.innerHTML = books.map(item => {
+                const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
+
+                return `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-3.5 px-4 font-bold text-blue-600 font-mono text-xs align-top cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
+                        ${item.book_code || '-'}
+                    </td>
+
+                    <td class="py-3.5 px-4 align-top cursor-pointer" onclick="openDetailModal(${item.id})">
+                        ${getStatusBadge(item.evaluation_status)}
+                    </td>
+
+                    <td class="py-3.5 px-4 align-top cursor-pointer group" onclick="openDetailModal(${item.id})">
+                        <div class="space-y-2">
+                            <div class="font-bold text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
+                                ${item.title || '-'}
+                            </div>
+
+                            <div class="flex items-center flex-wrap gap-x-4 gap-y-1.5 text-slate-500">
+                                ${authorFull ? `
+                                    <span class="inline-flex items-center space-x-1.5 text-xs font-medium text-slate-600">
+                                        <i class="fa-solid fa-user-pen text-slate-400 text-xs"></i>
+                                        <span>${authorFull}</span>
+                                    </span>
+                                ` : ''}
+
+                                ${item.department ? `
+                                    <span class="inline-flex items-center space-x-1 text-[11px]">
+                                        <i class="fa-solid fa-landmark text-slate-400 text-[10px]"></i>
+                                        <span>${item.department}</span>
+                                    </span>
+                                ` : ''}
+
+                                ${item.evaluation_year ? `
+                                    <span class="inline-flex items-center space-x-1 text-[11px]">
+                                        <i class="fa-regular fa-calendar-days text-slate-400 text-[10px]"></i>
+                                        <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
+                                    </span>
+                                ` : ''}
+
+                                ${item.isbn ? `
+                                    <span class="inline-flex items-center space-x-1 text-[11px] font-mono">
+                                        <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
+                                        <span>ISBN: ${item.isbn}</span>
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="py-3.5 px-4 align-top">
+                        <div class="flex items-center space-x-1.5">
+                            ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
+                            ${getFileIconButton(item.file_cover_url, 'ปกหนังสือ', 'fa-solid fa-image', 'bg-purple-50 hover:bg-purple-100 text-purple-600')}
+                            ${getFileIconButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-solid fa-file-circle-check', 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600')}
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
         }
 
         function openAddModal() {
             document.getElementById('formModalTitle').innerText = 'เพิ่มผลงานใหม่';
             document.getElementById('formEditId').value = '';
-            
+
             document.getElementById('formYear').value = new Date().getFullYear() + 543;
             document.getElementById('formAcademicPos').value = '';
             document.getElementById('formAuthorName').value = '';
             document.getElementById('formAuthorEmail').value = '';
             document.getElementById('formWorkType').value = '';
+
             document.getElementById('formBookCode').value = '';
             document.getElementById('formDepartment').value = '';
             document.getElementById('formTitle').value = '';
-            document.getElementById('formEvalStatus').value = 'รับเอกสารการประเมิน';
-            document.getElementById('formPubStatus').value = 'อยู่ระหว่างการประเมิน';
+            document.getElementById('formEvalStatus').value = '';
+            document.getElementById('formPubStatus').value = '';
             document.getElementById('formIsbn').value = '';
             document.getElementById('formVpsNo').value = '';
             document.getElementById('formNote').value = '';
+
             document.getElementById('formFileOriginal').value = '';
             document.getElementById('formFileCover').value = '';
             document.getElementById('formFileEvalReport').value = '';
@@ -1916,12 +1897,13 @@
 
             document.getElementById('formModalTitle').innerText = 'แก้ไขข้อมูลผลงาน';
             document.getElementById('formEditId').value = item.id;
-            
+
             document.getElementById('formYear').value = item.evaluation_year || '';
             document.getElementById('formAcademicPos').value = item.academic_position || '';
             document.getElementById('formAuthorName').value = item.author_name || '';
-            document.getElementById('formAuthorEmail').value = item.author_email || '';
+            document.getElementById('formAuthorEmail').value = item.email || '';
             document.getElementById('formWorkType').value = item.work_type || '';
+
             document.getElementById('formBookCode').value = item.book_code || '';
             document.getElementById('formDepartment').value = item.department || '';
             document.getElementById('formTitle').value = item.title || '';
@@ -1930,6 +1912,7 @@
             document.getElementById('formIsbn').value = item.isbn || '';
             document.getElementById('formVpsNo').value = item.vps_no || '';
             document.getElementById('formNote').value = item.note || '';
+
             document.getElementById('formFileOriginal').value = item.file_original_url || '';
             document.getElementById('formFileCover').value = item.file_cover_url || '';
             document.getElementById('formFileEvalReport').value = item.file_eval_report_url || '';
@@ -1939,14 +1922,15 @@
 
         async function handleFormSubmit(e) {
             e.preventDefault();
-
             const editId = document.getElementById('formEditId').value;
+
             const payload = {
                 evaluation_year: parseInt(document.getElementById('formYear').value) || null,
                 academic_position: document.getElementById('formAcademicPos').value.trim(),
                 author_name: document.getElementById('formAuthorName').value.trim(),
-                author_email: document.getElementById('formAuthorEmail').value.trim(),
+                email: document.getElementById('formAuthorEmail').value.trim(),
                 work_type: document.getElementById('formWorkType').value,
+
                 book_code: document.getElementById('formBookCode').value.trim(),
                 department: document.getElementById('formDepartment').value.trim(),
                 title: document.getElementById('formTitle').value.trim(),
@@ -1955,6 +1939,7 @@
                 isbn: document.getElementById('formIsbn').value.trim(),
                 vps_no: document.getElementById('formVpsNo').value.trim(),
                 note: document.getElementById('formNote').value.trim(),
+
                 file_original_url: document.getElementById('formFileOriginal').value.trim(),
                 file_cover_url: document.getElementById('formFileCover').value.trim(),
                 file_eval_report_url: document.getElementById('formFileEvalReport').value.trim(),
@@ -1975,19 +1960,20 @@
                         .insert([payload]);
 
                     if (error) throw error;
-                    showToast('เพิ่มข้อมูลใหม่สำเร็จแล้ว');
+                    showToast('เพิ่มรายการผลงานใหม่สำเร็จแล้ว');
                 }
 
                 closeModal('editModal');
                 fetchEvaluations();
             } catch (err) {
-                console.error('Submit error:', err);
+                console.error('Save error:', err);
                 showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message, 'error');
             }
         }
 
         async function deleteRecord(id) {
-            if (!id) return;
+            if (!confirm('คุณแน่ใจหรือว่าต้องการลบรายการนี้ออกจากระบบ?')) return;
+
             try {
                 const { error } = await supabaseClient
                     .from('evaluation')
@@ -1995,7 +1981,7 @@
                     .eq('id', id);
 
                 if (error) throw error;
-                showToast('ลบรายการข้อมูลสำเร็จ');
+                showToast('ลบรายการสำเร็จแล้ว');
                 fetchEvaluations();
             } catch (err) {
                 console.error('Delete error:', err);
@@ -2004,27 +1990,29 @@
         }
 
         function exportToCSV() {
-            if (evaluationsData.length === 0) {
+            if (!evaluationsData || evaluationsData.length === 0) {
                 showToast('ไม่มีข้อมูลสำหรับส่งออก CSV', 'error');
                 return;
             }
 
-            const headers = ['ID', 'ปีประเมิน', 'รหัสหนังสือ', 'ชื่อเรื่อง', 'ผู้เขียน', 'ตำแหน่งวิชาการ', 'อีเมล', 'ภาควิชา', 'สถานะประเมิน', 'สถานะจัดพิมพ์', 'ISBN'];
+            const headers = ['รหัสหนังสือ', 'ชื่อเรื่อง', 'ตำแหน่งวิชาการ', 'ผู้เขียน', 'อีเมล', 'ประเภท', 'ปี', 'ภาควิชา', 'สถานะการประเมิน', 'สถานะจัดพิมพ์', 'ISBN', 'เลข วศ.สจล.'];
+            
             const rows = evaluationsData.map(item => [
-                item.id,
-                item.evaluation_year || '',
-                `"${(item.book_code || '').replace(/"/g, '""')}"`,
+                `"${item.book_code || ''}"`,
                 `"${(item.title || '').replace(/"/g, '""')}"`,
-                `"${(item.author_name || '').replace(/"/g, '""')}"`,
-                `"${(item.academic_position || '').replace(/"/g, '""')}"`,
-                `"${(item.author_email || '').replace(/"/g, '""')}"`,
-                `"${(item.department || '').replace(/"/g, '""')}"`,
-                `"${(item.evaluation_status || '').replace(/"/g, '""')}"`,
-                `"${(item.publication_status || '').replace(/"/g, '""')}"`,
-                `"${(item.isbn || '').replace(/"/g, '""')}"`
+                `"${item.academic_position || ''}"`,
+                `"${item.author_name || ''}"`,
+                `"${item.email || ''}"`,
+                `"${item.work_type || ''}"`,
+                `"${item.evaluation_year || ''}"`,
+                `"${item.department || ''}"`,
+                `"${item.evaluation_status || ''}"`,
+                `"${item.publication_status || ''}"`,
+                `"${item.isbn || ''}"`,
+                `"${item.vps_no || ''}"`
             ]);
 
-            let csvContent = '\uFEFF' + headers.join(',') + '\n' + rows.map(e => e.join(',')).join('\n');
+            const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -2033,13 +2021,29 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast('ส่งออกไฟล์ CSV เรียบร้อยแล้ว');
+            showToast('ส่งออก CSV เรียบร้อยแล้ว');
         }
 
-        window.onload = function () {
-            currentUser = { email: '', role: 'guest' };
+        // --- App Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
             fetchEvaluations();
-        };
+
+            // Listen to Supabase Auth Changes
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (session?.user) {
+                    const user = session.user;
+                    const userRole = user.user_metadata?.role || (user.email === STAFF_EMAIL ? 'staff' : 'teacher');
+                    currentUser = {
+                        email: user.email,
+                        role: userRole,
+                        id: user.id
+                    };
+                } else {
+                    currentUser = { email: '', role: 'guest' };
+                }
+                updateUI();
+            });
+        });
     </script>
 </body>
 </html>
