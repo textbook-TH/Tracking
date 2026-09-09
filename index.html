@@ -320,7 +320,7 @@
                 </div>
             </div>
 
-            <!-- Staff Data Table with Separated Author Column -->
+            <!-- Staff Data Table with Adjusted Compact Column Sizing -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex items-center justify-between">
                     <h3 class="font-bold text-base text-slate-800">รายการข้อมูลในระบบทั้งหมด</h3>
@@ -333,9 +333,9 @@
                         <thead>
                             <tr class="bg-slate-50/80 border-b border-slate-100 text-slate-600 text-xs font-semibold">
                                 <th class="py-3.5 px-4 w-28">รหัสหนังสือ</th>
-                                <th class="py-3.5 px-4 w-40">สถานะประเมิน</th>
-                                <th class="py-3.5 px-4">ชื่อเรื่อง</th>
-                                <th class="py-3.5 px-4 w-48">ชื่อผู้เขียน</th>
+                                <th class="py-3.5 px-4 w-36">สถานะประเมิน</th>
+                                <th class="py-3.5 px-4 w-auto">ชื่อเรื่อง</th>
+                                <th class="py-3.5 px-4 w-52">ชื่อผู้เขียน</th>
                                 <th class="py-3.5 px-4 w-32">ไฟล์ดาวน์โหลด</th>
                                 <th class="py-3.5 px-4 text-center w-28">จัดการ</th>
                             </tr>
@@ -1563,13 +1563,12 @@
         }
 
         /**
-         * Render Staff Table strictly ordered as:
-         * 1. รหัสหนังสือ
-         * 2. สถานะประเมิน
-         * 3. ชื่อเรื่อง
-         * 4. ชื่อผู้เขียน (ตำแหน่งทางวิชาการ + ชื่อผู้เขียน)
-         * 5. ไฟล์ดาวน์โหลด (ไอคอนสัญลักษณ์)
-         * 6. จัดการ
+         * Render Staff Table customized according to specific user requirements:
+         * 1. Hides "จัดพิมพ์: ..." text below evaluation badge
+         * 2. Hides "ภาควิชา: ... | ปีประเมิน: ..." text below book title
+         * 3. Hides email text below author name
+         * 4. Makes author name font size equal to title size (text-sm font-bold)
+         * 5. Brings author name column directly adjacent to title column naturally
          */
         function renderStaffTable(dataList) {
             const tbody = document.getElementById('staffTableBody');
@@ -1593,25 +1592,22 @@
                         ${item.book_code || '-'}
                     </td>
 
-                    <!-- Column 2: สถานะประเมิน -->
+                    <!-- Column 2: สถานะประเมิน (ซ่อนบรรทัดจัดพิมพ์) -->
                     <td class="py-3.5 px-4 align-top">
                         ${getStatusBadge(item.evaluation_status)}
-                        <p class="text-2xs text-slate-400 mt-1">จัดพิมพ์: ${item.publication_status || '-'}</p>
                     </td>
 
-                    <!-- Column 3: ชื่อเรื่อง -->
+                    <!-- Column 3: ชื่อเรื่อง (ซ่อนบรรทัดภาควิชา/ปีประเมิน) -->
                     <td class="py-3.5 px-4 align-top">
                         <p class="font-bold text-slate-800 text-sm leading-snug">${item.title || '-'}</p>
-                        <p class="text-2xs text-slate-400 mt-0.5">ภาควิชา: ${item.department || '-'} | ปีประเมิน: ${item.evaluation_year || '-'}</p>
                     </td>
 
-                    <!-- Column 4: ชื่อผู้เขียน (รวมตำแหน่งทางวิชาการ + ชื่อ-นามสกุล) -->
+                    <!-- Column 4: ชื่อผู้เขียน (ปรับขนาดเท่ากับชื่อเรื่อง text-sm font-bold และซ่อนอีเมล) -->
                     <td class="py-3.5 px-4 align-top">
-                        <p class="font-semibold text-slate-800 text-xs">${authorFull || '-'}</p>
-                        <p class="text-2xs text-slate-400 mt-0.5">${item.email || '-'}</p>
+                        <p class="font-bold text-slate-800 text-sm leading-snug">${authorFull || '-'}</p>
                     </td>
 
-                    <!-- Column 5: ไฟล์ดาวน์โหลด (ไอคอนสัญลักษณ์: ต้นฉบับ, ปก, ผลประเมิน) -->
+                    <!-- Column 5: ไฟล์ดาวน์โหลด (ไอคอนสัญลักษณ์) -->
                     <td class="py-3.5 px-4 align-top">
                         <div class="flex items-center space-x-1.5">
                             ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
@@ -1824,42 +1820,29 @@
 
             try {
                 if (editId) {
-                    const { error } = await supabaseClient
-                        .from('evaluation')
-                        .update(payload)
-                        .eq('id', editId);
-
+                    const { error } = await supabaseClient.from('evaluation').update(payload).eq('id', editId);
                     if (error) throw error;
-                    showToast('อัปเดตข้อมูลสำเร็จแล้ว');
+                    showToast('แก้ไขข้อมูลสำเร็จเรียบร้อย');
                 } else {
-                    const { error } = await supabaseClient
-                        .from('evaluation')
-                        .insert([payload]);
-
+                    const { error } = await supabaseClient.from('evaluation').insert([payload]);
                     if (error) throw error;
-                    showToast('เพิ่มข้อมูลผลงานใหม่สำเร็จแล้ว');
+                    showToast('เพิ่มผลงานใหม่เรียบร้อยแล้ว');
                 }
-
                 closeModal('editModal');
-                await fetchEvaluations();
+                fetchEvaluations();
             } catch (err) {
-                console.error('Save error:', err);
-                showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message, 'error');
+                console.error('Form submit error:', err);
+                showToast('เกิดข้อผิดพลาดในการบันทึก: ' + err.message, 'error');
             }
         }
 
         async function deleteRecord(id) {
-            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?')) return;
-
+            if (!confirm('คุณต้องการลบรายการนี้ใช่หรือไม่?')) return;
             try {
-                const { error } = await supabaseClient
-                    .from('evaluation')
-                    .delete()
-                    .eq('id', id);
-
+                const { error } = await supabaseClient.from('evaluation').delete().eq('id', id);
                 if (error) throw error;
-                showToast('ลบรายการเรียบร้อยแล้ว');
-                await fetchEvaluations();
+                showToast('ลบรายการสำเร็จ');
+                fetchEvaluations();
             } catch (err) {
                 console.error('Delete error:', err);
                 showToast('ไม่สามารถลบรายการได้: ' + err.message, 'error');
@@ -1867,42 +1850,60 @@
         }
 
         function exportToCSV() {
-            if (evaluationsData.length === 0) {
+            if (!evaluationsData || evaluationsData.length === 0) {
                 showToast('ไม่มีข้อมูลสำหรับส่งออก', 'error');
                 return;
             }
 
-            const headers = ['รหัสหนังสือ', 'ปีประเมิน', 'คำนำหน้า/ตำแหน่ง', 'ชื่อผู้เขียน', 'อีเมล', 'ประเภทผลงาน', 'ภาควิชา', 'ชื่อเรื่อง', 'สถานะประเมิน', 'สถานะจัดพิมพ์', 'ISBN', 'เลข วศ.สจล.', 'หมายเหตุ'];
-            const rows = evaluationsData.map(i => [
-                `"${i.book_code || ''}"`,
-                `"${i.evaluation_year || ''}"`,
-                `"${i.academic_position || ''}"`,
-                `"${i.author_name || ''}"`,
-                `"${i.email || ''}"`,
-                `"${i.work_type || ''}"`,
-                `"${i.department || ''}"`,
-                `"${i.title || ''}"`,
-                `"${i.evaluation_status || ''}"`,
-                `"${i.publication_status || ''}"`,
-                `"${i.isbn || ''}"`,
-                `"${i.vps_no || ''}"`,
-                `"${i.note || ''}"`
+            const headers = ['รหัสหนังสือ', 'ชื่อเรื่อง', 'ผู้เขียน', 'ตำแหน่งทางวิชาการ', 'อีเมล', 'ภาควิชา', 'ปีประเมิน', 'สถานะประเมิน', 'สถานะจัดพิมพ์', 'ISBN'];
+            const rows = evaluationsData.map(item => [
+                `"${item.book_code || ''}"`,
+                `"${(item.title || '').replace(/"/g, '""')}"`,
+                `"${(item.author_name || '').replace(/"/g, '""')}"`,
+                `"${item.academic_position || ''}"`,
+                `"${item.email || ''}"`,
+                `"${item.department || ''}"`,
+                `"${item.evaluation_year || ''}"`,
+                `"${item.evaluation_status || ''}"`,
+                `"${item.publication_status || ''}"`,
+                `"${item.isbn || ''}"`
             ]);
 
-            const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+            const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.setAttribute('href', url);
-            link.setAttribute('download', `evaluation_export_${new Date().toISOString().slice(0, 10)}.csv`);
+            link.setAttribute('download', `evaluations_export_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast('ส่งออกไฟล์ CSV สำเร็จแล้ว');
+            showToast('ส่งออก CSV เรียบร้อยแล้ว');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            fetchEvaluations();
+            // Check auth session
+            supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                if (session && session.user) {
+                    const u = session.user;
+                    currentUser = {
+                        email: u.email,
+                        role: u.user_metadata?.role || (u.email === STAFF_EMAIL ? 'staff' : 'teacher'),
+                        id: u.id
+                    };
+                } else {
+                    currentUser = { email: '', role: 'guest' };
+                }
+                fetchEvaluations();
+            });
+
+            // Listen to auth state changes
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event === 'PASSWORD_RECOVERY') {
+                    switchAuthMode('reset');
+                    openModal('loginModal');
+                }
+            });
         });
     </script>
 </body>
