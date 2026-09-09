@@ -832,6 +832,7 @@
                     };
 
                     closeModal('loginModal');
+                    updateUI();
                     switchView(currentUser.role === 'staff' ? 'staff' : 'teacher');
                     showToast(`เข้าสู่ระบบสำเร็จ (${currentUser.email})`);
 
@@ -933,8 +934,8 @@
             renderNavbar();
             populateFilterDropdowns();
             filterData();
-            if (currentUser?.role === 'staff') filterStaffData();
-            if (currentUser?.role === 'teacher') filterTeacherData();
+            filterStaffData();
+            filterTeacherData();
         }
 
         function renderNavbar() {
@@ -1005,22 +1006,26 @@
 
             if (viewName === 'home') {
                 document.getElementById('homeView').classList.remove('hidden');
+                filterData();
             } else if (viewName === 'staff' && currentUser?.role === 'staff') {
                 document.getElementById('staffView').classList.remove('hidden');
+                filterStaffData();
             } else if (viewName === 'teacher' && currentUser?.role === 'teacher') {
                 document.getElementById('teacherView').classList.remove('hidden');
+                filterTeacherData();
             } else {
                 currentActiveView = 'home';
                 document.getElementById('homeView').classList.remove('hidden');
+                filterData();
             }
             renderNavbar();
         }
 
         function filterData() {
-            const search = document.getElementById('homeSearchInput').value.toLowerCase();
-            const year = document.getElementById('homeYearFilter').value;
-            const dept = document.getElementById('homeDeptFilter').value;
-            const status = document.getElementById('homeStatusFilter').value;
+            const search = (document.getElementById('homeSearchInput')?.value || '').toLowerCase();
+            const year = document.getElementById('homeYearFilter')?.value || '';
+            const dept = document.getElementById('homeDeptFilter')?.value || '';
+            const status = document.getElementById('homeStatusFilter')?.value || '';
 
             filteredData = evaluationsData.filter(item => {
                 const matchSearch = !search || 
@@ -1115,6 +1120,7 @@
 
         function populateOptions(selectId, items, defaultText) {
             const select = document.getElementById(selectId);
+            if (!select) return;
             const currentVal = select.value;
             select.innerHTML = `<option value="">${defaultText}</option>` +
                 items.map(item => `<option value="${item}">${item}</option>`).join('');
@@ -1280,10 +1286,11 @@
         }
 
         function filterStaffData() {
-            const search = document.getElementById('staffSearchInput').value.toLowerCase();
-            const year = document.getElementById('staffYearFilter').value;
-            const dept = document.getElementById('staffDeptFilter').value;
-            const status = document.getElementById('staffStatusFilter').value;
+            const searchInput = document.getElementById('staffSearchInput');
+            const search = (searchInput?.value || '').toLowerCase();
+            const year = document.getElementById('staffYearFilter')?.value || '';
+            const dept = document.getElementById('staffDeptFilter')?.value || '';
+            const status = document.getElementById('staffStatusFilter')?.value || '';
 
             const list = evaluationsData.filter(item => {
                 const matchSearch = !search || 
@@ -1303,7 +1310,10 @@
 
         function renderStaffTable(dataList) {
             const tbody = document.getElementById('staffTableBody');
-            document.getElementById('staffTableCount').innerText = dataList.length;
+            const countElem = document.getElementById('staffTableCount');
+            if (countElem) countElem.innerText = dataList.length;
+
+            if (!tbody) return;
 
             if (dataList.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
@@ -1346,9 +1356,10 @@
 
         function filterTeacherData() {
             if (!currentUser || currentUser.role !== 'teacher') return;
-            const teacherEmail = currentUser.email.toLowerCase().trim();
+            const teacherEmail = (currentUser.email || '').toLowerCase().trim();
 
-            document.getElementById('teacherLoggedInEmail').innerText = teacherEmail;
+            const emailElem = document.getElementById('teacherLoggedInEmail');
+            if (emailElem) emailElem.innerText = teacherEmail;
 
             const teacherBooks = evaluationsData.filter(i => i.email && i.email.toLowerCase().trim() === teacherEmail);
             renderTeacherTable(teacherBooks);
@@ -1356,7 +1367,10 @@
 
         function renderTeacherTable(books) {
             const tbody = document.getElementById('teacherTableBody');
-            document.getElementById('teacherTableCount').innerText = books.length;
+            const countElem = document.getElementById('teacherTableCount');
+            if (countElem) countElem.innerText = books.length;
+
+            if (!tbody) return;
 
             if (books.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-400 font-light">ไม่พบรายการหนังสือ/ตำราเรียนที่ผูกกับอีเมลนี้</td></tr>`;
@@ -1629,14 +1643,14 @@
                         role: userRole,
                         id: user.id
                     };
-                    renderNavbar();
+                    updateUI();
                     if (currentActiveView !== 'staff' && currentActiveView !== 'teacher') {
                         switchView(currentUser.role === 'staff' ? 'staff' : 'teacher');
                     }
                 }
             } else if (event === 'SIGNED_OUT') {
                 currentUser = { email: '', role: 'guest' };
-                renderNavbar();
+                updateUI();
             }
         });
 
