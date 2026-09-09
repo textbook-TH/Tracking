@@ -288,6 +288,10 @@
                         <p class="text-xs sm:text-sm text-slate-400 mt-1">เพิ่ม แก้ไข ลบ อัปเดตสถานะ และดาวน์โหลดไฟล์เอกสาร</p>
                     </div>
                     <div class="flex items-center space-x-3">
+                        <button onclick="exportToCSV()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-emerald-600/30 flex items-center space-x-2 transition-all">
+                            <i class="fa-solid fa-file-csv text-sm"></i>
+                            <span>ส่งออก CSV</span>
+                        </button>
                         <button onclick="openAddModal()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 flex items-center space-x-2 transition-all">
                             <i class="fa-solid fa-plus text-sm"></i>
                             <span>+ เพิ่มผลงานใหม่</span>
@@ -316,7 +320,7 @@
                 </div>
             </div>
 
-            <!-- Staff Data Table -->
+            <!-- Staff Data Table with Separated Author Column -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex items-center justify-between">
                     <h3 class="font-bold text-base text-slate-800">รายการข้อมูลในระบบทั้งหมด</h3>
@@ -329,10 +333,11 @@
                         <thead>
                             <tr class="bg-slate-50/80 border-b border-slate-100 text-slate-600 text-xs font-semibold">
                                 <th class="py-3.5 px-4 w-28">รหัสหนังสือ</th>
-                                <th class="py-3.5 px-4 w-44">สถานะประเมิน</th>
+                                <th class="py-3.5 px-4 w-40">สถานะประเมิน</th>
                                 <th class="py-3.5 px-4">ชื่อเรื่อง</th>
-                                <th class="py-3.5 px-4 w-36">ไฟล์ดาวน์โหลด</th>
-                                <th class="py-3.5 px-4 text-center w-36">จัดการ</th>
+                                <th class="py-3.5 px-4 w-48">ชื่อผู้เขียน</th>
+                                <th class="py-3.5 px-4 w-32">ไฟล์ดาวน์โหลด</th>
+                                <th class="py-3.5 px-4 text-center w-28">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody id="staffTableBody" class="divide-y divide-slate-100 text-sm">
@@ -744,22 +749,6 @@
         let currentAuthMode = 'login'; 
         let currentActiveView = 'home';
         let statusChartInstance = null;
-
-        function openModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) modal.classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function closeModalOnBackdrop(e, id) {
-            if (e.target.id === id) {
-                closeModal(id);
-            }
-        }
 
         /**
          * Converts Google Drive share links into Direct Download links.
@@ -1574,10 +1563,13 @@
         }
 
         /**
-         * Render Staff Table strictly ordered and refined according to user requests:
-         * 1. เอาข้อความสถานะ "จัดพิมพ์: ..." ออกจากคอลัมน์สถานะ
-         * 2. เอาอีเมล "(email)" ออกจากชื่อผู้แต่ง
-         * 3. เอาบรรทัด "ภาควิชา: ... | ปีประเมิน: ..." ออกจากคอลัมน์ชื่อเรื่อง
+         * Render Staff Table strictly ordered as:
+         * 1. รหัสหนังสือ
+         * 2. สถานะประเมิน
+         * 3. ชื่อเรื่อง
+         * 4. ชื่อผู้เขียน (ตำแหน่งทางวิชาการ + ชื่อผู้เขียน)
+         * 5. ไฟล์ดาวน์โหลด (ไอคอนสัญลักษณ์)
+         * 6. จัดการ
          */
         function renderStaffTable(dataList) {
             const tbody = document.getElementById('staffTableBody');
@@ -1587,29 +1579,39 @@
             if (!tbody) return;
 
             if (dataList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = dataList.map(item => `
+            tbody.innerHTML = dataList.map(item => {
+                const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
+
+                return `
                 <tr class="hover:bg-slate-50/80 transition-colors">
                     <!-- Column 1: รหัสหนังสือ -->
                     <td class="py-3.5 px-4 font-bold text-blue-600 font-mono text-xs align-top">
                         ${item.book_code || '-'}
                     </td>
 
-                    <!-- Column 2: สถานะประเมิน (ตัดบรรทัดสถานะจัดพิมพ์ออกแล้ว) -->
+                    <!-- Column 2: สถานะประเมิน -->
                     <td class="py-3.5 px-4 align-top">
                         ${getStatusBadge(item.evaluation_status)}
+                        <p class="text-2xs text-slate-400 mt-1">จัดพิมพ์: ${item.publication_status || '-'}</p>
                     </td>
 
-                    <!-- Column 3: ชื่อเรื่อง (ตัดอีเมล และบรรทัดภาควิชา/ปีประเมินออกแล้ว) -->
+                    <!-- Column 3: ชื่อเรื่อง -->
                     <td class="py-3.5 px-4 align-top">
                         <p class="font-bold text-slate-800 text-sm leading-snug">${item.title || '-'}</p>
-                        <p class="text-xs text-slate-500 mt-0.5">${item.academic_position || ''} ${item.author_name || '-'}</p>
+                        <p class="text-2xs text-slate-400 mt-0.5">ภาควิชา: ${item.department || '-'} | ปีประเมิน: ${item.evaluation_year || '-'}</p>
                     </td>
 
-                    <!-- Column 4: ไฟล์ดาวน์โหลด (ไอคอนสัญลักษณ์: ต้นฉบับ, ปก, ผลประเมิน) -->
+                    <!-- Column 4: ชื่อผู้เขียน (รวมตำแหน่งทางวิชาการ + ชื่อ-นามสกุล) -->
+                    <td class="py-3.5 px-4 align-top">
+                        <p class="font-semibold text-slate-800 text-xs">${authorFull || '-'}</p>
+                        <p class="text-2xs text-slate-400 mt-0.5">${item.email || '-'}</p>
+                    </td>
+
+                    <!-- Column 5: ไฟล์ดาวน์โหลด (ไอคอนสัญลักษณ์: ต้นฉบับ, ปก, ผลประเมิน) -->
                     <td class="py-3.5 px-4 align-top">
                         <div class="flex items-center space-x-1.5">
                             ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
@@ -1618,7 +1620,7 @@
                         </div>
                     </td>
 
-                    <!-- Column 5: จัดการ -->
+                    <!-- Column 6: จัดการ -->
                     <td class="py-3.5 px-4 text-center align-top">
                         <div class="flex items-center justify-center space-x-1.5">
                             <button onclick="openDetailModal(${item.id})" title="ดูขั้นตอนการดำเนินงาน" class="w-8 h-8 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-600 flex items-center justify-center transition-colors">
@@ -1633,7 +1635,7 @@
                         </div>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         function filterTeacherData() {
@@ -1725,6 +1727,22 @@
                 <i class="fa-solid fa-download text-xs"></i>
                 <span>${label}</span>
             </a>`;
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function closeModalOnBackdrop(event, modalId) {
+            if (event.target.id === modalId) {
+                closeModal(modalId);
+            }
         }
 
         function openAddModal() {
@@ -1831,6 +1849,8 @@
         }
 
         async function deleteRecord(id) {
+            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?')) return;
+
             try {
                 const { error } = await supabaseClient
                     .from('evaluation')
@@ -1838,28 +1858,51 @@
                     .eq('id', id);
 
                 if (error) throw error;
-                showToast('ลบรายการสำเร็จแล้ว');
+                showToast('ลบรายการเรียบร้อยแล้ว');
                 await fetchEvaluations();
             } catch (err) {
                 console.error('Delete error:', err);
-                showToast('เกิดข้อผิดพลาดในการลบข้อมูล: ' + err.message, 'error');
+                showToast('ไม่สามารถลบรายการได้: ' + err.message, 'error');
             }
+        }
+
+        function exportToCSV() {
+            if (evaluationsData.length === 0) {
+                showToast('ไม่มีข้อมูลสำหรับส่งออก', 'error');
+                return;
+            }
+
+            const headers = ['รหัสหนังสือ', 'ปีประเมิน', 'คำนำหน้า/ตำแหน่ง', 'ชื่อผู้เขียน', 'อีเมล', 'ประเภทผลงาน', 'ภาควิชา', 'ชื่อเรื่อง', 'สถานะประเมิน', 'สถานะจัดพิมพ์', 'ISBN', 'เลข วศ.สจล.', 'หมายเหตุ'];
+            const rows = evaluationsData.map(i => [
+                `"${i.book_code || ''}"`,
+                `"${i.evaluation_year || ''}"`,
+                `"${i.academic_position || ''}"`,
+                `"${i.author_name || ''}"`,
+                `"${i.email || ''}"`,
+                `"${i.work_type || ''}"`,
+                `"${i.department || ''}"`,
+                `"${i.title || ''}"`,
+                `"${i.evaluation_status || ''}"`,
+                `"${i.publication_status || ''}"`,
+                `"${i.isbn || ''}"`,
+                `"${i.vps_no || ''}"`,
+                `"${i.note || ''}"`
+            ]);
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `evaluation_export_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('ส่งออกไฟล์ CSV สำเร็จแล้ว');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchEvaluations();
-
-            // Handle Supabase Auth State Changes
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                if (session && session.user) {
-                    const email = session.user.email;
-                    const role = session.user.user_metadata?.role || (email === STAFF_EMAIL ? 'staff' : 'teacher');
-                    currentUser = { email, role, id: session.user.id };
-                } else {
-                    currentUser = { email: '', role: 'guest' };
-                }
-                updateUI();
-            });
         });
     </script>
 </body>
