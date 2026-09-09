@@ -643,6 +643,114 @@
         </div>
     </div>
 
+    <!-- 3. EVALUATION DETAIL POPUP MODAL (ภาพ 04) -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl p-6 sm:p-8 relative my-8 max-h-[92vh] overflow-y-auto">
+            <!-- Close Button Top Right -->
+            <button onclick="closeModal('detailModal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <!-- Popup Header Info -->
+            <div class="space-y-2 mb-6 pr-8">
+                <div class="flex items-center space-x-3">
+                    <span id="popupBookCode" class="px-3 py-1 bg-sky-100 text-sky-600 font-bold rounded-full text-xs sm:text-sm">
+                        Text-000
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-400 font-medium flex items-center space-x-1.5">
+                        <i class="fa-regular fa-copy"></i>
+                        <span id="popupYear">ปีประเมิน: 2568</span>
+                    </span>
+                </div>
+                <h2 id="popupTitle" class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
+                    ชื่อเรื่องหนังสือ / ตำราเรียน
+                </h2>
+                <p id="popupAuthor" class="text-xs sm:text-sm text-slate-500 font-medium">
+                    ผู้เขียน: -
+                </p>
+            </div>
+
+            <!-- Flow Section Container (ภาพ 04) -->
+            <div class="border-t border-slate-100 pt-5 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm sm:text-base">
+                        <i class="fa-solid fa-[#0284c7] fa-route text-sky-600"></i>
+                        <span>ขั้นตอนการดำเนินงาน</span>
+                    </div>
+                    <div id="popupProgressBadge" class="px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-xs font-bold flex items-center space-x-1">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span id="popupProgressText">0%</span>
+                    </div>
+                </div>
+
+                <!-- Step Flow Visualizer (6 Groups Layout) -->
+                <div class="bg-slate-50/70 border border-slate-100 rounded-3xl p-4 sm:p-6 my-2">
+                    <div class="grid grid-cols-6 gap-2 sm:gap-4 relative text-center" id="popupFlowStepsContainer">
+                        <!-- Dynamic step nodes will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metadata 4-Grid Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5">
+                <!-- Card 1: ภาควิชาวิศวกรรม -->
+                <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100/90">
+                    <p class="text-2xs sm:text-xs font-semibold text-slate-400 mb-1">ภาควิชาวิศวกรรม</p>
+                    <p id="popupDept" class="text-sm sm:text-base font-bold text-slate-800">
+                        -
+                    </p>
+                </div>
+
+                <!-- Card 2: รหัส ISBN -->
+                <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100/90 flex items-center justify-between">
+                    <div>
+                        <p class="text-2xs sm:text-xs font-semibold text-slate-400 mb-1">รหัส: ISBN</p>
+                        <p id="popupIsbn" class="text-sm sm:text-base font-bold text-slate-800 font-mono">
+                            -
+                        </p>
+                    </div>
+                    <button onclick="copyIsbnText()" title="คัดลอก ISBN" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200/50 transition-colors">
+                        <i class="fa-regular fa-copy text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Card 3: สถานะ -->
+                <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100/90">
+                    <p class="text-2xs sm:text-xs font-semibold text-slate-400 mb-1">สถานะ</p>
+                    <div id="popupEvalBadge" class="mt-0.5">
+                        <span class="text-sm font-bold text-slate-700">-</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: สถานะจัดพิมพ์ -->
+                <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100/90">
+                    <p class="text-2xs sm:text-xs font-semibold text-slate-400 mb-1">สถานะจัดพิมพ์</p>
+                    <p id="popupPubStatus" class="text-sm sm:text-base font-bold text-slate-800">
+                        -
+                    </p>
+                </div>
+            </div>
+
+            <!-- Bottom Warning / Alert Box -->
+            <div id="popupAlertBox" class="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 text-xs font-medium text-amber-900 flex items-start space-x-2.5 mb-6">
+                <i class="fa-solid fa-circle-info text-amber-600 text-base mt-0.5"></i>
+                <div>
+                    <strong class="font-bold text-amber-950">หมายเหตุ / แจ้งเตือน:</strong>
+                    <p id="popupNoteText" class="mt-0.5 text-amber-800 font-normal">
+                        -
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Bottom Footer Action -->
+            <div class="flex items-center justify-end">
+                <button onclick="closeModal('detailModal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl transition-colors">
+                    ปิดหน้าต่าง
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
@@ -1156,6 +1264,7 @@
          * Render Main Public Table / Mobile View Cards
          * Desktop: รหัสหนังสือ | สถานะประเมิน | รายละเอียดการประเมิน
          * Mobile: Card format with soft light-gray header box for "รายละเอียดการประเมิน"
+         * Added clickable trigger to open evaluation detail modal (ภาพ 04)
          */
         function renderHomeTable() {
             const tbody = document.getElementById('homeTableBody');
@@ -1172,22 +1281,22 @@
                 return;
             }
 
-            // 1. DESKTOP VIEW (Structure 100% Unchanged)
+            // 1. DESKTOP VIEW (Structure 100% Unchanged + Clickable Popup Trigger)
             tbody.innerHTML = filteredData.map(item => {
                 const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
                 return `
                 <tr class="hover:bg-slate-50/80 transition-colors">
-                    <td class="py-4 px-4 font-bold text-blue-600 font-mono text-xs align-top">
+                    <td class="py-4 px-4 font-bold text-blue-600 font-mono text-xs align-top cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
                         ${item.book_code || '-'}
                     </td>
-                    <td class="py-4 px-4 align-top">
+                    <td class="py-4 px-4 align-top cursor-pointer" onclick="openDetailModal(${item.id})">
                         ${getStatusBadge(item.evaluation_status)}
                     </td>
-                    <td class="py-4 px-4 align-top">
+                    <td class="py-4 px-4 align-top cursor-pointer group" onclick="openDetailModal(${item.id})">
                         <div class="space-y-2">
                             <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
-                                <span class="font-bold text-slate-900 text-base leading-snug">
+                                <span class="font-bold text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
                                     ${item.title || '-'}
                                 </span>
                             </div>
@@ -1226,16 +1335,17 @@
                 </tr>
             `}).join('');
 
-            // 2. MOBILE VIEW (Enhanced with a distinct light gray header pill/box for "รายละเอียดการประเมิน")
+            // 2. MOBILE VIEW (Enhanced with Clickable Popup Trigger)
             if (mobileContainer) {
                 mobileContainer.innerHTML = filteredData.map(item => {
                     const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
                     return `
-                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-3 transition-all">
+                    <div onclick="openDetailModal(${item.id})" class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-3 transition-all cursor-pointer hover:shadow-md">
                         <!-- Distinct Light Gray Box Header for "รายละเอียดการประเมิน" -->
-                        <div class="w-full bg-slate-100/90 border border-slate-200/70 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-600 tracking-tight text-center">
-                            รายละเอียดการประเมิน
+                        <div class="w-full bg-slate-100/90 border border-slate-200/70 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-600 tracking-tight text-center flex items-center justify-between">
+                            <span>รายละเอียดการประเมิน</span>
+                            <i class="fa-solid fa-circle-info text-blue-500 text-xs"></i>
                         </div>
 
                         <!-- Main Book Title: Prominent and clear -->
@@ -1282,6 +1392,122 @@
                     </div>
                     `;
                 }).join('');
+            }
+        }
+
+        /**
+         * Calculates step progress (1 to 6) based on status group rules
+         * Groups:
+         * 1. ยื่นคำขอ (รับเอกสารการประเมิน)
+         * 2. กรรมการคณะฯ (สรรหาผู้ทรงคุณวุฒิ, เข้ากรรมการคณะ)
+         * 3. ส่งผู้ทรงฯ (ส่งเอกสารผู้ทรง รอบ 1-2, ติดตามผล รอบ 1-2, รับเอกสารผู้ทรง รอบ 1-2)
+         * 4. แก้ไขปรับปรุง (ส่งเอกสารผู้ประเมิน รอบ 1-2, รอการแก้ไข รอบ 1-2)
+         * 5. แจ้งผล (สรุปผลการประเมิน, เข้ากรรมการคณะสรุปผล, ไม่ผ่านการประเมิน)
+         * 6. จัดพิมพ์ (ผ่านการประเมิน - เงื่อนไข: เกิดขึ้นหลังผ่านการประเมินเรียบร้อยแล้ว)
+         */
+        function getEvaluationStepInfo(status) {
+            const steps = [
+                { id: 1, title: 'ยื่นคำขอ', icon: 'fa-pencil' },
+                { id: 2, title: 'กรรมการคณะฯ', icon: 'fa-users-gear' },
+                { id: 3, title: 'ส่งผู้ทรงฯ', icon: 'fa-paper-plane' },
+                { id: 4, title: 'ปรับปรุง', icon: 'fa-pen-to-square' },
+                { id: 5, title: 'แจ้งผล', icon: 'fa-bullhorn' },
+                { id: 6, title: 'จัดพิมพ์', icon: 'fa-print' }
+            ];
+
+            let activeStepIndex = 1; // Default step 1
+
+            const step1List = ['รับเอกสารการประเมิน'];
+            const step2List = ['สรรหาผู้ทรงคุณวุฒิ', 'เข้ากรรมการคณะ'];
+            const step3List = ['ส่งเอกสารผู้ทรง รอบ 1', 'ติดตามผล รอบ 1', 'รับเอกสารผู้ทรง รอบ 1', 'ส่งเอกสารผู้ทรง รอบ 2', 'ติดตามผล รอบ 2', 'รับเอกสารผู้ทรง รอบ 2'];
+            const step4List = ['ส่งเอกสารผู้ประเมิน รอบ 1', 'รอการแก้ไข รอบ 1', 'ส่งเอกสารผู้ประเมิน รอบ 2', 'รอการแก้ไข รอบ 2'];
+            const step5List = ['สรุปผลการประเมิน', 'เข้ากรรมการคณะสรุปผล', 'ไม่ผ่านการประเมิน'];
+            const step6List = ['ผ่านการประเมิน'];
+
+            if (step6List.includes(status)) {
+                activeStepIndex = 6;
+            } else if (step5List.includes(status)) {
+                activeStepIndex = 5;
+            } else if (step4List.includes(status)) {
+                activeStepIndex = 4;
+            } else if (step3List.includes(status)) {
+                activeStepIndex = 3;
+            } else if (step2List.includes(status)) {
+                activeStepIndex = 2;
+            } else {
+                activeStepIndex = 1;
+            }
+
+            const percentage = Math.round((activeStepIndex / 6) * 100);
+
+            return {
+                steps,
+                activeStepIndex,
+                percentage
+            };
+        }
+
+        /**
+         * Opens Popup displaying Evaluation Details and 6 Step Progress (ภาพ 04)
+         */
+        function openDetailModal(id) {
+            const item = evaluationsData.find(i => i.id === id);
+            if (!item) return;
+
+            const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
+
+            document.getElementById('popupBookCode').innerText = item.book_code || 'Text-000';
+            document.getElementById('popupYear').innerText = `ปีประเมิน: ${item.evaluation_year || '-'}`;
+            document.getElementById('popupTitle').innerText = item.title || '-';
+            document.getElementById('popupAuthor').innerText = `ผู้เขียน: ${authorFull || '-'}`;
+            document.getElementById('popupDept').innerText = item.department || '-';
+            document.getElementById('popupIsbn').innerText = item.isbn || '-';
+            document.getElementById('popupPubStatus').innerText = item.publication_status || '-';
+            document.getElementById('popupEvalBadge').innerHTML = getStatusBadge(item.evaluation_status);
+            document.getElementById('popupNoteText').innerText = item.note || item.evaluation_status || 'ไม่มีข้อมูลเพิ่มเติม';
+
+            // Calculate Step Flow Info
+            const stepInfo = getEvaluationStepInfo(item.evaluation_status);
+            document.getElementById('popupProgressText').innerText = `${stepInfo.percentage}%`;
+
+            // Render 6 Steps horizontal timeline nodes (ภาพ 04)
+            const stepsContainer = document.getElementById('popupFlowStepsContainer');
+            stepsContainer.innerHTML = stepInfo.steps.map(step => {
+                const isCompleted = step.id < stepInfo.activeStepIndex || (stepInfo.activeStepIndex === 6);
+                const isCurrent = step.id === stepInfo.activeStepIndex && stepInfo.activeStepIndex !== 6;
+                
+                let circleClass = "bg-slate-200 text-slate-400"; // Pending / Inactive
+                let checkBadge = "";
+
+                if (isCompleted) {
+                    circleClass = "bg-emerald-500 text-white shadow-md shadow-emerald-500/20";
+                    checkBadge = `<div class="absolute -top-1 -right-1 bg-emerald-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-white"><i class="fa-solid fa-check"></i></div>`;
+                } else if (isCurrent) {
+                    circleClass = "bg-emerald-500 text-white ring-4 ring-emerald-100 shadow-md shadow-emerald-500/30 animate-pulse";
+                    checkBadge = `<div class="absolute -top-1 -right-1 bg-amber-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-white"><i class="fa-solid fa-clock"></i></div>`;
+                }
+
+                return `
+                    <div class="flex flex-col items-center group relative">
+                        <div class="relative w-11 h-11 sm:w-14 sm:h-14 rounded-full ${circleClass} flex items-center justify-center text-sm sm:text-xl transition-all duration-300">
+                            <i class="fa-solid ${step.icon}"></i>
+                            ${checkBadge}
+                        </div>
+                        <span class="mt-2 text-2xs sm:text-xs font-bold text-slate-700 leading-tight">
+                            ${step.title}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            openModal('detailModal');
+        }
+
+        function copyIsbnText() {
+            const isbnText = document.getElementById('popupIsbn').innerText;
+            if (isbnText && isbnText !== '-') {
+                navigator.clipboard.writeText(isbnText);
+                showToast(`คัดลอก ISBN (${isbnText}) เรียบร้อยแล้ว`);
             }
         }
 
@@ -1384,7 +1610,7 @@
                         <p class="text-2xs text-slate-400">ปี ${item.evaluation_year || '-'}</p>
                     </td>
                     <td class="py-3 px-4">
-                        <p class="font-bold text-slate-800 text-sm">${item.title || '-'}</p>
+                        <p class="font-bold text-slate-800 text-sm cursor-pointer hover:text-blue-600" onclick="openDetailModal(${item.id})">${item.title || '-'}</p>
                         <p class="text-xs text-slate-500">ประเภท: ${item.work_type || '-'} | ภาควิชา: ${item.department || '-'}</p>
                     </td>
                     <td class="py-3 px-4">${getStatusBadge(item.evaluation_status)}</td>
