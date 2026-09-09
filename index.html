@@ -1149,7 +1149,7 @@
         /**
          * Render Main Public Table / Mobile View Cards
          * Desktop: รหัสหนังสือ | สถานะประเมิน | รายละเอียดการประเมิน
-         * Mobile: Centered Card format with natural proportions, soft text colors for rows 3 & 4
+         * Mobile: Card format with soft light-gray header box for "รายละเอียดการประเมิน"
          */
         function renderHomeTable() {
             const tbody = document.getElementById('homeTableBody');
@@ -1166,7 +1166,7 @@
                 return;
             }
 
-            // 1. DESKTOP VIEW (Structure 100% Unchanged, font: 11px, icon: 10px, balanced spacing)
+            // 1. DESKTOP VIEW (Structure 100% Unchanged)
             tbody.innerHTML = filteredData.map(item => {
                 const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
@@ -1220,15 +1220,15 @@
                 </tr>
             `}).join('');
 
-            // 2. MOBILE VIEW (Layout proportioned with 11px text & 10px icons, balanced row spacing)
+            // 2. MOBILE VIEW (Enhanced with a distinct light gray header pill/box for "รายละเอียดการประเมิน")
             if (mobileContainer) {
                 mobileContainer.innerHTML = filteredData.map(item => {
                     const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
                     return `
-                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-2.5 transition-all">
-                        <!-- Top Header Title: Clean section label with natural size -->
-                        <div class="text-xs sm:text-sm font-bold text-slate-500 tracking-tight">
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-3 transition-all">
+                        <!-- Distinct Light Gray Box Header for "รายละเอียดการประเมิน" -->
+                        <div class="w-full bg-slate-100/90 border border-slate-200/70 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-600 tracking-tight text-center">
                             รายละเอียดการประเมิน
                         </div>
 
@@ -1237,7 +1237,7 @@
                             ${item.title || '-'}
                         </h3>
 
-                        <!-- Row 3: Author Line (Softer graphite text color) -->
+                        <!-- Row 3: Author Line -->
                         ${authorFull ? `
                             <div class="flex items-center justify-center space-x-2 text-xs sm:text-sm text-slate-500 font-medium">
                                 <i class="fa-solid fa-user-pen text-slate-400"></i>
@@ -1245,7 +1245,7 @@
                             </div>
                         ` : ''}
 
-                        <!-- Row 4: Department & Evaluation Year Row (11px text, 10px icon) -->
+                        <!-- Row 4: Department & Evaluation Year Row -->
                         <div class="flex items-center justify-center flex-wrap gap-x-3.5 gap-y-1 text-[11px] text-slate-400 font-normal">
                             ${item.department ? `
                                 <div class="flex items-center space-x-1">
@@ -1261,7 +1261,7 @@
                             ` : ''}
                         </div>
 
-                        <!-- Row 5: ISBN Line (11px text, 10px icon) -->
+                        <!-- Row 5: ISBN Line -->
                         ${item.isbn ? `
                             <div class="flex items-center justify-center space-x-1 text-[11px] text-slate-400 font-mono">
                                 <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
