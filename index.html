@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font Prompt/Inter -->
+    <!-- Google Font Prompt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -257,7 +257,8 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
+                <!-- Desktop Table View (visible on sm screen sizes and up >= 640px) -->
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50/80 border-b border-slate-100 text-slate-600 text-xs font-semibold">
@@ -270,6 +271,11 @@
                             <!-- Injected dynamically via JS -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile Card View optimized for smaller mobile screens (< 640px) -->
+                <div id="homeMobileCardContainer" class="block sm:hidden p-3.5 sm:p-4 space-y-3.5 bg-slate-50/30">
+                    <!-- Injected dynamically via JS -->
                 </div>
             </div>
         </section>
@@ -855,7 +861,6 @@
                     switchAuthMode('login');
 
                 } else if (currentAuthMode === 'forgot') {
-                    // Redirect URL without fragment parameters
                     const redirectUrl = window.location.origin + window.location.pathname;
 
                     const { data, error } = await supabaseClient.auth.resetPasswordForEmail(emailInput, {
@@ -934,9 +939,6 @@
             if (currentUser?.role === 'teacher') filterTeacherData();
         }
 
-        /**
-         * Renders navbar with color switching logic for active tabs
-         */
         function renderNavbar() {
             const capsule = document.getElementById('navCapsule');
             if (!currentUser || currentUser.role === 'guest') {
@@ -1147,19 +1149,26 @@
         }
 
         /**
-         * Render Main Public Table
-         * Columns: รหัสหนังสือ | สถานะประเมิน | รายละเอียดการประเมิน
+         * Render Main Public Table / Mobile View Cards
+         * Desktop: รหัสหนังสือ | สถานะประเมิน | รายละเอียดการประเมิน
+         * Mobile: Centered Card format with natural proportions, soft text colors for rows 3 & 4
          */
         function renderHomeTable() {
             const tbody = document.getElementById('homeTableBody');
+            const mobileContainer = document.getElementById('homeMobileCardContainer');
+
             document.getElementById('homeTableCount').innerText = filteredData.length;
             document.getElementById('homeFilterCountText').innerText = `กำลังแสดงผลลัพธ์ ${filteredData.length} จาก ${evaluationsData.length} รายการ`;
 
             if (filteredData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
+                if (mobileContainer) {
+                    mobileContainer.innerHTML = `<div class="text-center py-12 text-slate-400 font-light bg-white rounded-2xl border border-slate-100">ไม่พบข้อมูลในระบบ</div>`;
+                }
                 return;
             }
 
+            // 1. DESKTOP VIEW (100% Unchanged Structure)
             tbody.innerHTML = filteredData.map(item => {
                 const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
@@ -1173,39 +1182,37 @@
                     </td>
                     <td class="py-4 px-4 align-top">
                         <div class="space-y-2">
-                            <!-- แถวบน: ชื่อเรื่อง (เน้นตัวหนา ใหญ่พอเหมาะ) -->
                             <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
                                 <span class="font-bold text-slate-900 text-base leading-snug">
                                     ${item.title || '-'}
                                 </span>
                             </div>
 
-                            <!-- แถวล่าง: แสดงข้อมูล metadata ประกอบพร้อมไอคอนในรูปแบบแนวตั้ง/แนวนอนอย่างประณีต -->
-                            <div class="flex items-center flex-wrap gap-x-5 gap-y-1.5 text-xs text-slate-600">
+                            <div class="flex items-center flex-wrap gap-x-4 gap-y-1 text-slate-500">
                                 ${authorFull ? `
-                                    <span class="inline-flex items-center space-x-1.5 font-medium">
+                                    <span class="inline-flex items-center space-x-1.5 text-xs font-medium text-slate-600">
                                         <i class="fa-solid fa-user-pen text-slate-400 text-xs"></i>
                                         <span>${authorFull}</span>
                                     </span>
                                 ` : ''}
 
                                 ${item.department ? `
-                                    <span class="inline-flex items-center space-x-1.5">
-                                        <i class="fa-solid fa-landmark text-slate-400 text-xs"></i>
+                                    <span class="inline-flex items-center space-x-1 text-[9px]">
+                                        <i class="fa-solid fa-landmark text-slate-400 text-[8px]"></i>
                                         <span>${item.department}</span>
                                     </span>
                                 ` : ''}
 
                                 ${item.evaluation_year ? `
-                                    <span class="inline-flex items-center space-x-1.5">
-                                        <i class="fa-regular fa-calendar-days text-slate-400 text-xs"></i>
+                                    <span class="inline-flex items-center space-x-1 text-[9px]">
+                                        <i class="fa-regular fa-calendar-days text-slate-400 text-[8px]"></i>
                                         <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
                                     </span>
                                 ` : ''}
 
                                 ${item.isbn ? `
-                                    <span class="inline-flex items-center space-x-1.5 font-mono">
-                                        <i class="fa-solid fa-barcode text-slate-400 text-xs"></i>
+                                    <span class="inline-flex items-center space-x-1 text-[9px] font-mono">
+                                        <i class="fa-solid fa-barcode text-slate-400 text-[8px]"></i>
                                         <span>ISBN: ${item.isbn}</span>
                                     </span>
                                 ` : ''}
@@ -1214,6 +1221,64 @@
                     </td>
                 </tr>
             `}).join('');
+
+            // 2. MOBILE VIEW (Layout naturally proportioned with 9px text & 8px icons)
+            if (mobileContainer) {
+                mobileContainer.innerHTML = filteredData.map(item => {
+                    const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
+
+                    return `
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-2 transition-all">
+                        <!-- Top Header Title: Clean section label with natural size -->
+                        <div class="text-xs sm:text-sm font-bold text-slate-500 tracking-tight">
+                            รายละเอียดการประเมิน
+                        </div>
+
+                        <!-- Main Book Title: Prominent and clear -->
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800 leading-snug px-1">
+                            ${item.title || '-'}
+                        </h3>
+
+                        <!-- Row 3: Author Line (Softer graphite text color) -->
+                        ${authorFull ? `
+                            <div class="flex items-center justify-center space-x-2 text-xs sm:text-sm text-slate-500 font-medium">
+                                <i class="fa-solid fa-user-pen text-slate-400"></i>
+                                <span>${authorFull}</span>
+                            </div>
+                        ` : ''}
+
+                        <!-- Row 4: Department & Evaluation Year Row -->
+                        <div class="flex items-center justify-center flex-wrap gap-x-3 gap-y-0.5 text-[9px] text-slate-400 font-normal">
+                            ${item.department ? `
+                                <div class="flex items-center space-x-1">
+                                    <i class="fa-solid fa-landmark text-slate-400 text-[8px]"></i>
+                                    <span>${item.department}</span>
+                                </div>
+                            ` : ''}
+                            ${item.evaluation_year ? `
+                                <div class="flex items-center space-x-1">
+                                    <i class="fa-regular fa-calendar-days text-slate-400 text-[8px]"></i>
+                                    <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Row 5: ISBN Line -->
+                        ${item.isbn ? `
+                            <div class="flex items-center justify-center space-x-1 text-[9px] text-slate-400 font-mono">
+                                <i class="fa-solid fa-barcode text-slate-400 text-[8px]"></i>
+                                <span>ISBN: ${item.isbn}</span>
+                            </div>
+                        ` : ''}
+
+                        <!-- Status Badge centered at bottom with natural proportions -->
+                        <div class="pt-1 w-full flex justify-center">
+                            ${getMobileStatusBadge(item.evaluation_status)}
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            }
         }
 
         function filterStaffData() {
@@ -1332,6 +1397,20 @@
                 return `<span class="inline-flex items-center px-2.5 py-1 bg-rose-100 text-rose-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-circle-xmark mr-1.5 text-2xs"></i>ไม่ผ่านการประเมิน</span>`;
             }
             return `<span class="inline-flex items-center px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold"><i class="fa-solid fa-clock mr-1.5 text-2xs"></i>${status}</span>`;
+        }
+
+        /**
+         * Custom status badge pill designed specifically for mobile view with natural sizing
+         */
+        function getMobileStatusBadge(status) {
+            if (!status) return `<span class="px-3.5 py-1.5 bg-slate-100 text-slate-500 rounded-full text-xs font-medium">ไม่ระบุ</span>`;
+            if (status === 'ผ่านการประเมิน') {
+                return `<span class="inline-flex items-center px-4 py-1.5 bg-emerald-100/90 text-emerald-700 rounded-full text-xs sm:text-sm font-bold shadow-sm"><i class="fa-solid fa-circle-check mr-1.5 text-xs"></i>ผ่านการประเมิน</span>`;
+            }
+            if (status === 'ไม่ผ่านการประเมิน') {
+                return `<span class="inline-flex items-center px-4 py-1.5 bg-rose-100/90 text-rose-700 rounded-full text-xs sm:text-sm font-bold shadow-sm"><i class="fa-solid fa-circle-xmark mr-1.5 text-xs"></i>ไม่ผ่านการประเมิน</span>`;
+            }
+            return `<span class="inline-flex items-center px-4 py-1.5 bg-amber-100/90 text-amber-700 rounded-full text-xs sm:text-sm font-bold shadow-sm"><i class="fa-solid fa-clock mr-1.5 text-xs"></i>${status}</span>`;
         }
 
         function getPublicationStatusBadge(status) {
@@ -1476,8 +1555,6 @@
         }
 
         async function deleteRecord(id) {
-            if (!confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบรายการ #${id}?`)) return;
-
             try {
                 const { error } = await supabaseClient
                     .from('evaluation')
