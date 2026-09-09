@@ -321,7 +321,7 @@
                 </div>
             </div>
 
-            <!-- Staff Data Table -->
+            <!-- Staff Data Table Container -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex items-center justify-between">
                     <h3 class="font-bold text-base text-slate-800">รายการข้อมูลในระบบทั้งหมด</h3>
@@ -329,7 +329,9 @@
                         <span id="staffTableCount" class="text-blue-600 font-bold">0</span> รายการ
                     </span>
                 </div>
-                <div class="overflow-x-auto">
+                
+                <!-- Desktop Table View (Hidden on mobile) -->
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50/80 border-b border-slate-100 text-slate-600 text-xs font-semibold">
@@ -344,6 +346,11 @@
                             <!-- Injected dynamically via JS -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile Card Container for Staff (Block on mobile, Hidden on SM+) -->
+                <div id="staffMobileCardContainer" class="block sm:hidden p-3.5 sm:p-4 space-y-3.5 bg-slate-50/30">
+                    <!-- Injected dynamically via JS -->
                 </div>
             </div>
         </section>
@@ -1570,90 +1577,194 @@
             </a>`;
         }
 
+        /* --- UPDATED: STAFF TABLE RENDER (Supports both Desktop Table & Mobile Cards) --- */
         function renderStaffTable(dataList) {
             const tbody = document.getElementById('staffTableBody');
+            const mobileContainer = document.getElementById('staffMobileCardContainer');
             const countElem = document.getElementById('staffTableCount');
             if (countElem) countElem.innerText = dataList.length;
 
-            if (!tbody) return;
-
             if (dataList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-400 font-light">ไม่พบข้อมูลในระบบ</td></tr>`;
+                if (mobileContainer) mobileContainer.innerHTML = `<div class="text-center py-12 text-slate-400 font-light bg-white rounded-2xl border border-slate-100">ไม่พบข้อมูลในระบบ</div>`;
                 return;
             }
 
-            tbody.innerHTML = dataList.map(item => {
-                const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
+            /* 1. Desktop Table Body */
+            if (tbody) {
+                tbody.innerHTML = dataList.map(item => {
+                    const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
-                return `
-                <tr class="hover:bg-slate-50/80 transition-colors">
-                    <td class="py-3.5 px-4 font-bold text-blue-600 font-mono text-xs align-top cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
-                        ${item.book_code || '-'}
-                    </td>
-                    <td class="py-3.5 px-4 align-top cursor-pointer" onclick="openDetailModal(${item.id})">
-                        ${getStatusBadge(item.evaluation_status)}
-                    </td>
-                    <td class="py-3.5 px-4 align-top cursor-pointer group" onclick="openDetailModal(${item.id})">
-                        <div class="space-y-2">
-                            <div class="font-bold text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
-                                ${item.title || '-'}
+                    return `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3.5 px-4 font-bold text-blue-600 font-mono text-xs align-top cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
+                            ${item.book_code || '-'}
+                        </td>
+                        <td class="py-3.5 px-4 align-top cursor-pointer" onclick="openDetailModal(${item.id})">
+                            ${getStatusBadge(item.evaluation_status)}
+                        </td>
+                        <td class="py-3.5 px-4 align-top cursor-pointer group" onclick="openDetailModal(${item.id})">
+                            <div class="space-y-2">
+                                <div class="font-bold text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
+                                    ${item.title || '-'}
+                                </div>
+
+                                <div class="flex items-center flex-wrap gap-x-4 gap-y-1.5 text-slate-500">
+                                    ${authorFull ? `
+                                        <span class="inline-flex items-center space-x-1.5 text-xs font-medium text-slate-600">
+                                            <i class="fa-solid fa-user-pen text-slate-400 text-xs"></i>
+                                            <span>${authorFull}</span>
+                                        </span>
+                                    ` : ''}
+
+                                    ${item.department ? `
+                                        <span class="inline-flex items-center space-x-1 text-[11px]">
+                                            <i class="fa-solid fa-landmark text-slate-400 text-[10px]"></i>
+                                            <span>${item.department}</span>
+                                        </span>
+                                    ` : ''}
+
+                                    ${item.evaluation_year ? `
+                                        <span class="inline-flex items-center space-x-1 text-[11px]">
+                                            <i class="fa-regular fa-calendar-days text-slate-400 text-[10px]"></i>
+                                            <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
+                                        </span>
+                                    ` : ''}
+
+                                    ${item.isbn ? `
+                                        <span class="inline-flex items-center space-x-1 text-[11px] font-mono">
+                                            <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
+                                            <span>ISBN: ${item.isbn}</span>
+                                        </span>
+                                    ` : ''}
+                                </div>
                             </div>
+                        </td>
 
-                            <div class="flex items-center flex-wrap gap-x-4 gap-y-1.5 text-slate-500">
-                                ${authorFull ? `
-                                    <span class="inline-flex items-center space-x-1.5 text-xs font-medium text-slate-600">
-                                        <i class="fa-solid fa-user-pen text-slate-400 text-xs"></i>
-                                        <span>${authorFull}</span>
-                                    </span>
-                                ` : ''}
+                        <td class="py-3.5 px-4 align-top">
+                            <div class="flex items-center space-x-1.5">
+                                ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
+                                ${getFileIconButton(item.file_cover_url, 'ปกหนังสือ', 'fa-solid fa-image', 'bg-purple-50 hover:bg-purple-100 text-purple-600')}
+                                ${getFileIconButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-solid fa-file-circle-check', 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600')}
+                            </div>
+                        </td>
 
-                                ${item.department ? `
-                                    <span class="inline-flex items-center space-x-1 text-[11px]">
-                                        <i class="fa-solid fa-landmark text-slate-400 text-[10px]"></i>
-                                        <span>${item.department}</span>
-                                    </span>
-                                ` : ''}
+                        <td class="py-3.5 px-4 text-center align-top">
+                            <div class="flex items-center justify-center space-x-1.5">
+                                <button onclick="openDetailModal(${item.id})" title="ดูขั้นตอนการดำเนินงาน" class="w-8 h-8 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-600 flex items-center justify-center transition-colors">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                <button onclick="openEditModal(${item.id})" title="แก้ไขข้อมูล" class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 flex items-center justify-center transition-colors">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteRecord(${item.id})" title="ลบข้อมูล" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition-colors">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `}).join('');
+            }
 
-                                ${item.evaluation_year ? `
-                                    <span class="inline-flex items-center space-x-1 text-[11px]">
-                                        <i class="fa-regular fa-calendar-days text-slate-400 text-[10px]"></i>
-                                        <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
-                                    </span>
-                                ` : ''}
+            /* 2. Staff Mobile View (Card Style layout matching Image 02 with ALL staff functions preserved) */
+            if (mobileContainer) {
+                mobileContainer.innerHTML = dataList.map(item => {
+                    const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
-                                ${item.isbn ? `
-                                    <span class="inline-flex items-center space-x-1 text-[11px] font-mono">
-                                        <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
-                                        <span>ISBN: ${item.isbn}</span>
-                                    </span>
-                                ` : ''}
+                    return `
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-3.5 transition-all">
+                        
+                        <!-- Center Header Badge: "รายละเอียดการประเมิน" -->
+                        <div class="w-full bg-slate-100/90 border border-slate-200/70 py-2 px-3 rounded-xl text-xs font-bold text-slate-700 tracking-tight flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-circle-info text-blue-500 text-xs"></i>
+                            <span>รายละเอียดการประเมิน</span>
+                        </div>
+
+                        ${item.book_code ? `
+                            <span class="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-200/60 rounded-full text-xs font-bold font-mono tracking-wide cursor-pointer hover:underline" onclick="openDetailModal(${item.id})">
+                                ${item.book_code}
+                            </span>
+                        ` : ''}
+
+                        <!-- Book Title -->
+                        <h3 class="text-base font-bold text-slate-900 leading-snug px-2 cursor-pointer hover:text-blue-600 transition-colors" onclick="openDetailModal(${item.id})">
+                            ${item.title || '-'}
+                        </h3>
+
+                        <!-- Author Name -->
+                        ${authorFull ? `
+                            <div class="flex items-center justify-center space-x-1.5 text-xs text-slate-600 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                <i class="fa-solid fa-user-pen text-blue-500 text-xs"></i>
+                                <span>${authorFull}</span>
+                            </div>
+                        ` : ''}
+
+                        <!-- Details Pills (Dept, Year, ISBN) -->
+                        <div class="flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-slate-500 font-normal w-full">
+                            ${item.department ? `
+                                <span class="inline-flex items-center space-x-1 bg-slate-100/80 px-2.5 py-1 rounded-lg text-slate-600">
+                                    <i class="fa-solid fa-landmark text-slate-400 text-[10px]"></i>
+                                    <span>${item.department}</span>
+                                </span>
+                            ` : ''}
+                            ${item.evaluation_year ? `
+                                <span class="inline-flex items-center space-x-1 bg-slate-100/80 px-2.5 py-1 rounded-lg text-slate-600">
+                                    <i class="fa-regular fa-calendar-days text-slate-400 text-[10px]"></i>
+                                    <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
+                                </span>
+                            ` : ''}
+                            ${item.isbn ? `
+                                <span class="inline-flex items-center space-x-1 bg-slate-100/80 px-2.5 py-1 rounded-lg text-slate-600 font-mono">
+                                    <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
+                                    <span>ISBN: ${item.isbn}</span>
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <!-- Status Badge -->
+                        <div class="pt-1 w-full flex justify-center">
+                            ${getMobileStatusBadge(item.evaluation_status)}
+                        </div>
+
+                        <!-- File Downloads Section (ไฟล์ดาวน์โหลด) -->
+                        <div class="w-full pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-600 flex items-center space-x-1">
+                                <i class="fa-solid fa-download text-slate-400"></i>
+                                <span>ไฟล์ดาวน์โหลด</span>
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
+                                ${getFileIconButton(item.file_cover_url, 'ปกหนังสือ', 'fa-solid fa-image', 'bg-purple-50 hover:bg-purple-100 text-purple-600')}
+                                ${getFileIconButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-solid fa-file-circle-check', 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600')}
                             </div>
                         </div>
-                    </td>
 
-                    <td class="py-3.5 px-4 align-top">
-                        <div class="flex items-center space-x-1.5">
-                            ${getFileIconButton(item.file_original_url, 'ต้นฉบับ', 'fa-solid fa-file-lines', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
-                            ${getFileIconButton(item.file_cover_url, 'ปกหนังสือ', 'fa-solid fa-image', 'bg-purple-50 hover:bg-purple-100 text-purple-600')}
-                            ${getFileIconButton(item.file_eval_report_url, 'ผลประเมิน', 'fa-solid fa-file-circle-check', 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600')}
+                        <!-- Actions Section (จัดการ) -->
+                        <div class="w-full pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-600 flex items-center space-x-1">
+                                <i class="fa-solid fa-sliders text-slate-400"></i>
+                                <span>จัดการ</span>
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="openDetailModal(${item.id})" title="ดูขั้นตอนการดำเนินงาน" class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs font-medium flex items-center space-x-1 transition-colors">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>ดู</span>
+                                </button>
+                                <button onclick="openEditModal(${item.id})" title="แก้ไขข้อมูล" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-600 text-xs font-medium flex items-center space-x-1 transition-colors">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>แก้ไข</span>
+                                </button>
+                                <button onclick="deleteRecord(${item.id})" title="ลบข้อมูล" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-medium flex items-center space-x-1 transition-colors">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    <span>ลบ</span>
+                                </button>
+                            </div>
                         </div>
-                    </td>
 
-                    <td class="py-3.5 px-4 text-center align-top">
-                        <div class="flex items-center justify-center space-x-1.5">
-                            <button onclick="openDetailModal(${item.id})" title="ดูขั้นตอนการดำเนินงาน" class="w-8 h-8 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-600 flex items-center justify-center transition-colors">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <button onclick="openEditModal(${item.id})" title="แก้ไขข้อมูล" class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 flex items-center justify-center transition-colors">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="deleteRecord(${item.id})" title="ลบข้อมูล" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition-colors">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
+                    </div>
+                    `;
+                }).join('');
+            }
         }
 
         function filterTeacherData() {
@@ -1855,7 +1966,7 @@
                 evaluation_year: parseInt(document.getElementById('formYear').value) || null,
                 academic_position: document.getElementById('formAcademicPos').value.trim(),
                 author_name: document.getElementById('formAuthorName').value.trim(),
-                email: document.getElementById('formAuthorEmail').value.trim(),
+                email: document.getElementById('formAuthorEmail').value.trim().toLowerCase(),
                 work_type: document.getElementById('formWorkType').value,
                 book_code: document.getElementById('formBookCode').value.trim(),
                 department: document.getElementById('formDepartment').value.trim(),
@@ -1867,7 +1978,7 @@
                 note: document.getElementById('formNote').value.trim() || null,
                 file_original_url: document.getElementById('formFileOriginal').value.trim() || null,
                 file_cover_url: document.getElementById('formFileCover').value.trim() || null,
-                file_eval_report_url: document.getElementById('formFileEvalReport').value.trim() || null
+                file_eval_report_url: document.getElementById('formFileEvalReport').value.trim() || null,
             };
 
             try {
@@ -1877,25 +1988,25 @@
                         .update(payload)
                         .eq('id', editId);
                     if (error) throw error;
-                    showToast('แก้ไขข้อมูลเรียบร้อยแล้ว');
+                    showToast('แก้ไขข้อมูลผลงานเรียบร้อยแล้ว');
                 } else {
                     const { error } = await supabaseClient
                         .from('evaluation')
                         .insert([payload]);
                     if (error) throw error;
-                    showToast('เพิ่มข้อมูลใหม่เรียบร้อยแล้ว');
+                    showToast('เพิ่มผลงานใหม่เข้าสู่ระบบเรียบร้อยแล้ว');
                 }
 
                 closeModal('editModal');
                 fetchEvaluations();
             } catch (err) {
-                console.error('Save error:', err);
-                showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message, 'error');
+                console.error('Submit error:', err);
+                showToast('ไม่สามารถบันทึกข้อมูลได้: ' + err.message, 'error');
             }
         }
 
         async function deleteRecord(id) {
-            if (!confirm('คุณต้องการลบรายการนี้ใช่หรือไม่?')) return;
+            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้ออกจากระบบ?')) return;
 
             try {
                 const { error } = await supabaseClient
@@ -1904,11 +2015,12 @@
                     .eq('id', id);
 
                 if (error) throw error;
+
                 showToast('ลบข้อมูลเรียบร้อยแล้ว');
                 fetchEvaluations();
             } catch (err) {
                 console.error('Delete error:', err);
-                showToast('เกิดข้อผิดพลาดในการลบข้อมูล: ' + err.message, 'error');
+                showToast('ไม่สามารถลบข้อมูลได้: ' + err.message, 'error');
             }
         }
 
@@ -1918,50 +2030,22 @@
                 return;
             }
 
-            const headers = ['id', 'book_code', 'evaluation_year', 'author_name', 'academic_position', 'email', 'department', 'title', 'work_type', 'evaluation_status', 'publication_status', 'isbn', 'vps_no'];
-            const csvRows = [headers.join(',')];
+            const headers = ['id', 'book_code', 'title', 'author_name', 'academic_position', 'email', 'department', 'evaluation_year', 'evaluation_status', 'publication_status', 'isbn', 'vps_no'];
+            const rows = evaluationsData.map(item => headers.map(header => `"${(item[header] || '').toString().replace(/"/g, '""')}"`).join(','));
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
 
-            evaluationsData.forEach(item => {
-                const row = headers.map(header => {
-                    let val = item[header] === null || item[header] === undefined ? '' : String(item[header]);
-                    val = val.replace(/"/g, '""');
-                    return `"${val}"`;
-                });
-                csvRows.push(row.join(','));
-            });
-
-            const csvString = '\uFEFF' + csvRows.join('\n');
-            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `evaluations_export_${new Date().toISOString().slice(0,10)}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('ดาวน์โหลด CSV เรียบร้อยแล้ว');
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `evaluations_export_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        // --- App Initialization ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Check initial auth state
-            const { data } = await supabaseClient.auth.getSession();
-            if (data?.session?.user) {
-                const user = data.session.user;
-                currentUser = {
-                    email: user.email,
-                    role: user.user_metadata?.role || (user.email === STAFF_EMAIL ? 'staff' : 'teacher'),
-                    id: user.id
-                };
-            } else {
-                currentUser = { email: '', role: 'guest' };
-            }
-
-            // Handle password reset redirect hash
-            if (window.location.hash && window.location.hash.includes('type=recovery')) {
-                openModal('loginModal');
-                switchAuthMode('reset');
-            }
-
+        // --- Init App ---
+        document.addEventListener('DOMContentLoaded', () => {
             fetchEvaluations();
         });
     </script>
