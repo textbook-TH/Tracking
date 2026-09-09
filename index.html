@@ -158,7 +158,6 @@
                 </div>
             </div>
 
-            <!-- Middle Charts & Filter Section -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Left Donut Chart Card -->
                 <div class="lg:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
@@ -239,7 +238,6 @@
                 </div>
             </div>
 
-            <!-- Public Data Table Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
@@ -1168,7 +1166,7 @@
                 return;
             }
 
-            // 1. DESKTOP VIEW (100% Unchanged Structure)
+            // 1. DESKTOP VIEW (Structure 100% Unchanged, font: 11px, icon: 10px, balanced spacing)
             tbody.innerHTML = filteredData.map(item => {
                 const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
@@ -1188,7 +1186,7 @@
                                 </span>
                             </div>
 
-                            <div class="flex items-center flex-wrap gap-x-4 gap-y-1 text-slate-500">
+                            <div class="flex items-center flex-wrap gap-x-4 gap-y-1.5 text-slate-500">
                                 ${authorFull ? `
                                     <span class="inline-flex items-center space-x-1.5 text-xs font-medium text-slate-600">
                                         <i class="fa-solid fa-user-pen text-slate-400 text-xs"></i>
@@ -1197,22 +1195,22 @@
                                 ` : ''}
 
                                 ${item.department ? `
-                                    <span class="inline-flex items-center space-x-1 text-[9px]">
-                                        <i class="fa-solid fa-landmark text-slate-400 text-[8px]"></i>
+                                    <span class="inline-flex items-center space-x-1 text-[11px]">
+                                        <i class="fa-solid fa-landmark text-slate-400 text-[10px]"></i>
                                         <span>${item.department}</span>
                                     </span>
                                 ` : ''}
 
                                 ${item.evaluation_year ? `
-                                    <span class="inline-flex items-center space-x-1 text-[9px]">
-                                        <i class="fa-regular fa-calendar-days text-slate-400 text-[8px]"></i>
+                                    <span class="inline-flex items-center space-x-1 text-[11px]">
+                                        <i class="fa-regular fa-calendar-days text-slate-400 text-[10px]"></i>
                                         <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
                                     </span>
                                 ` : ''}
 
                                 ${item.isbn ? `
-                                    <span class="inline-flex items-center space-x-1 text-[9px] font-mono">
-                                        <i class="fa-solid fa-barcode text-slate-400 text-[8px]"></i>
+                                    <span class="inline-flex items-center space-x-1 text-[11px] font-mono">
+                                        <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
                                         <span>ISBN: ${item.isbn}</span>
                                     </span>
                                 ` : ''}
@@ -1222,13 +1220,13 @@
                 </tr>
             `}).join('');
 
-            // 2. MOBILE VIEW (Layout naturally proportioned with 9px text & 8px icons)
+            // 2. MOBILE VIEW (Layout proportioned with 11px text & 10px icons, balanced row spacing)
             if (mobileContainer) {
                 mobileContainer.innerHTML = filteredData.map(item => {
                     const authorFull = `${item.academic_position || ''} ${item.author_name || ''}`.trim();
 
                     return `
-                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-2 transition-all">
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col items-center text-center space-y-2.5 transition-all">
                         <!-- Top Header Title: Clean section label with natural size -->
                         <div class="text-xs sm:text-sm font-bold text-slate-500 tracking-tight">
                             รายละเอียดการประเมิน
@@ -1247,26 +1245,26 @@
                             </div>
                         ` : ''}
 
-                        <!-- Row 4: Department & Evaluation Year Row -->
-                        <div class="flex items-center justify-center flex-wrap gap-x-3 gap-y-0.5 text-[9px] text-slate-400 font-normal">
+                        <!-- Row 4: Department & Evaluation Year Row (11px text, 10px icon) -->
+                        <div class="flex items-center justify-center flex-wrap gap-x-3.5 gap-y-1 text-[11px] text-slate-400 font-normal">
                             ${item.department ? `
                                 <div class="flex items-center space-x-1">
-                                    <i class="fa-solid fa-landmark text-slate-400 text-[8px]"></i>
+                                    <i class="fa-solid fa-landmark text-slate-400 text-[10px]"></i>
                                     <span>${item.department}</span>
                                 </div>
                             ` : ''}
                             ${item.evaluation_year ? `
                                 <div class="flex items-center space-x-1">
-                                    <i class="fa-regular fa-calendar-days text-slate-400 text-[8px]"></i>
+                                    <i class="fa-regular fa-calendar-days text-slate-400 text-[10px]"></i>
                                     <span>ปีที่ประเมิน: ${item.evaluation_year}</span>
                                 </div>
                             ` : ''}
                         </div>
 
-                        <!-- Row 5: ISBN Line -->
+                        <!-- Row 5: ISBN Line (11px text, 10px icon) -->
                         ${item.isbn ? `
-                            <div class="flex items-center justify-center space-x-1 text-[9px] text-slate-400 font-mono">
-                                <i class="fa-solid fa-barcode text-slate-400 text-[8px]"></i>
+                            <div class="flex items-center justify-center space-x-1 text-[11px] text-slate-400 font-mono">
+                                <i class="fa-solid fa-barcode text-slate-400 text-[10px]"></i>
                                 <span>ISBN: ${item.isbn}</span>
                             </div>
                         ` : ''}
